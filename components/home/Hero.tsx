@@ -1,7 +1,6 @@
 "use client";
 
 import * as React from "react";
-import Image from "next/image";
 import { motion, useScroll, useTransform } from "framer-motion";
 
 import { KenBurns } from "@/components/animations/KenBurns";
@@ -22,7 +21,6 @@ export function Hero({ className, introReveal = true, staggerProfile = "default"
   const reduced = useReducedMotion();
   const { scrollY } = useScroll();
   const y = useTransform(scrollY, (value) => (reduced ? 0 : value * 0.15));
-  const [videoReady, setVideoReady] = React.useState(false);
 
   const ready = reduced || introReveal;
   const delays = staggerProfile === "afterSplash" ? HERO_AFTER_SPLASH_DELAYS : HERO_ENTRY.delays;
@@ -44,51 +42,20 @@ export function Hero({ className, introReveal = true, staggerProfile = "default"
             <div
               className={[
                 "hero-mn__media absolute inset-0",
-                reduced ? "bg-carbon" : "hero-mn__media--video",
+                "hero-mn__media--video",
               ].join(" ")}
             >
-              {reduced ? (
-                <Image
-                  src={IMAGES.hero.src}
-                  alt={IMAGES.hero.alt}
-                  fill
-                  priority
-                  sizes="100vw"
-                  className="object-cover"
-                />
-              ) : (
-                <>
-                  <Image
-                    src={IMAGES.hero.src}
-                    alt=""
-                    fill
-                    loading="lazy"
-                    sizes="100vw"
-                    className={[
-                      "hidden object-cover transition-opacity duration-700 ease-out md:block",
-                      videoReady ? "opacity-0" : "opacity-100",
-                    ].join(" ")}
-                    aria-hidden
-                  />
-                  <video
-                    className={[
-                      "absolute inset-0 z-1 h-full w-full object-cover transition-opacity duration-700 ease-out",
-                      videoReady ? "opacity-100" : "opacity-0",
-                    ].join(" ")}
-                    autoPlay
-                    muted
-                    loop
-                    playsInline
-                    preload="auto"
-                    aria-hidden="true"
-                    onLoadedData={() => setVideoReady(true)}
-                    onCanPlay={() => setVideoReady(true)}
-                    onPlaying={() => setVideoReady(true)}
-                  >
-                    <source src={IMAGES.hero.videoSrc} type="video/mp4" />
-                  </video>
-                </>
-              )}
+              <video
+                className="absolute inset-0 z-1 h-full w-full object-cover"
+                autoPlay
+                muted
+                loop
+                playsInline
+                preload="auto"
+                aria-hidden="true"
+              >
+                <source src={IMAGES.hero.videoSrc} type="video/mp4" />
+              </video>
             </div>
           </KenBurns>
         </div>

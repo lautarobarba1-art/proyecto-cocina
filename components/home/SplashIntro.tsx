@@ -1,9 +1,9 @@
 "use client";
 
 import * as React from "react";
-import Image from "next/image";
 import { motion } from "framer-motion";
 
+import { Logotype } from "@/components/brand/Logotype";
 import { EASE, SPLASH_INTRO } from "@/lib/motion";
 import { useReducedMotion } from "@/lib/useReducedMotion";
 
@@ -68,15 +68,9 @@ export function SplashIntro({ onComplete }: SplashIntroProps) {
           ease: EASE.soft,
         }}
       >
-        <Image
-          src="/imagenes/logo.png"
-          alt=""
-          width={339}
-          height={339}
-          priority
-          sizes="(max-width: 768px) 72vw, 320px"
-          className="h-auto w-[clamp(11rem,42vw,20rem)] max-w-[min(90vw,20rem)] select-none"
-        />
+        <h1 className="hero-mn__title select-none">
+          <Logotype variant="onDark" />
+        </h1>
       </motion.div>
     </motion.div>
   );
