@@ -1,0 +1,1420 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Menesteres — Design System v1</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Inter:wght@400;500;600;700&family=Caveat:wght@400;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+  /* ============================================
+     DESIGN TOKENS — globals/tokens.css
+  ============================================ */
+  :root {
+    /* Terracota — color institucional Menesteres */
+    --mn-terracota:        #B84A26;
+    --mn-terracota-deep:   #8B3818;
+    --mn-terracota-soft:   #D8714F;
+    --mn-terracota-muted:  #F2D9CC;
+
+    /* Negro carbón — segundo color */
+    --mn-carbon:           #1A1614;
+    --mn-carbon-soft:      #2D2520;
+
+    /* Crema lino — base cálida */
+    --mn-crema:            #F0E6D2;
+    --mn-crema-deep:       #E5D8BD;
+    --mn-crema-light:      #F8F2E4;
+
+    /* Acento de verdura/hierba — para detalles muy puntuales */
+    --mn-oliva:            #5C6B3E;
+
+    /* Tipografías */
+    --font-display: 'Fraunces', Georgia, serif;       /* títulos editoriales */
+    --font-body:    'Inter', system-ui, sans-serif;    /* cuerpo y UI */
+    --font-script:  'Caveat', cursive;                 /* manuscrita acentos */
+    --font-mono:    'JetBrains Mono', monospace;       /* metadata, fechas */
+
+    /* Radios — bordes mínimos, casi rectos (estilo editorial) */
+    --radius-sm:   2px;
+    --radius-md:   3px;
+    --radius-lg:   4px;
+    --radius-pill: 999px;
+
+    /* Sombras — sutiles, papel sobre papel */
+    --shadow-paper: 4px 6px 0 rgba(26,22,20,0.12);
+    --shadow-card:  0 2px 12px rgba(26,22,20,0.08);
+    --shadow-deep:  0 12px 32px rgba(26,22,20,0.18);
+
+    --ease-snap:   cubic-bezier(0.25,0.46,0.45,0.94);
+    --ease-soft:   cubic-bezier(0.4,0,0.2,1);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: var(--font-body);
+    background: var(--mn-crema);
+    color: var(--mn-carbon);
+    line-height: 1.6;
+    overflow-x: hidden;
+    /* textura sutil de papel */
+    background-image:
+      radial-gradient(circle at 20% 30%, rgba(184,74,38,0.025) 1px, transparent 2px),
+      radial-gradient(circle at 70% 60%, rgba(26,22,20,0.02) 1px, transparent 2px);
+    background-size: 8px 8px, 14px 14px;
+  }
+
+  /* ============================================
+     SHOWCASE LAYOUT
+  ============================================ */
+  .ds-page { max-width: 1100px; margin: 0 auto; padding: 4rem 1.5rem; }
+  .ds-section { margin-bottom: 6rem; }
+
+  .ds-label {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--mn-terracota);
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  .ds-label::before {
+    content: '';
+    display: inline-block;
+    width: 24px; height: 1px;
+    background: var(--mn-terracota);
+  }
+
+  /* ============================================
+     PAGE HEADER
+  ============================================ */
+  .ds-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 2rem;
+    margin-bottom: 5rem;
+    padding-bottom: 3rem;
+    border-bottom: 1px dashed var(--mn-carbon);
+  }
+
+  .ds-header-meta {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    color: var(--mn-carbon);
+    opacity: 0.6;
+    margin-bottom: 1rem;
+  }
+
+  .ds-header-title {
+    font-family: var(--font-display);
+    font-size: clamp(2.5rem,6vw,4.5rem);
+    color: var(--mn-carbon);
+    line-height: 0.95;
+    margin-bottom: 0.5rem;
+    font-weight: 400;
+    letter-spacing: -0.02em;
+  }
+
+  .ds-header-title em {
+    font-style: italic;
+    color: var(--mn-terracota);
+  }
+
+  .ds-header-sub {
+    font-size: 1rem;
+    color: var(--mn-carbon-soft);
+    max-width: 420px;
+    opacity: 0.75;
+  }
+
+  .logo-block {
+    background: var(--mn-terracota);
+    padding: 2rem 2.5rem;
+    border-radius: var(--radius-md);
+    text-align: center;
+    flex-shrink: 0;
+    min-width: 200px;
+    box-shadow: var(--shadow-paper);
+  }
+
+  .logo-block .est {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    font-weight: 500;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--mn-crema);
+    opacity: 0.7;
+    margin-bottom: 0.5rem;
+  }
+
+  .logo-block .name {
+    font-family: var(--font-display);
+    font-size: 1.6rem;
+    color: var(--mn-crema);
+    line-height: 1;
+    letter-spacing: 0.08em;
+    font-weight: 400;
+  }
+
+  .logo-block .name em {
+    font-style: italic;
+    color: var(--mn-crema);
+    opacity: 0.85;
+  }
+
+  /* ============================================
+     ANIMACIONES
+  ============================================ */
+  @keyframes float-soft {
+    0%,100% { transform: translateY(0) rotate(0deg); }
+    50%     { transform: translateY(-6px) rotate(-1deg); }
+  }
+
+  @keyframes ink-fade {
+    0%   { opacity: 0; transform: translateY(8px); }
+    100% { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ============================================
+     HERO PREVIEW
+  ============================================ */
+  .hero-preview {
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    position: relative;
+    aspect-ratio: 16/8;
+    min-height: 460px;
+    background: var(--mn-carbon);
+    box-shadow: var(--shadow-deep);
+  }
+
+  .hero-bg {
+    position: absolute;
+    inset: 0;
+    background-image: url('https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=1400&q=90');
+    background-size: cover;
+    background-position: center;
+    filter: saturate(0.85) brightness(0.95);
+  }
+
+  .hero-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      180deg,
+      rgba(26,22,20,0.35) 0%,
+      rgba(26,22,20,0.15) 40%,
+      rgba(26,22,20,0.55) 100%
+    );
+  }
+
+  .hero-meta-top {
+    position: absolute;
+    top: 1.5rem;
+    left: 0; right: 0;
+    padding: 0 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    color: var(--mn-crema);
+    opacity: 0.85;
+  }
+
+  .hero-content {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 0 2rem;
+  }
+
+  .hero-eyebrow {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.4em;
+    color: var(--mn-crema);
+    opacity: 0.85;
+    margin-bottom: 1.25rem;
+  }
+
+  .hero-title {
+    font-family: var(--font-display);
+    font-size: clamp(3.5rem, 9vw, 7rem);
+    color: var(--mn-crema);
+    line-height: 0.9;
+    letter-spacing: 0.04em;
+    font-weight: 400;
+  }
+
+  .hero-title em {
+    font-style: italic;
+    color: var(--mn-terracota-soft);
+  }
+
+  .hero-tagline {
+    margin-top: 1.5rem;
+    font-family: var(--font-script);
+    font-size: 1.5rem;
+    color: var(--mn-crema);
+    opacity: 0.95;
+  }
+
+  .hero-scroll {
+    position: absolute;
+    bottom: 1.5rem;
+    left: 50%;
+    transform: translateX(-50%);
+    color: var(--mn-crema);
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.3em;
+    opacity: 0.7;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .hero-scroll-line {
+    width: 1px; height: 32px;
+    background: var(--mn-crema);
+    opacity: 0.6;
+  }
+
+  /* ============================================
+     TIPOGRAFÍA SPECIMEN
+  ============================================ */
+  .type-specimen {
+    background: var(--mn-crema-light);
+    border: 1px solid rgba(26,22,20,0.12);
+    border-radius: var(--radius-md);
+    padding: 2.5rem;
+  }
+
+  .type-meta {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--mn-carbon);
+    opacity: 0.5;
+    margin-bottom: 0.75rem;
+  }
+
+  .type-divider {
+    border-top: 1px dashed rgba(26,22,20,0.2);
+    margin: 2rem 0;
+  }
+
+  .type-display-xl {
+    font-family: var(--font-display);
+    font-size: 5rem;
+    line-height: 0.95;
+    color: var(--mn-carbon);
+    font-weight: 400;
+    letter-spacing: -0.02em;
+  }
+  .type-display-xl em {
+    font-style: italic;
+    color: var(--mn-terracota);
+  }
+
+  .type-display-l {
+    font-family: var(--font-display);
+    font-size: 3rem;
+    line-height: 1;
+    color: var(--mn-carbon);
+    font-weight: 400;
+  }
+
+  .type-display-m {
+    font-family: var(--font-display);
+    font-size: 1.75rem;
+    line-height: 1.2;
+    color: var(--mn-carbon);
+    font-style: italic;
+    font-weight: 400;
+  }
+
+  .type-body-l {
+    font-family: var(--font-body);
+    font-size: 1.125rem;
+    line-height: 1.7;
+    color: var(--mn-carbon);
+    max-width: 580px;
+  }
+
+  .type-body {
+    font-family: var(--font-body);
+    font-size: 1rem;
+    line-height: 1.6;
+    color: var(--mn-carbon);
+    max-width: 580px;
+  }
+
+  .type-mono {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    letter-spacing: 0.1em;
+    color: var(--mn-carbon);
+    opacity: 0.75;
+  }
+
+  .type-script {
+    font-family: var(--font-script);
+    font-size: 2.25rem;
+    color: var(--mn-terracota);
+    line-height: 1;
+  }
+
+  /* ============================================
+     PALETA DE COLORES
+  ============================================ */
+  .color-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px,1fr));
+    gap: 1rem;
+  }
+
+  .swatch {
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    background: var(--mn-crema-light);
+    border: 1px solid rgba(26,22,20,0.1);
+    transition: transform 250ms var(--ease-snap);
+  }
+  .swatch:hover { transform: translateY(-3px); }
+
+  .swatch-fill { height: 90px; }
+
+  .swatch-info {
+    padding: 0.75rem 1rem 1rem;
+  }
+
+  .swatch-role {
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--mn-carbon);
+    opacity: 0.5;
+    margin-bottom: 0.25rem;
+  }
+
+  .swatch-name {
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: 1rem;
+    color: var(--mn-carbon);
+    display: block;
+    margin-bottom: 0.25rem;
+  }
+
+  .swatch-val {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--mn-carbon);
+    opacity: 0.65;
+  }
+
+  /* ============================================
+     BOTONES
+  ============================================ */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    border: none;
+    cursor: pointer;
+    border-radius: var(--radius-sm);
+    padding: 0.85rem 1.75rem;
+    transition: all 200ms var(--ease-snap);
+    text-decoration: none;
+    line-height: 1.2;
+  }
+
+  .btn-primary {
+    background: var(--mn-terracota);
+    color: var(--mn-crema);
+  }
+  .btn-primary:hover {
+    background: var(--mn-terracota-deep);
+    transform: translateY(-1px);
+  }
+
+  .btn-dark {
+    background: var(--mn-carbon);
+    color: var(--mn-crema);
+  }
+  .btn-dark:hover {
+    background: var(--mn-carbon-soft);
+    transform: translateY(-1px);
+  }
+
+  .btn-outline {
+    background: transparent;
+    color: var(--mn-carbon);
+    border: 1px solid var(--mn-carbon);
+  }
+  .btn-outline:hover {
+    background: var(--mn-carbon);
+    color: var(--mn-crema);
+  }
+
+  .btn-outline-light {
+    background: transparent;
+    color: var(--mn-crema);
+    border: 1px solid rgba(240,230,210,0.5);
+  }
+  .btn-outline-light:hover {
+    border-color: var(--mn-crema);
+    background: rgba(240,230,210,0.08);
+  }
+
+  .btn-text {
+    background: transparent;
+    color: var(--mn-terracota);
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--mn-terracota);
+    border-radius: 0;
+  }
+  .btn-text:hover { letter-spacing: 0.2em; }
+
+  .btn-lg { font-size: 0.85rem; padding: 1rem 2.5rem; }
+  .btn-sm { font-size: 0.7rem; padding: 0.6rem 1.25rem; }
+
+  .btn-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    align-items: center;
+    margin-bottom: 1.5rem;
+  }
+
+  /* ============================================
+     BADGES / STICKERS
+  ============================================ */
+  .badge-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    font-weight: 500;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 0.3rem 0.75rem;
+    border-radius: var(--radius-sm);
+  }
+
+  .badge-terracota {
+    background: var(--mn-terracota);
+    color: var(--mn-crema);
+  }
+
+  .badge-dark {
+    background: var(--mn-carbon);
+    color: var(--mn-crema);
+  }
+
+  .badge-outline {
+    background: transparent;
+    color: var(--mn-carbon);
+    border: 1px solid var(--mn-carbon);
+  }
+
+  .badge-soft {
+    background: var(--mn-terracota-muted);
+    color: var(--mn-terracota-deep);
+  }
+
+  /* Sticker — más editorial, rotado */
+  .sticker {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: var(--font-script);
+    font-size: 1.25rem;
+    color: var(--mn-terracota);
+    transform: rotate(-3deg);
+    padding: 0.25rem 0.5rem;
+  }
+
+  .sticker-dark {
+    color: var(--mn-carbon);
+  }
+
+  .sticker-tag {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    background: var(--mn-carbon);
+    color: var(--mn-crema);
+    padding: 0.4rem 0.9rem;
+    transform: rotate(2deg);
+    display: inline-block;
+  }
+
+  /* ============================================
+     CARDS — Clases preview (estilo editorial-fanzine)
+  ============================================ */
+  .clase-card {
+    background: var(--mn-crema-light);
+    border: 1px solid rgba(26,22,20,0.12);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    transition: transform 250ms var(--ease-snap);
+    position: relative;
+  }
+  .clase-card:hover { transform: translateY(-4px); }
+
+  .clase-card-img {
+    width: 100%;
+    height: 220px;
+    background-size: cover;
+    background-position: center;
+    position: relative;
+  }
+
+  .clase-card-meta-top {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    right: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+
+  .clase-card-body {
+    padding: 1.5rem;
+  }
+
+  .clase-card-date {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    color: var(--mn-terracota);
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+  }
+
+  .clase-card-title {
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    line-height: 1.15;
+    color: var(--mn-carbon);
+    margin-bottom: 0.5rem;
+    font-weight: 400;
+  }
+  .clase-card-title em {
+    font-style: italic;
+    color: var(--mn-terracota);
+  }
+
+  .clase-card-desc {
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    line-height: 1.55;
+    color: var(--mn-carbon);
+    opacity: 0.75;
+    margin-bottom: 1rem;
+  }
+
+  .clase-card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 1rem;
+    border-top: 1px dashed rgba(26,22,20,0.2);
+  }
+
+  .clase-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+  }
+
+  /* ============================================
+     NAVBAR PREVIEWS
+  ============================================ */
+  .nav-preview {
+    border-radius: var(--radius-md);
+    padding: 1rem 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+    border: 1px solid rgba(26,22,20,0.1);
+  }
+
+  .nav-light {
+    background: var(--mn-crema-light);
+  }
+
+  .nav-dark {
+    background: rgba(26,22,20,0.95);
+    border-color: rgba(240,230,210,0.15);
+    backdrop-filter: blur(12px);
+  }
+
+  .nav-logo {
+    font-family: var(--font-display);
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: var(--mn-carbon);
+    letter-spacing: 0.08em;
+  }
+  .nav-logo em {
+    font-style: italic;
+    color: var(--mn-terracota);
+  }
+
+  .nav-logo-dark { color: var(--mn-crema); }
+  .nav-logo-dark em { color: var(--mn-terracota-soft); }
+
+  .nav-links {
+    display: flex;
+    gap: 2rem;
+    list-style: none;
+  }
+
+  .nav-link {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    font-weight: 500;
+    color: var(--mn-carbon);
+    text-decoration: none;
+    position: relative;
+    transition: color 200ms;
+    opacity: 0.7;
+  }
+
+  .nav-link:hover { opacity: 1; color: var(--mn-terracota); }
+
+  .nav-link-dark { color: var(--mn-crema); opacity: 0.7; }
+  .nav-link-dark:hover { color: var(--mn-terracota-soft); opacity: 1; }
+
+  /* ============================================
+     AGENDA / CALENDARIO ROW
+  ============================================ */
+  .agenda-row {
+    display: grid;
+    grid-template-columns: 90px 1fr auto auto;
+    gap: 1.25rem;
+    align-items: center;
+    padding: 1rem 0;
+    border-top: 1px solid rgba(26,22,20,0.15);
+    transition: padding-left 200ms var(--ease-snap);
+  }
+  .agenda-row:last-child { border-bottom: 1px solid rgba(26,22,20,0.15); }
+  .agenda-row:hover { padding-left: 0.5rem; }
+
+  .agenda-date {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 1.75rem;
+    color: var(--mn-terracota);
+    line-height: 1;
+  }
+
+  .agenda-name {
+    font-family: var(--font-display);
+    font-size: 1.15rem;
+    color: var(--mn-carbon);
+  }
+  .agenda-name .note {
+    font-family: var(--font-script);
+    font-size: 1.1rem;
+    color: var(--mn-terracota);
+    margin-left: 0.5rem;
+  }
+
+  .agenda-time {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.15em;
+    color: var(--mn-carbon);
+    opacity: 0.6;
+  }
+
+  .agenda-cupos {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.18em;
+    padding: 0.3rem 0.7rem;
+    border-radius: var(--radius-sm);
+  }
+  .agenda-cupos.disponible { background: var(--mn-carbon); color: var(--mn-crema); }
+  .agenda-cupos.pocos      { background: var(--mn-terracota); color: var(--mn-crema); }
+  .agenda-cupos.lleno      { background: transparent; color: var(--mn-carbon); border: 1px solid var(--mn-carbon); opacity: 0.5; }
+
+  .agenda-row.tachado .agenda-date,
+  .agenda-row.tachado .agenda-name { opacity: 0.4; text-decoration: line-through; }
+
+  /* ============================================
+     FOOTER PREVIEW
+  ============================================ */
+  .footer-preview {
+    background: var(--mn-carbon);
+    color: var(--mn-crema);
+    border-radius: var(--radius-md);
+    padding: 3rem 2.5rem 1.5rem;
+  }
+
+  .footer-grid {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr 1fr;
+    gap: 2.5rem;
+    padding-bottom: 2.5rem;
+    border-bottom: 1px dashed rgba(240,230,210,0.2);
+  }
+
+  .footer-brand {
+    font-family: var(--font-display);
+    font-size: 1.75rem;
+    color: var(--mn-crema);
+    margin-bottom: 0.5rem;
+    letter-spacing: 0.04em;
+  }
+  .footer-brand em { font-style: italic; color: var(--mn-terracota-soft); }
+
+  .footer-tagline {
+    font-family: var(--font-script);
+    font-size: 1.25rem;
+    color: var(--mn-terracota-soft);
+    margin-bottom: 1.25rem;
+    opacity: 0.9;
+  }
+
+  .footer-col-title {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--mn-crema);
+    opacity: 0.5;
+    margin-bottom: 1rem;
+  }
+
+  .footer-link {
+    display: block;
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    color: var(--mn-crema);
+    opacity: 0.75;
+    text-decoration: none;
+    margin-bottom: 0.5rem;
+    transition: opacity 200ms, padding-left 200ms;
+  }
+  .footer-link:hover { opacity: 1; padding-left: 0.4rem; color: var(--mn-terracota-soft); }
+
+  .footer-bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 1.5rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  .footer-copy {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.15em;
+    color: var(--mn-crema);
+    opacity: 0.5;
+  }
+
+  /* ============================================
+     ELEMENTOS DECORATIVOS
+  ============================================ */
+  .deco-card {
+    background: var(--mn-crema-light);
+    border: 1px solid rgba(26,22,20,0.12);
+    border-radius: var(--radius-md);
+    padding: 2.5rem;
+    display: flex;
+    gap: 3rem;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: space-around;
+  }
+
+  .deco-item {
+    text-align: center;
+  }
+
+  .deco-item-label {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--mn-carbon);
+    opacity: 0.55;
+    margin-top: 0.75rem;
+  }
+
+  .svg-float-soft {
+    animation: float-soft 4s ease-in-out infinite;
+    display: inline-block;
+  }
+
+  /* ============================================
+     SECCIÓN INTERACCIONES (índice editorial)
+  ============================================ */
+  .indice-preview {
+    background: var(--mn-carbon);
+    color: var(--mn-crema);
+    border-radius: var(--radius-md);
+    padding: 3rem 2.5rem;
+  }
+
+  .indice-row {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 1.5rem;
+    align-items: baseline;
+    padding: 1.25rem 0;
+    border-top: 1px solid rgba(240,230,210,0.15);
+    cursor: pointer;
+    transition: padding-left 250ms var(--ease-snap);
+  }
+  .indice-row:last-child { border-bottom: 1px solid rgba(240,230,210,0.15); }
+  .indice-row:hover { padding-left: 1rem; }
+  .indice-row:hover .indice-name { color: var(--mn-terracota-soft); font-style: italic; }
+  .indice-row:hover .indice-arrow { color: var(--mn-terracota-soft); transform: translateX(6px); }
+
+  .indice-num {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    color: var(--mn-terracota-soft);
+    opacity: 0.7;
+  }
+
+  .indice-name {
+    font-family: var(--font-display);
+    font-size: 2.5rem;
+    color: var(--mn-crema);
+    line-height: 1;
+    transition: color 250ms, font-style 250ms;
+    font-weight: 400;
+  }
+
+  .indice-arrow {
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    color: var(--mn-crema);
+    opacity: 0.5;
+    transition: all 250ms var(--ease-snap);
+  }
+
+  /* ============================================
+     RESPONSIVE
+  ============================================ */
+  @media (max-width: 768px) {
+    .ds-page { padding: 2rem 1rem; }
+    .ds-header { flex-direction: column; align-items: flex-start; }
+    .clase-grid { grid-template-columns: 1fr; }
+    .footer-grid { grid-template-columns: 1fr; }
+    .agenda-row { grid-template-columns: 70px 1fr; }
+    .agenda-time, .agenda-cupos { grid-column: 2; justify-self: start; }
+    .indice-name { font-size: 1.75rem; }
+    .nav-links { display: none; }
+  }
+
+</style>
+</head>
+<body>
+
+<div class="ds-page">
+
+  <!-- ===== HEADER ===== -->
+  <div class="ds-header">
+    <div>
+      <div class="ds-header-meta">DESIGN SYSTEM · V1.0 · ABRIL 2026</div>
+      <h1 class="ds-header-title">Mene<em>ste</em>res</h1>
+      <p class="ds-header-sub">Sistema visual para la web. Editorial, cálido, artesanal — sin caer en el cliché de "rústico moderno". Cada decisión está al servicio de transmitir oficio.</p>
+    </div>
+    <div class="logo-block">
+      <div class="est">EST · 2019 · RAFAELA</div>
+      <div class="name">MENE<em>STE</em>RES</div>
+    </div>
+  </div>
+
+  <!-- ===== 01 · CONCEPTO ===== -->
+  <div class="ds-section">
+    <div class="ds-label">01 — Concepto</div>
+    <div class="type-specimen">
+      <p class="type-display-m" style="margin-bottom: 1.5rem;">"Sabores que nos encuentran"</p>
+      <p class="type-body-l">Menesteres no es una escuela de cocina más. Es un espacio donde se aprende cocinando con otros, en mesa común, con tiempo. La web tiene que respirar esa idea: <em>menos es más, pero menos con personalidad</em>. Tipografía editorial seria, mucho aire, una paleta cálida disciplinada, y pequeños gestos manuscritos que recuerden que detrás hay manos, no algoritmos.</p>
+      <div class="type-divider"></div>
+      <p class="type-mono">Referencias visuales: anafe.com.ar (austeridad) · olibuenosaires.com (calidez editorial) · revistas tipo Kinfolk &amp; Cherry Bombe.</p>
+    </div>
+  </div>
+
+  <!-- ===== 02 · HERO ===== -->
+  <div class="ds-section">
+    <div class="ds-label">02 — Hero · home</div>
+    <div class="hero-preview">
+      <div class="hero-bg"></div>
+      <div class="hero-overlay"></div>
+      <div class="hero-meta-top">
+        <span>EST · 2019</span>
+        <span>RAFAELA · SF · AR</span>
+      </div>
+      <div class="hero-content">
+        <div class="hero-eyebrow">CLASES DE COCINA</div>
+        <h1 class="hero-title">MENE<em>STE</em>RES</h1>
+        <div class="hero-tagline">sabores que nos encuentran</div>
+      </div>
+      <div class="hero-scroll">
+        <span>SCROLL</span>
+        <div class="hero-scroll-line"></div>
+      </div>
+    </div>
+    <p class="type-mono" style="margin-top: 1rem;">// Foto full-bleed, sin CTA. La home no vende, invita. El navbar aparece al scrollear.</p>
+  </div>
+
+  <!-- ===== 03 · TIPOGRAFÍA ===== -->
+  <div class="ds-section">
+    <div class="ds-label">03 — Tipografía</div>
+    <div class="type-specimen">
+      <div class="type-meta">DISPLAY · FRAUNCES · 5rem · italic accent</div>
+      <p class="type-display-xl">Cocinar es <em>recordar</em>.</p>
+
+      <div class="type-divider"></div>
+
+      <div class="type-meta">DISPLAY · FRAUNCES · 3rem</div>
+      <p class="type-display-l">Nuestras clases de abril</p>
+
+      <div class="type-divider"></div>
+
+      <div class="type-meta">DISPLAY · FRAUNCES ITALIC · 1.75rem</div>
+      <p class="type-display-m">Pastas frescas, pan de masa madre, tartas de estación.</p>
+
+      <div class="type-divider"></div>
+
+      <div class="type-meta">BODY · INTER · 1.125rem</div>
+      <p class="type-body-l">En Menesteres trabajamos en grupos chicos, alrededor de una mesa común. No es una clase magistral: es una experiencia compartida donde cada persona se va con un puñado de recetas, técnicas nuevas y la sensación de haber estado en una cocina que importa.</p>
+
+      <div class="type-divider"></div>
+
+      <div class="type-meta">SCRIPT · CAVEAT · acento manuscrito</div>
+      <p class="type-script">¡reservá tu lugar!</p>
+
+      <div class="type-divider"></div>
+
+      <div class="type-meta">MONO · JETBRAINS MONO · metadata</div>
+      <p class="type-mono">SAB · 12.04.26 · 18-21HS · CUPOS LIMITADOS</p>
+    </div>
+  </div>
+
+  <!-- ===== 04 · PALETA ===== -->
+  <div class="ds-section">
+    <div class="ds-label">04 — Paleta</div>
+    <div class="color-grid">
+      <div class="swatch">
+        <div class="swatch-fill" style="background:#B84A26;"></div>
+        <div class="swatch-info">
+          <div class="swatch-role">PRIMARIO</div>
+          <span class="swatch-name">Terracota</span>
+          <span class="swatch-val">--mn-terracota · #B84A26</span>
+        </div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-fill" style="background:#8B3818;"></div>
+        <div class="swatch-info">
+          <div class="swatch-role">PRIMARIO · DEEP</div>
+          <span class="swatch-name">Terracota Deep</span>
+          <span class="swatch-val">--mn-terracota-deep</span>
+        </div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-fill" style="background:#D8714F;"></div>
+        <div class="swatch-info">
+          <div class="swatch-role">PRIMARIO · SOFT</div>
+          <span class="swatch-name">Terracota Soft</span>
+          <span class="swatch-val">--mn-terracota-soft</span>
+        </div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-fill" style="background:#F2D9CC;"></div>
+        <div class="swatch-info">
+          <div class="swatch-role">PRIMARIO · MUTED</div>
+          <span class="swatch-name">Terracota Muted</span>
+          <span class="swatch-val">--mn-terracota-muted</span>
+        </div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-fill" style="background:#1A1614;"></div>
+        <div class="swatch-info">
+          <div class="swatch-role">SECUNDARIO</div>
+          <span class="swatch-name">Carbón</span>
+          <span class="swatch-val">--mn-carbon · #1A1614</span>
+        </div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-fill" style="background:#2D2520;"></div>
+        <div class="swatch-info">
+          <div class="swatch-role">SECUNDARIO · SOFT</div>
+          <span class="swatch-name">Carbón Soft</span>
+          <span class="swatch-val">--mn-carbon-soft</span>
+        </div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-fill" style="background:#F0E6D2;border:1px solid #E5D8BD;"></div>
+        <div class="swatch-info">
+          <div class="swatch-role">BASE</div>
+          <span class="swatch-name">Crema</span>
+          <span class="swatch-val">--mn-crema · #F0E6D2</span>
+        </div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-fill" style="background:#F8F2E4;border:1px solid #E5D8BD;"></div>
+        <div class="swatch-info">
+          <div class="swatch-role">BASE · LIGHT</div>
+          <span class="swatch-name">Crema Light</span>
+          <span class="swatch-val">--mn-crema-light</span>
+        </div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-fill" style="background:#5C6B3E;"></div>
+        <div class="swatch-info">
+          <div class="swatch-role">ACENTO · USO LIMITADO</div>
+          <span class="swatch-name">Oliva</span>
+          <span class="swatch-val">--mn-oliva · #5C6B3E</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 05 · BOTONES ===== -->
+  <div class="ds-section">
+    <div class="ds-label">05 — Botones</div>
+    <div class="type-specimen">
+      <p class="type-mono" style="margin-bottom: 1rem;">PRINCIPALES</p>
+      <div class="btn-row">
+        <button class="btn btn-primary btn-lg">Reservar lugar</button>
+        <button class="btn btn-dark btn-lg">Ver calendario</button>
+        <button class="btn btn-outline btn-lg">Conocer el espacio</button>
+      </div>
+      <p class="type-mono" style="margin-bottom: 1rem; margin-top: 2rem;">SECUNDARIOS</p>
+      <div class="btn-row">
+        <button class="btn btn-primary">Reservar</button>
+        <button class="btn btn-dark">Más info</button>
+        <button class="btn btn-outline">Filtrar</button>
+        <button class="btn btn-text">Leer la nota</button>
+      </div>
+      <p class="type-mono" style="margin-bottom: 1rem; margin-top: 2rem;">SOBRE FONDO OSCURO</p>
+      <div style="background: var(--mn-carbon); padding: 1.5rem; border-radius: var(--radius-md);">
+        <div class="btn-row" style="margin-bottom: 0;">
+          <button class="btn btn-primary">Reservar</button>
+          <button class="btn btn-outline-light">Ver más</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 06 · BADGES & STICKERS ===== -->
+  <div class="ds-section">
+    <div class="ds-label">06 — Badges & marcas editoriales</div>
+    <div class="type-specimen">
+      <p class="type-mono" style="margin-bottom: 1rem;">BADGES — info estructurada</p>
+      <div class="badge-row">
+        <span class="badge badge-terracota">Cupos limitados</span>
+        <span class="badge badge-dark">Próxima clase</span>
+        <span class="badge badge-outline">Para niños</span>
+        <span class="badge badge-soft">Estación · Otoño</span>
+      </div>
+      <p class="type-mono" style="margin-bottom: 1rem; margin-top: 2rem;">STICKERS — gestos manuscritos rotados</p>
+      <div class="badge-row">
+        <span class="sticker">¡quedan 2 lugares!</span>
+        <span class="sticker sticker-dark">— recién agregada</span>
+        <span class="sticker-tag">DESTACADA</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 07 · NAVBAR ===== -->
+  <div class="ds-section">
+    <div class="ds-label">07 — Navbar</div>
+    <p class="type-mono" style="margin-bottom: 0.5rem;">LIGHT — modo página interna</p>
+    <div class="nav-preview nav-light">
+      <span class="nav-logo">MENE<em>STE</em>RES</span>
+      <ul class="nav-links">
+        <li><a href="#" class="nav-link">Clases</a></li>
+        <li><a href="#" class="nav-link">Calendario</a></li>
+        <li><a href="#" class="nav-link">Espacio</a></li>
+        <li><a href="#" class="nav-link">Nosotros</a></li>
+        <li><a href="#" class="nav-link">Contacto</a></li>
+      </ul>
+      <button class="btn btn-primary btn-sm">Reservar</button>
+    </div>
+
+    <p class="type-mono" style="margin-bottom: 0.5rem; margin-top: 1.5rem;">DARK — flotando sobre hero</p>
+    <div class="nav-preview nav-dark">
+      <span class="nav-logo nav-logo-dark">MENE<em>STE</em>RES</span>
+      <ul class="nav-links">
+        <li><a href="#" class="nav-link nav-link-dark">Clases</a></li>
+        <li><a href="#" class="nav-link nav-link-dark">Calendario</a></li>
+        <li><a href="#" class="nav-link nav-link-dark">Espacio</a></li>
+        <li><a href="#" class="nav-link nav-link-dark">Nosotros</a></li>
+        <li><a href="#" class="nav-link nav-link-dark">Contacto</a></li>
+      </ul>
+      <button class="btn btn-primary btn-sm">Reservar</button>
+    </div>
+  </div>
+
+  <!-- ===== 08 · CARDS DE CLASES ===== -->
+  <div class="ds-section">
+    <div class="ds-label">08 — Cards · clases</div>
+    <div class="clase-grid">
+
+      <div class="clase-card">
+        <div class="clase-card-img" style="background-image: url('https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=600&q=80');">
+          <div class="clase-card-meta-top">
+            <span class="badge badge-terracota">2 cupos</span>
+          </div>
+        </div>
+        <div class="clase-card-body">
+          <div class="clase-card-date">SAB · 12.04 · 18-21HS</div>
+          <h3 class="clase-card-title">Pastas frescas <em>a mano</em></h3>
+          <p class="clase-card-desc">Sorrentinos, ravioles y tallarines desde cero. Vos, harina y nosotros.</p>
+          <div class="clase-card-footer">
+            <span class="type-mono">$24.000</span>
+            <button class="btn btn-primary btn-sm">Reservar</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="clase-card">
+        <div class="clase-card-img" style="background-image: url('https://images.unsplash.com/photo-1509440159596-0249088772ff?w=600&q=80');">
+          <div class="clase-card-meta-top">
+            <span class="badge badge-dark">Para niños</span>
+          </div>
+        </div>
+        <div class="clase-card-body">
+          <div class="clase-card-date">DOM · 13.04 · 16-18HS</div>
+          <h3 class="clase-card-title">Panes &amp; <em>pizzas</em></h3>
+          <p class="clase-card-desc">Una tarde para amasar, esperar y hornear. Llevate lo que cocinaste.</p>
+          <div class="clase-card-footer">
+            <span class="type-mono">$18.000</span>
+            <button class="btn btn-primary btn-sm">Reservar</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="clase-card">
+        <div class="clase-card-img" style="background-image: url('https://images.unsplash.com/photo-1565958011703-44f9829ba187?w=600&q=80');">
+          <div class="clase-card-meta-top">
+            <span class="badge badge-soft">Otoño</span>
+          </div>
+        </div>
+        <div class="clase-card-body">
+          <div class="clase-card-date">SAB · 26.04 · 17-20HS</div>
+          <h3 class="clase-card-title">Postres <em>clásicos</em></h3>
+          <p class="clase-card-desc">Tarta de manzana, lemon pie y un budín que vas a querer repetir.</p>
+          <div class="clase-card-footer">
+            <span class="type-mono">$22.000</span>
+            <button class="btn btn-primary btn-sm">Reservar</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ===== 09 · ÍNDICE EDITORIAL ===== -->
+  <div class="ds-section">
+    <div class="ds-label">09 — Índice editorial · servicios</div>
+    <div class="indice-preview">
+
+      <div class="indice-row">
+        <span class="indice-num">01 —</span>
+        <span class="indice-name">clases para adultos</span>
+        <span class="indice-arrow">→</span>
+      </div>
+
+      <div class="indice-row">
+        <span class="indice-num">02 —</span>
+        <span class="indice-name">clases para niños</span>
+        <span class="indice-arrow">→</span>
+      </div>
+
+      <div class="indice-row">
+        <span class="indice-num">03 —</span>
+        <span class="indice-name">eventos privados</span>
+        <span class="indice-arrow">→</span>
+      </div>
+
+      <div class="indice-row">
+        <span class="indice-num">04 —</span>
+        <span class="indice-name">alquiler del espacio</span>
+        <span class="indice-arrow">→</span>
+      </div>
+
+    </div>
+    <p class="type-mono" style="margin-top: 1rem;">// Hover atenúa los demás, pinta el activo en terracota italic, mueve la flecha.</p>
+  </div>
+
+  <!-- ===== 10 · AGENDA / CALENDARIO ===== -->
+  <div class="ds-section">
+    <div class="ds-label">10 — Agenda · calendario mensual</div>
+    <div class="type-specimen">
+      <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 1.5rem;">
+        <div>
+          <div class="type-mono" style="margin-bottom: 0.25rem;">// AGENDA · ABRIL '26</div>
+          <h3 class="type-display-l" style="font-size: 2rem;">Próximas fechas</h3>
+        </div>
+        <span class="sticker">¡reservá ya!</span>
+      </div>
+
+      <div class="agenda-row">
+        <div class="agenda-date">06.04</div>
+        <div class="agenda-name">Panes de masa madre</div>
+        <div class="agenda-time">18 · 21HS</div>
+        <div class="agenda-cupos disponible">3 CUPOS</div>
+      </div>
+
+      <div class="agenda-row">
+        <div class="agenda-date">12.04</div>
+        <div class="agenda-name">Pastas frescas <span class="note">— destacada</span></div>
+        <div class="agenda-time">18 · 21HS</div>
+        <div class="agenda-cupos pocos">2 CUPOS</div>
+      </div>
+
+      <div class="agenda-row tachado">
+        <div class="agenda-date">19.04</div>
+        <div class="agenda-name">Cocina de otoño</div>
+        <div class="agenda-time">18 · 21HS</div>
+        <div class="agenda-cupos lleno">LLENO</div>
+      </div>
+
+      <div class="agenda-row">
+        <div class="agenda-date">26.04</div>
+        <div class="agenda-name">Postres clásicos</div>
+        <div class="agenda-time">17 · 20HS</div>
+        <div class="agenda-cupos disponible">5 CUPOS</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ===== 11 · ELEMENTOS DECORATIVOS ===== -->
+  <div class="ds-section">
+    <div class="ds-label">11 — Elementos decorativos · SVG</div>
+    <div class="deco-card">
+
+      <div class="deco-item">
+        <svg class="svg-float-soft" width="48" height="48" viewBox="0 0 48 48" fill="none">
+          <path d="M24 4 C28 4 32 8 32 14 C36 14 40 18 40 24 C40 32 32 40 24 40 C16 40 8 32 8 24 C8 18 12 14 16 14 C16 8 20 4 24 4 Z" fill="#B84A26"/>
+          <circle cx="20" cy="22" r="1.5" fill="#F0E6D2"/>
+          <circle cx="28" cy="22" r="1.5" fill="#F0E6D2"/>
+        </svg>
+        <p class="deco-item-label">Logo · sol naciente</p>
+      </div>
+
+      <div class="deco-item">
+        <svg class="svg-float-soft" width="44" height="44" viewBox="0 0 44 44" fill="none" style="animation-delay: 0.6s;">
+          <path d="M22 4 L24 18 L38 22 L24 26 L22 40 L20 26 L6 22 L20 18 Z" fill="#1A1614"/>
+        </svg>
+        <p class="deco-item-label">Asterisco editorial</p>
+      </div>
+
+      <div class="deco-item">
+        <svg width="60" height="20" viewBox="0 0 60 20" fill="none">
+          <path d="M2 10 Q15 2, 30 10 T58 10" stroke="#B84A26" stroke-width="1.5" fill="none" stroke-dasharray="3,3"/>
+        </svg>
+        <p class="deco-item-label">Línea decorativa</p>
+      </div>
+
+      <div class="deco-item">
+        <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+          <path d="M8 38 L8 12 L20 12 L24 8 L40 8 L40 38 Z" stroke="#1A1614" stroke-width="1.5" fill="#F2D9CC"/>
+          <path d="M16 18 L32 18 M16 24 L32 24 M16 30 L26 30" stroke="#1A1614" stroke-width="1" fill="none"/>
+        </svg>
+        <p class="deco-item-label">Cuaderno · recetas</p>
+      </div>
+
+      <div class="deco-item">
+        <svg class="svg-float-soft" width="52" height="52" viewBox="0 0 52 52" fill="none" style="animation-delay: 1.2s;">
+          <ellipse cx="26" cy="32" rx="18" ry="6" fill="#1A1614"/>
+          <rect x="22" y="10" width="8" height="22" rx="2" fill="#B84A26"/>
+          <path d="M22 14 L30 14" stroke="#F0E6D2" stroke-width="1"/>
+        </svg>
+        <p class="deco-item-label">Cuchara · clases</p>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ===== 12 · FOOTER ===== -->
+  <div class="ds-section">
+    <div class="ds-label">12 — Footer</div>
+    <div class="footer-preview">
+      <div class="footer-grid">
+        <div>
+          <div class="footer-brand">Mene<em>ste</em>res</div>
+          <div class="footer-tagline">sabores que nos encuentran</div>
+          <span class="badge badge-soft" style="font-size:0.7rem;">San Martín 1234 · Rafaela · SF</span>
+        </div>
+        <div>
+          <div class="footer-col-title">Explorar</div>
+          <a href="#" class="footer-link">Clases</a>
+          <a href="#" class="footer-link">Calendario</a>
+          <a href="#" class="footer-link">Recetas</a>
+          <a href="#" class="footer-link">Nuestro espacio</a>
+        </div>
+        <div>
+          <div class="footer-col-title">Contacto</div>
+          <a href="#" class="footer-link">Reservar clase</a>
+          <a href="#" class="footer-link">Eventos privados</a>
+          <a href="#" class="footer-link">Instagram</a>
+          <a href="#" class="footer-link">hola@menesteres.com</a>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span class="footer-copy">© 2026 MENESTERES</span>
+        <span class="footer-copy">HECHO EN RAFAELA · SANTA FE · AR</span>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /ds-page -->
+
+</body>
+</html>

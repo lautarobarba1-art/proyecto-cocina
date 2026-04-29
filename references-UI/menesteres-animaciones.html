@@ -1,0 +1,1724 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Menesteres — Catálogo de animaciones</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;1,9..144,400;1,9..144,500&family=DM+Sans:wght@400;500;600&family=Caveat:wght@400;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --mn-terracota: #B84A26;
+    --mn-terracota-deep: #8B3818;
+    --mn-terracota-soft: #D8714F;
+    --mn-terracota-muted: #F2D9CC;
+    --mn-carbon: #1A1614;
+    --mn-crema: #F0E6D2;
+    --mn-crema-light: #F8F2E4;
+
+    --font-display: 'Fraunces', Georgia, serif;
+    --font-body: 'DM Sans', system-ui, sans-serif;
+    --font-script: 'Caveat', cursive;
+    --font-mono: 'JetBrains Mono', monospace;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: var(--font-body);
+    background: var(--mn-crema);
+    color: var(--mn-carbon);
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+
+  .page {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 4rem 1.5rem;
+  }
+
+  /* ========== HEADER ========== */
+  .header {
+    border-bottom: 1px dashed var(--mn-carbon);
+    padding-bottom: 3rem;
+    margin-bottom: 4rem;
+  }
+  .header-meta {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    color: var(--mn-carbon);
+    opacity: 0.5;
+    margin-bottom: 1rem;
+  }
+  .header-title {
+    font-family: var(--font-display);
+    font-size: clamp(2.5rem, 5vw, 4rem);
+    line-height: 0.95;
+    color: var(--mn-carbon);
+    font-weight: 400;
+    letter-spacing: -0.02em;
+    margin-bottom: 0.75rem;
+  }
+  .header-title em { font-style: italic; color: var(--mn-terracota); }
+  .header-sub {
+    font-size: 1rem;
+    color: var(--mn-carbon);
+    opacity: 0.7;
+    max-width: 520px;
+  }
+
+  /* ========== ÍNDICE ========== */
+  .toc {
+    background: var(--mn-crema-light);
+    border: 1px solid rgba(26,22,20,0.12);
+    border-radius: 4px;
+    padding: 1.5rem 2rem;
+    margin-bottom: 5rem;
+  }
+  .toc-title {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--mn-terracota);
+    margin-bottom: 1rem;
+  }
+  .toc-list {
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.4rem 2rem;
+  }
+  .toc-list a {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--mn-carbon);
+    text-decoration: none;
+    opacity: 0.75;
+    transition: all 200ms;
+    display: block;
+    padding: 0.25rem 0;
+  }
+  .toc-list a:hover { opacity: 1; color: var(--mn-terracota); padding-left: 0.5rem; }
+
+  /* ========== CATEGORÍA ========== */
+  .category {
+    margin-bottom: 5rem;
+  }
+  .category-label {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--mn-terracota);
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  .category-label::before {
+    content: '';
+    width: 28px; height: 1px;
+    background: var(--mn-terracota);
+  }
+  .category-title {
+    font-family: var(--font-display);
+    font-size: 2rem;
+    line-height: 1.1;
+    color: var(--mn-carbon);
+    font-weight: 400;
+    margin-bottom: 0.5rem;
+  }
+  .category-title em { font-style: italic; color: var(--mn-terracota); }
+  .category-desc {
+    font-size: 0.95rem;
+    color: var(--mn-carbon);
+    opacity: 0.7;
+    max-width: 700px;
+    margin-bottom: 2.5rem;
+  }
+
+  /* ========== DEMO CARD ========== */
+  .demo {
+    background: var(--mn-crema-light);
+    border: 1px solid rgba(26,22,20,0.12);
+    border-radius: 4px;
+    padding: 2rem;
+    margin-bottom: 1.5rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .demo-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1.5rem;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+  .demo-title {
+    font-family: var(--font-display);
+    font-size: 1.15rem;
+    color: var(--mn-carbon);
+    font-weight: 500;
+  }
+  .demo-tag {
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    background: var(--mn-carbon);
+    color: var(--mn-crema);
+    padding: 0.25rem 0.6rem;
+    border-radius: 2px;
+  }
+  .demo-tag.recommended {
+    background: var(--mn-terracota);
+  }
+  .demo-desc {
+    font-size: 0.85rem;
+    color: var(--mn-carbon);
+    opacity: 0.7;
+    margin-bottom: 1.5rem;
+  }
+  .demo-stage {
+    background: var(--mn-crema);
+    border-radius: 3px;
+    padding: 3rem 2rem;
+    min-height: 180px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .demo-stage.dark {
+    background: var(--mn-carbon);
+    color: var(--mn-crema);
+  }
+  .demo-replay {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    background: rgba(26,22,20,0.85);
+    color: var(--mn-crema);
+    border: none;
+    padding: 0.4rem 0.7rem;
+    border-radius: 2px;
+    cursor: pointer;
+    z-index: 10;
+    opacity: 0.75;
+    transition: opacity 200ms;
+  }
+  .demo-replay:hover { opacity: 1; }
+  .demo-stage.dark .demo-replay {
+    background: rgba(240,230,210,0.15);
+  }
+
+  /* ========== UTILIDADES DE DEMO ========== */
+  .sample-text {
+    font-family: var(--font-display);
+    font-size: 2.25rem;
+    color: var(--mn-carbon);
+    font-weight: 400;
+    line-height: 1;
+  }
+  .sample-text em { font-style: italic; color: var(--mn-terracota); }
+  .demo-stage.dark .sample-text { color: var(--mn-crema); }
+  .demo-stage.dark .sample-text em { color: var(--mn-terracota-soft); }
+
+  .sample-img {
+    width: 200px;
+    height: 130px;
+    background-image: url('https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=400&q=80');
+    background-size: cover;
+    background-position: center;
+    border-radius: 3px;
+  }
+
+  /* =====================================================
+     1. HERO ENTRY — escalonadas
+  ===================================================== */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .anim-fadeup { animation: fadeUp 800ms ease-out forwards; }
+
+  @keyframes fadeUpStagger {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .stagger-line {
+    opacity: 0;
+    animation: fadeUpStagger 700ms ease-out forwards;
+  }
+  .stagger-line:nth-child(1) { animation-delay: 100ms; }
+  .stagger-line:nth-child(2) { animation-delay: 350ms; }
+  .stagger-line:nth-child(3) { animation-delay: 600ms; }
+
+  /* =====================================================
+     2. TYPEWRITER
+  ===================================================== */
+  .typewriter-wrap {
+    display: inline-block;
+    font-family: var(--font-script);
+    font-size: 2rem;
+    color: var(--mn-terracota);
+  }
+  .typewriter {
+    display: inline-block;
+    overflow: hidden;
+    white-space: nowrap;
+    border-right: 2px solid var(--mn-terracota);
+    animation: typing 2.5s steps(28, end) forwards, blink 0.7s step-end infinite;
+    width: 0;
+  }
+  @keyframes typing {
+    from { width: 0; }
+    to   { width: 14ch; }
+  }
+  @keyframes blink {
+    50% { border-color: transparent; }
+  }
+
+  /* =====================================================
+     3. UNDERLINE DRAW (subrayado animado)
+  ===================================================== */
+  .underline-draw {
+    font-family: var(--font-display);
+    font-size: 2rem;
+    color: var(--mn-carbon);
+    position: relative;
+    display: inline-block;
+  }
+  .underline-draw::after {
+    content: '';
+    position: absolute;
+    left: 0; bottom: -4px;
+    width: 100%;
+    height: 2px;
+    background: var(--mn-terracota);
+    transform: scaleX(0);
+    transform-origin: left;
+    animation: drawLine 1.2s ease-out 400ms forwards;
+  }
+  @keyframes drawLine {
+    to { transform: scaleX(1); }
+  }
+
+  /* =====================================================
+     4. SPLIT TEXT (palabra por palabra)
+  ===================================================== */
+  .split-wrap {
+    font-family: var(--font-display);
+    font-size: 1.6rem;
+    color: var(--mn-carbon);
+    line-height: 1.4;
+    text-align: center;
+  }
+  .split-word {
+    display: inline-block;
+    opacity: 0;
+    transform: translateY(16px);
+    animation: splitIn 600ms ease-out forwards;
+  }
+  @keyframes splitIn {
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* =====================================================
+     5. ITALIC SWAP (intercambio de palabras)
+  ===================================================== */
+  .italic-swap-wrap {
+    font-family: var(--font-display);
+    font-size: 2rem;
+    color: var(--mn-carbon);
+    text-align: center;
+  }
+  .italic-swap {
+    display: inline-block;
+    color: var(--mn-terracota);
+    font-style: italic;
+    position: relative;
+    min-width: 180px;
+    text-align: center;
+  }
+  .italic-swap-word {
+    display: inline-block;
+    animation: swapWord 8s linear infinite;
+  }
+  @keyframes swapWord {
+    0%, 22%   { content: 'cocinar'; }
+    25%, 47%  { content: 'aprender'; }
+    50%, 72%  { content: 'compartir'; }
+    75%, 97%  { content: 'celebrar'; }
+  }
+
+  .italic-swap-flip {
+    position: relative;
+    display: inline-block;
+    height: 1.2em;
+    overflow: hidden;
+    vertical-align: bottom;
+    min-width: 220px;
+    text-align: left;
+  }
+  .italic-swap-flip span {
+    display: block;
+    color: var(--mn-terracota);
+    font-style: italic;
+    animation: flipUp 8s steps(4) infinite;
+    line-height: 1.2em;
+  }
+  @keyframes flipUp {
+    0%, 22%  { transform: translateY(0); }
+    25%, 47% { transform: translateY(-1.2em); }
+    50%, 72% { transform: translateY(-2.4em); }
+    75%, 97% { transform: translateY(-3.6em); }
+  }
+
+  /* =====================================================
+     6. FADE-IN ON SCROLL
+  ===================================================== */
+  .fade-on-scroll {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 800ms ease-out, transform 800ms ease-out;
+  }
+  .fade-on-scroll.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* =====================================================
+     7. PARALLAX
+  ===================================================== */
+  .parallax-wrap {
+    position: relative;
+    height: 200px;
+    overflow: hidden;
+    border-radius: 3px;
+    width: 100%;
+    max-width: 360px;
+  }
+  .parallax-bg {
+    position: absolute;
+    inset: -50px;
+    background-image: url('https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=600&q=80');
+    background-size: cover;
+    background-position: center;
+    will-change: transform;
+  }
+
+  /* =====================================================
+     8. KEN BURNS (zoom lento sobre imagen)
+  ===================================================== */
+  .kenburns-wrap {
+    width: 280px;
+    height: 180px;
+    overflow: hidden;
+    border-radius: 3px;
+  }
+  .kenburns-img {
+    width: 100%;
+    height: 100%;
+    background-image: url('https://images.unsplash.com/photo-1556910103-1c02745aae4d?w=600&q=80');
+    background-size: cover;
+    background-position: center;
+    animation: kenburns 18s ease-in-out infinite alternate;
+  }
+  @keyframes kenburns {
+    0%   { transform: scale(1) translate(0,0); }
+    100% { transform: scale(1.12) translate(-2%, -1%); }
+  }
+
+  /* =====================================================
+     9. IMAGE REVEAL (con cortina)
+  ===================================================== */
+  .reveal-wrap {
+    position: relative;
+    width: 280px;
+    height: 180px;
+    overflow: hidden;
+    border-radius: 3px;
+  }
+  .reveal-img {
+    width: 100%;
+    height: 100%;
+    background-image: url('https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=600&q=80');
+    background-size: cover;
+    background-position: center;
+    transform: scale(1.1);
+    animation: revealImg 1.4s ease-out forwards;
+  }
+  @keyframes revealImg {
+    to { transform: scale(1); }
+  }
+  .reveal-curtain {
+    position: absolute;
+    inset: 0;
+    background: var(--mn-terracota);
+    transform-origin: right;
+    animation: revealCurtain 1.4s cubic-bezier(0.77, 0, 0.175, 1) forwards;
+  }
+  @keyframes revealCurtain {
+    0%   { transform: scaleX(1); transform-origin: right; }
+    50%  { transform: scaleX(0); transform-origin: right; }
+    51%  { transform: scaleX(0); transform-origin: left; }
+    100% { transform: scaleX(0); transform-origin: left; }
+  }
+
+  /* =====================================================
+     10. HOVER FILL (cubrir desde abajo)
+  ===================================================== */
+  .hover-fill {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--mn-terracota);
+    background: transparent;
+    border: 1px solid var(--mn-terracota);
+    padding: 0.85rem 1.75rem;
+    border-radius: 2px;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: color 350ms ease;
+  }
+  .hover-fill::before {
+    content: '';
+    position: absolute;
+    left: 0; bottom: 0;
+    width: 100%; height: 0;
+    background: var(--mn-terracota);
+    transition: height 350ms cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: -1;
+  }
+  .hover-fill:hover { color: var(--mn-crema); }
+  .hover-fill:hover::before { height: 100%; }
+
+  /* =====================================================
+     11. HOVER MAGNET (link con flecha)
+  ===================================================== */
+  .magnet-link {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--mn-terracota);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    border-bottom: 1px solid var(--mn-terracota);
+    padding-bottom: 0.4rem;
+    transition: gap 300ms;
+  }
+  .magnet-link::after {
+    content: '→';
+    transition: transform 300ms;
+  }
+  .magnet-link:hover { gap: 1rem; }
+  .magnet-link:hover::after { transform: translateX(4px); }
+
+  /* =====================================================
+     12. CARD LIFT
+  ===================================================== */
+  .lift-card {
+    background: var(--mn-crema-light);
+    border: 1px solid rgba(26,22,20,0.15);
+    border-radius: 3px;
+    padding: 1.5rem;
+    width: 220px;
+    transition: transform 300ms cubic-bezier(0.25,0.46,0.45,0.94),
+                box-shadow 300ms ease,
+                border-color 300ms ease;
+    cursor: pointer;
+  }
+  .lift-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 12px 32px rgba(26,22,20,0.15);
+    border-color: var(--mn-terracota);
+  }
+  .lift-card-title {
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    color: var(--mn-carbon);
+    margin-bottom: 0.25rem;
+  }
+  .lift-card-meta {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.15em;
+    color: var(--mn-terracota);
+    text-transform: uppercase;
+  }
+
+  /* =====================================================
+     13. IMAGE PARALLAX HOVER
+  ===================================================== */
+  .img-tilt {
+    width: 240px;
+    height: 160px;
+    background-image: url('https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=500&q=80');
+    background-size: cover;
+    background-position: center;
+    border-radius: 3px;
+    transition: transform 500ms cubic-bezier(0.25,0.46,0.45,0.94);
+    cursor: pointer;
+  }
+  .img-tilt:hover { transform: scale(1.04); }
+
+  .img-grayscale {
+    width: 240px;
+    height: 160px;
+    background-image: url('https://images.unsplash.com/photo-1565958011703-44f9829ba187?w=500&q=80');
+    background-size: cover;
+    background-position: center;
+    border-radius: 3px;
+    filter: grayscale(80%) saturate(0.6);
+    transition: filter 600ms ease;
+    cursor: pointer;
+  }
+  .img-grayscale:hover { filter: grayscale(0%) saturate(1); }
+
+  /* =====================================================
+     14. INDICE EDITORIAL — slide on hover
+  ===================================================== */
+  .indice-demo-row {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 1.5rem;
+    align-items: baseline;
+    padding: 1rem 0;
+    border-top: 1px solid rgba(240,230,210,0.15);
+    cursor: pointer;
+    transition: padding-left 300ms cubic-bezier(0.25,0.46,0.45,0.94);
+    text-decoration: none;
+    color: inherit;
+  }
+  .indice-demo-row:last-child { border-bottom: 1px solid rgba(240,230,210,0.15); }
+  .indice-demo-row:hover { padding-left: 1.25rem; }
+  .indice-demo-row:hover .indice-demo-name { color: var(--mn-terracota-soft); font-style: italic; }
+  .indice-demo-row:hover .indice-demo-arrow { color: var(--mn-terracota-soft); transform: translateX(8px); }
+  .indice-demo-num {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--mn-terracota-soft);
+    opacity: 0.7;
+  }
+  .indice-demo-name {
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    color: var(--mn-crema);
+    line-height: 1;
+    transition: color 300ms, font-style 300ms;
+    font-weight: 400;
+  }
+  .indice-demo-arrow {
+    font-family: var(--font-display);
+    font-size: 1.1rem;
+    color: var(--mn-crema);
+    opacity: 0.5;
+    transition: all 300ms;
+  }
+
+  /* =====================================================
+     15. SCROLL PROGRESS BAR
+  ===================================================== */
+  .progress-demo {
+    width: 100%;
+    height: 6px;
+    background: rgba(26,22,20,0.1);
+    border-radius: 999px;
+    overflow: hidden;
+    position: relative;
+  }
+  .progress-fill-demo {
+    position: absolute;
+    inset: 0;
+    background: var(--mn-terracota);
+    transform-origin: left;
+    transform: scaleX(0);
+    animation: progressFill 4s ease-in-out infinite;
+  }
+  @keyframes progressFill {
+    0%   { transform: scaleX(0); }
+    50%  { transform: scaleX(1); }
+    100% { transform: scaleX(1); transform-origin: right; }
+  }
+
+  /* =====================================================
+     16. CURSOR FOLLOWER
+  ===================================================== */
+  .cursor-stage {
+    position: relative;
+    width: 100%;
+    min-height: 200px;
+    cursor: none;
+  }
+  .cursor-dot {
+    position: absolute;
+    width: 14px;
+    height: 14px;
+    background: var(--mn-terracota);
+    border-radius: 50%;
+    pointer-events: none;
+    transform: translate(-50%, -50%);
+    transition: width 300ms, height 300ms, background 300ms;
+    z-index: 10;
+    mix-blend-mode: multiply;
+  }
+  .cursor-stage:hover .cursor-dot { width: 50px; height: 50px; }
+  .cursor-text {
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    font-style: italic;
+    color: var(--mn-carbon);
+    text-align: center;
+    pointer-events: none;
+  }
+
+  /* =====================================================
+     17. MARQUEE / TICKER
+  ===================================================== */
+  .marquee-wrap {
+    width: 100%;
+    overflow: hidden;
+    background: var(--mn-carbon);
+    padding: 1rem 0;
+    border-radius: 3px;
+  }
+  .marquee-track {
+    display: flex;
+    gap: 3rem;
+    animation: marquee 18s linear infinite;
+    white-space: nowrap;
+  }
+  @keyframes marquee {
+    from { transform: translateX(0); }
+    to   { transform: translateX(-50%); }
+  }
+  .marquee-item {
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    color: var(--mn-crema);
+    font-style: italic;
+    flex-shrink: 0;
+  }
+  .marquee-sep {
+    color: var(--mn-terracota-soft);
+    font-style: normal;
+  }
+
+  /* =====================================================
+     18. NUMBER COUNTER
+  ===================================================== */
+  .counter-grid {
+    display: flex;
+    gap: 3rem;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .counter-item {
+    text-align: center;
+  }
+  .counter-num {
+    font-family: var(--font-display);
+    font-size: 3.5rem;
+    color: var(--mn-terracota);
+    font-weight: 400;
+    line-height: 1;
+    font-style: italic;
+  }
+  .counter-label {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--mn-carbon);
+    opacity: 0.6;
+    margin-top: 0.5rem;
+  }
+
+  /* =====================================================
+     19. SCRIPT WIGGLE (manuscrita que respira)
+  ===================================================== */
+  .script-wiggle {
+    font-family: var(--font-script);
+    font-size: 2.25rem;
+    color: var(--mn-terracota);
+    display: inline-block;
+    animation: wiggle 5s ease-in-out infinite;
+    transform-origin: bottom left;
+  }
+  @keyframes wiggle {
+    0%, 100% { transform: rotate(-3deg) translateY(0); }
+    50%      { transform: rotate(-1deg) translateY(-4px); }
+  }
+
+  /* =====================================================
+     20. DASHED BORDER FLOW
+  ===================================================== */
+  .dashed-flow {
+    border: 1px dashed var(--mn-terracota);
+    padding: 1.5rem 2rem;
+    font-family: var(--font-display);
+    font-style: italic;
+    color: var(--mn-carbon);
+    background-image: linear-gradient(90deg, var(--mn-terracota) 50%, transparent 50%),
+                      linear-gradient(90deg, var(--mn-terracota) 50%, transparent 50%),
+                      linear-gradient(0deg, var(--mn-terracota) 50%, transparent 50%),
+                      linear-gradient(0deg, var(--mn-terracota) 50%, transparent 50%);
+    background-position: left top, left bottom, left top, right top;
+    background-repeat: repeat-x, repeat-x, repeat-y, repeat-y;
+    background-size: 12px 1px, 12px 1px, 1px 12px, 1px 12px;
+    border: none;
+    animation: borderFlow 1s linear infinite;
+  }
+  @keyframes borderFlow {
+    to {
+      background-position: left top 0, left bottom 0, left top 0, right top 0;
+      background-position: 12px 0, -12px 100%, 0 -12px, 100% 12px;
+    }
+  }
+
+  /* =====================================================
+     21. NUMBER FLIP
+  ===================================================== */
+  .flip-num-wrap {
+    font-family: var(--font-display);
+    font-size: 3rem;
+    color: var(--mn-terracota);
+    font-style: italic;
+    height: 1em;
+    overflow: hidden;
+    display: inline-block;
+    line-height: 1;
+  }
+  .flip-num-track {
+    animation: flipNum 5s steps(1) infinite;
+  }
+  .flip-num-track span {
+    display: block;
+    line-height: 1;
+  }
+  @keyframes flipNum {
+    0%, 22%  { transform: translateY(0); }
+    25%, 47% { transform: translateY(-1em); }
+    50%, 72% { transform: translateY(-2em); }
+    75%, 97% { transform: translateY(-3em); }
+  }
+
+  /* =====================================================
+     22. RIPPLE CLICK
+  ===================================================== */
+  .ripple-btn {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    background: var(--mn-terracota);
+    color: var(--mn-crema);
+    padding: 0.85rem 2rem;
+    border: none;
+    border-radius: 2px;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+  }
+  .ripple-effect {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(240,230,210,0.5);
+    transform: scale(0);
+    animation: rippleAnim 600ms ease-out;
+    pointer-events: none;
+  }
+  @keyframes rippleAnim {
+    to { transform: scale(4); opacity: 0; }
+  }
+
+  /* =====================================================
+     23. SCROLL HORIZONTAL
+  ===================================================== */
+  .h-scroll-wrap {
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: thin;
+    scrollbar-color: var(--mn-terracota) transparent;
+  }
+  .h-scroll-wrap::-webkit-scrollbar { height: 4px; }
+  .h-scroll-wrap::-webkit-scrollbar-thumb { background: var(--mn-terracota); border-radius: 999px; }
+  .h-scroll-track {
+    display: flex;
+    gap: 1rem;
+    padding-bottom: 0.75rem;
+  }
+  .h-scroll-item {
+    flex: 0 0 200px;
+    height: 130px;
+    background-image: url('https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=400&q=80');
+    background-size: cover;
+    background-position: center;
+    border-radius: 3px;
+    scroll-snap-align: start;
+  }
+  .h-scroll-item:nth-child(2) { background-image: url('https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400&q=80'); }
+  .h-scroll-item:nth-child(3) { background-image: url('https://images.unsplash.com/photo-1565958011703-44f9829ba187?w=400&q=80'); }
+  .h-scroll-item:nth-child(4) { background-image: url('https://images.unsplash.com/photo-1556910103-1c02745aae4d?w=400&q=80'); }
+  .h-scroll-item:nth-child(5) { background-image: url('https://images.unsplash.com/photo-1509440159596-0249088772ff?w=400&q=80'); }
+
+  /* =====================================================
+     24. CURSOR MAGNET (botón que se mueve hacia el mouse)
+  ===================================================== */
+  .magnet-btn-wrap {
+    padding: 2rem;
+  }
+  .magnet-btn {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    background: var(--mn-terracota);
+    color: var(--mn-crema);
+    padding: 1rem 2.5rem;
+    border: none;
+    border-radius: 2px;
+    cursor: pointer;
+    transition: transform 200ms ease-out;
+  }
+
+  /* =====================================================
+     25. SECTION LABEL DASH GROW
+  ===================================================== */
+  .label-grow {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--mn-terracota);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  .label-grow::before {
+    content: '';
+    width: 0;
+    height: 1px;
+    background: var(--mn-terracota);
+    animation: dashGrow 1s ease-out 200ms forwards;
+  }
+  @keyframes dashGrow {
+    to { width: 28px; }
+  }
+
+  /* ========== NOTAS / TIP BOX ========== */
+  .tip-box {
+    background: var(--mn-terracota-muted);
+    border-left: 3px solid var(--mn-terracota);
+    padding: 1.25rem 1.5rem;
+    border-radius: 2px;
+    margin-bottom: 2rem;
+  }
+  .tip-box-title {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--mn-terracota-deep);
+    margin-bottom: 0.5rem;
+  }
+  .tip-box-text {
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    color: var(--mn-carbon);
+    line-height: 1.6;
+  }
+
+  /* ========== RESPONSIVE ========== */
+  @media (max-width: 700px) {
+    .toc-list { grid-template-columns: 1fr; }
+    .demo { padding: 1.5rem; }
+    .demo-stage { padding: 2rem 1rem; }
+    .sample-text { font-size: 1.5rem; }
+    .counter-grid { gap: 2rem; }
+    .counter-num { font-size: 2.5rem; }
+  }
+
+</style>
+</head>
+<body>
+
+<div class="page">
+
+  <header class="header">
+    <div class="header-meta">CATÁLOGO DE ANIMACIONES · MENESTERES · V1</div>
+    <h1 class="header-title">Sistema de <em>movimiento</em></h1>
+    <p class="header-sub">Todas las animaciones disponibles para el proyecto, organizadas por categoría. Cada efecto tiene un botón "Replay" para volver a ejecutarlo, una etiqueta indicando dónde se usaría, y nivel de recomendación según el tono editorial-cálido de la marca.</p>
+  </header>
+
+  <div class="toc">
+    <div class="toc-title">// ÍNDICE</div>
+    <ul class="toc-list">
+      <li><a href="#cat-entry">01 · Entrada de elementos</a></li>
+      <li><a href="#cat-text">02 · Texto y tipografía</a></li>
+      <li><a href="#cat-scroll">03 · Scroll y revelado</a></li>
+      <li><a href="#cat-images">04 · Imágenes</a></li>
+      <li><a href="#cat-hover">05 · Hover e interacción</a></li>
+      <li><a href="#cat-loop">06 · Loops permanentes</a></li>
+      <li><a href="#cat-numbers">07 · Números y datos</a></li>
+      <li><a href="#cat-extras">08 · Especiales / opcionales</a></li>
+    </ul>
+  </div>
+
+  <div class="tip-box">
+    <div class="tip-box-title">CRITERIO GENERAL</div>
+    <div class="tip-box-text">
+      Menos es más. La regla es: si una animación no aporta jerarquía, foco o contexto, no va. El sitio debería sentirse vivo pero nunca distraído. Las marcadas como <strong>RECOMENDADA</strong> son las que conviene usar; las otras quedan disponibles para casos puntuales o para sumar en versiones posteriores.
+    </div>
+  </div>
+
+  <!-- ============================================================
+       CATEGORÍA 1 — ENTRADA DE ELEMENTOS
+  ============================================================ -->
+  <section class="category" id="cat-entry">
+    <div class="category-label">01 — Entrada</div>
+    <h2 class="category-title">Cómo aparecen los <em>elementos</em></h2>
+    <p class="category-desc">Animaciones que ocurren al cargar la página o al renderizar un componente por primera vez. Críticas para el hero y para las primeras impresiones de cada sección.</p>
+
+    <!-- Demo 1.1 -->
+    <div class="demo">
+      <div class="demo-header">
+        <div>
+          <div class="demo-title">1.1 · Fade up básico</div>
+          <div class="demo-desc">Aparece desde abajo con opacidad y desplazamiento. El default para casi todo.</div>
+        </div>
+        <span class="demo-tag recommended">RECOMENDADA</span>
+      </div>
+      <div class="demo-stage">
+        <button class="demo-replay" data-target="fadeup-target">↻ Replay</button>
+        <div id="fadeup-target" class="anim-fadeup sample-text">Hola <em>Menesteres</em></div>
+      </div>
+    </div>
+
+    <!-- Demo 1.2 -->
+    <div class="demo">
+      <div class="demo-header">
+        <div>
+          <div class="demo-title">1.2 · Entrada escalonada (stagger)</div>
+          <div class="demo-desc">Tres elementos aparecen uno tras otro con delay. Ideal para hero: eyebrow → título → tagline.</div>
+        </div>
+        <span class="demo-tag recommended">RECOMENDADA · HERO</span>
+      </div>
+      <div class="demo-stage" style="flex-direction: column; align-items: flex-start;">
+        <button class="demo-replay" data-target="stagger-container">↻ Replay</button>
+        <div id="stagger-container" style="display: flex; flex-direction: column; gap: 0.5rem; align-items: flex-start;">
+          <div class="stagger-line" style="font-family: var(--font-mono); font-size: 0.7rem; letter-spacing: 0.3em; color: var(--mn-terracota);">CLASES DE COCINA</div>
+          <div class="stagger-line sample-text">MENE<em>STE</em>RES</div>
+          <div class="stagger-line" style="font-family: var(--font-script); font-size: 1.5rem; color: var(--mn-terracota);">sabores que nos encuentran</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Demo 1.3 -->
+    <div class="demo">
+      <div class="demo-header">
+        <div>
+          <div class="demo-title">1.3 · Section label con dash growing</div>
+          <div class="demo-desc">La línea decorativa antes del label se "dibuja" de izquierda a derecha. Detalle minúsculo pero le da carácter editorial.</div>
+        </div>
+        <span class="demo-tag recommended">RECOMENDADA · SECCIONES</span>
+      </div>
+      <div class="demo-stage" style="justify-content: flex-start;">
+        <button class="demo-replay" data-target="label-grow-target">↻ Replay</button>
+        <div id="label-grow-target" class="label-grow">— Lo que hacemos</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       CATEGORÍA 2 — TEXTO Y TIPOGRAFÍA
+  ============================================================ -->
+  <section class="category" id="cat-text">
+    <div class="category-label">02 — Texto</div>
+    <h2 class="category-title">Movimiento <em>tipográfico</em></h2>
+    <p class="category-desc">Efectos específicos sobre palabras y frases. Útiles para frases-protagonistas, taglines y bloques editoriales.</p>
+
+    <!-- Demo 2.1 -->
+    <div class="demo">
+      <div class="demo-header">
+        <div>
+          <div class="demo-title">2.1 · Typewriter (escritura en vivo)</div>
+          <div class="demo-desc">La frase se escribe letra por letra como si alguien la tipeara. Bueno para tagline manuscrita.</div>
+        </div>
+        <span class="demo-tag">USO PUNTUAL</span>
+      </div>
+      <div class="demo-stage">
+        <button class="demo-replay" data-target="typewriter-target">↻ Replay</button>
+        <div class="typewriter-wrap">
+          <span id="typewriter-target" class="typewriter">sabores que nos encuentran</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Demo 2.2 -->
+    <div class="demo">
+      <div class="demo-header">
+        <div>
+          <div class="demo-title">2.2 · Underline draw (subrayado animado)</div>
+          <div class="demo-desc">Una línea terracota se traza debajo de la palabra clave después de un breve delay. Perfecto para énfasis sin gritar.</div>
+        </div>
+        <span class="demo-tag recommended">RECOMENDADA · TÍTULOS</span>
+      </div>
+      <div class="demo-stage">
+        <button class="demo-replay" data-target="underline-target">↻ Replay</button>
+        <div>
+          <span id="underline-target" class="underline-draw">cocinar juntos</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Demo 2.3 -->
+    <div class="demo">
+      <div class="demo-header">
+        <div>
+          <div class="demo-title">2.3 · Split text (palabra por palabra)</div>
+          <div class="demo-desc">Frase larga que aparece palabra por palabra con stagger. Genial para el hero o para frases editoriales clave.</div>
+        </div>
+        <span class="demo-tag recommended">RECOMENDADA · INTRO</span>
+      </div>
+      <div class="demo-stage">
+        <button class="demo-replay" data-target="split-target">↻ Replay</button>
+        <div id="split-target" class="split-wrap" style="display: block; width: 100%; max-width: 480px;">
+          <!-- generado por JS -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Demo 2.4 -->
+    <div class="demo">
+      <div class="demo-header">
+        <div>
+          <div class="demo-title">2.4 · Italic word swap (palabra que cicla)</div>
+          <div class="demo-desc">Una sola palabra dentro de la frase va cambiando: "cocinar" → "aprender" → "compartir" → "celebrar". Esta es la que pediste para debajo del hero.</div>
+        </div>
+        <span class="demo-tag recommended">RECOMENDADA · HERO</span>
+      </div>
+      <div class="demo-stage">
+        <div class="italic-swap-wrap">
+          Vení a
+          <span class="italic-swap-flip">
+            <span>cocinar</span>
+            <span>aprender</span>
+            <span>compartir</span>
+            <span>celebrar</span>
+          </span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       CATEGORÍA 3 — SCROLL Y REVELADO
+  ============================================================ -->
+  <section class="category" id="cat-scroll">
+    <div class="category-label">03 — Scroll</div>
+    <h2 class="category-title">Aparición al <em>scrollear</em></h2>
+    <p class="category-desc">Animaciones que se disparan cuando el usuario hace scroll y los elementos entran en el viewport. Mantienen la web viva durante toda la navegación.</p>
+
+    <!-- Demo 3.1 -->
+    <div class="demo">
+      <div class="demo-header">
+        <div>
+          <div class="demo-title">3.1 · Fade-in on scroll</div>
+          <div class="demo-desc">Cada bloque (sección, card, párrafo) aparece cuando entra al viewport. La base del scroll en el sitio.</div>
+        </div>
+        <span class="demo-tag recommended">RECOMENDADA · GLOBAL</span>
+      </div>
+      <div class="demo-stage" style="min-height: 220px;">
+        <div class="fade-on-scroll" data-fadeable style="text-align: center;">
+          <div style="font-family: var(--font-mono); font-size: 0.7rem; letter-spacing: 0.2em; color: var(--mn-terracota); margin-bottom: 0.5rem;">SCROLLEÁ HASTA ACÁ</div>
+          <div class="sample-text">Aparezco <em>despacio</em></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Demo 3.2 -->
+    <div class="demo">
+      <div class="demo-header">
+        <div>
+          <div class="demo-title">3.2 · Scroll progress bar</div>
+          <div class="demo-desc">Barra fina arriba que indica cuánto leíste. Útil para páginas largas tipo "Sobre nosotros" o "Recetas".</div>
+        </div>
+        <span class="demo-tag">OPCIONAL · PÁGINAS LARGAS</span>
+      </div>
+      <div class="demo-stage">
+        <div class="progress-demo">
+          <div class="progress-fill-demo"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Demo 3.3 -->
+    <div class="demo">
+      <div class="demo-header">
+        <div>
+          <div class="demo-title">3.3 · Parallax sutil en imagen</div>
+          <div class="demo-desc">La imagen del hero se mueve más lento que el resto al scrollear. Da sensación de profundidad sin marear.</div>
+        </div>
+        <span class="demo-tag recommended">RECOMENDADA · HERO</span>
+      </div>
+      <div class="demo-stage">
+        <div class="parallax-wrap">
+          <div class="parallax-bg" id="parallax-target"></div>
+        </div>
+      </div>
+      <div style="font-family: var(--font-mono); font-size: 0.7rem; color: var(--mn-carbon); opacity: 0.6; margin-top: 1rem; text-align: center;">// Hacé scroll para ver el efecto en el hero real</div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       CATEGORÍA 4 — IMÁGENES
+  ============================================================ -->
+  <section class="category" id="cat-images">
+    <div class="category-label">04 — Imágenes</div>
+    <h2 class="category-title">Tratamiento de <em>fotos</em></h2>
+    <p class="category-desc">Efectos aplicables a las fotos del espacio, las clases y los platos. Lo que más impacto visual da por menos esfuerzo.</p>
+
+    <!-- Demo 4.1 -->
+    <div class="demo">
+      <div class="demo-header">
+        <div>
+          <div class="demo-title">4.1 · Ken Burns (zoom infinito muy lento)</div>
+          <div class="demo-desc">La imagen del hero hace un zoom muy sutil de 18 segundos en loop. La página se siente viva sin que distraiga.</div>
+        </div>
+        <span class="demo-tag recommended">RECOMENDADA · HERO</span>
+      </div>
+      <div class="demo-stage">
+        <div class="kenburns-wrap">
+          <div class="kenburns-img"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Demo 4.2 -->
+    <div class="demo">
+      <div class="demo-header">
+        <div>
+          <div class="demo-title">4.2 · Image reveal (cortina al cargar)</div>
+          <div class="demo-desc">La imagen aparece detrás de una cortina terracota que barre de izquierda a derecha y desaparece. Premium, no abusar.</div>
+        </div>
+        <span class="demo-tag">USO PUNTUAL</span>
+      </div>
+      <div class="demo-stage">
+        <button class="demo-replay" data-target="reveal-target">↻ Replay</button>
+        <div id="reveal-target" class="reveal-wrap">
+          <div class="reveal-curtain"></div>
+          <div class="reveal-img"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Demo 4.3 -->
+    <div class="demo">
+      <div class="demo-header">
+        <div>
+          <div class="demo-title">4.3 · Grayscale → Color al hover</div>
+          <div class="demo-desc">La galería se ve en blanco y negro y al pasar el mouse las fotos cobran color. Editorial, controlado.</div>
+        </div>
+        <span class="demo-tag">GALERÍA</span>
+      </div>
+      <div class="demo-stage">
+        <div class="img-grayscale"></div>
+      </div>
+    </div>
+
+    <!-- Demo 4.4 -->
+    <div class="demo">
+      <div class="demo-header">
+        <div>
+          <div class="demo-title">4.4 · Scale al hover</div>
+          <div class="demo-desc">La imagen se agranda levemente al pasar el mouse. Cards de clases.</div>
+        </div>
+        <span class="demo-tag recommended">RECOMENDADA · CARDS</span>
+      </div>
+      <div class="demo-stage">
+        <div class="img-tilt"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       CATEGORÍA 5 — HOVER E INTERACCIÓN
+  ============================================================ -->
+  <section class="category" id="cat-hover">
+    <div class="category-label">05 — Hover</div>
+    <h2 class="category-title">Cuando el usuario <em>toca</em></h2>
+    <p class="category-desc">Estos efectos son los que más diferencian una web hecha "a propósito" de una hecha por copy-paste. Pequeños, pero todos calibrados.</p>
+
+    <!-- Demo 5.1 -->
+    <div class="demo">
+      <div class="demo-header">
+        <div>
+          <div class="demo-title">5.1 · Hover fill desde abajo</div>
+          <div class="demo-desc">Botón que se rellena de color desde abajo hacia arriba. Se siente sólido y físico.</div>
+        </div>
+        <span class="demo-tag recommended">RECOMENDADA · BOTONES SECUNDARIOS</span>
+      </div>
+      <div class="demo-stage">
+        <button class="hover-fill">Conocer el espacio</button>
+      </div>
+    </div>
+
+    <!-- Demo 5.2 -->
+    <div class="demo">
+      <div class="demo-header">
+        <div>
+          <div class="demo-title">5.2 · Magnet link (separación de flecha)</div>
+          <div class="demo-desc">El espacio entre texto y flecha se expande al hover. Detalle clásico Anafe-style.</div>
+        </div>
+        <span class="demo-tag recommended">RECOMENDADA · LINKS</span>
+      </div>
+      <div class="demo-stage">
+        <a href="#" class="magnet-link" onclick="event.preventDefault()">Ver calendario completo</a>
+      </div>
+    </div>
+
+    <!-- Demo 5.3 -->
+    <div class="demo">
+      <div class="demo-header">
+        <div>
+          <div class="demo-title">5.3 · Card lift</div>
+          <div class="demo-desc">Card que se eleva con sombra al hover. Para clases, recetas, blog.</div>
+        </div>
+        <span class="demo-tag recommended">RECOMENDADA · CARDS</span>
+      </div>
+      <div class="demo-stage">
+        <div class="lift-card">
+          <div class="lift-card-meta">SAB · 12.04</div>
+          <div class="lift-card-title">Pastas frescas</div>
+          <div style="font-family: var(--font-mono); font-size: 0.75rem; color: var(--mn-carbon); opacity: 0.7;">2 cupos · $24.000</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Demo 5.4 -->
+    <div class="demo">
+      <div class="demo-header">
+        <div>
+          <div class="demo-title">5.4 · Índice editorial slide</div>
+          <div class="demo-desc">Las filas de servicios se desplazan a la derecha con su contenido reformateándose al hover. La que ya viste implementada en el home.</div>
+        </div>
+        <span class="demo-tag recommended">RECOMENDADA · SERVICIOS</span>
+      </div>
+      <div class="demo-stage dark">
+        <div style="width: 100%;">
+          <a href="#" class="indice-demo-row" onclick="event.preventDefault()">
+            <span class="indice-demo-num">01 —</span>
+            <span class="indice-demo-name">clases para adultos</span>
+            <span class="indice-demo-arrow">→</span>
+          </a>
+          <a href="#" class="indice-demo-row" onclick="event.preventDefault()">
+            <span class="indice-demo-num">02 —</span>
+            <span class="indice-demo-name">clases para niños</span>
+            <span class="indice-demo-arrow">→</span>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Demo 5.5 -->
+    <div class="demo">
+      <div class="demo-header">
+        <div>
+          <div class="demo-title">5.5 · Magnet button (atrae el cursor)</div>
+          <div class="demo-desc">El botón se mueve sutilmente hacia el cursor. Premium, casi imperceptible pero te das cuenta.</div>
+        </div>
+        <span class="demo-tag">OPCIONAL · CTA PRINCIPAL</span>
+      </div>
+      <div class="demo-stage">
+        <div class="magnet-btn-wrap" id="magnet-zone">
+          <button class="magnet-btn" id="magnet-btn">Reservar mi lugar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Demo 5.6 -->
+    <div class="demo">
+      <div class="demo-header">
+        <div>
+          <div class="demo-title">5.6 · Ripple on click</div>
+          <div class="demo-desc">Al clickear un botón, una onda se expande desde el punto de click. Material Design clásico.</div>
+        </div>
+        <span class="demo-tag">OPCIONAL</span>
+      </div>
+      <div class="demo-stage">
+        <button class="ripple-btn" id="ripple-btn">Click acá</button>
+      </div>
+    </div>
+
+    <!-- Demo 5.7 -->
+    <div class="demo">
+      <div class="demo-header">
+        <div>
+          <div class="demo-title">5.7 · Cursor follower (puntito que sigue)</div>
+          <div class="demo-desc">Un círculo terracota sigue el cursor por la sección y se agranda en zonas interactivas. Muy "boutique".</div>
+        </div>
+        <span class="demo-tag">OPCIONAL · NICHE</span>
+      </div>
+      <div class="demo-stage">
+        <div class="cursor-stage" id="cursor-stage" style="width: 100%; padding: 2rem; background: var(--mn-crema-light); border-radius: 3px;">
+          <div class="cursor-text">Movés el mouse <em style="color: var(--mn-terracota);">acá adentro</em></div>
+          <div class="cursor-dot" id="cursor-dot"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       CATEGORÍA 6 — LOOPS PERMANENTES
+  ============================================================ -->
+  <section class="category" id="cat-loop">
+    <div class="category-label">06 — Loops</div>
+    <h2 class="category-title">Movimiento <em>constante</em></h2>
+    <p class="category-desc">Animaciones que están siempre corriendo. Hay que usarlas con cuidado: sumar 1 o 2 está bien, más empieza a marear.</p>
+
+    <!-- Demo 6.1 -->
+    <div class="demo">
+      <div class="demo-header">
+        <div>
+          <div class="demo-title">6.1 · Marquee horizontal (ticker)</div>
+          <div class="demo-desc">Banda con frases que se desplaza lateralmente sin parar. Buena para próximas clases o frases de marca.</div>
+        </div>
+        <span class="demo-tag recommended">RECOMENDADA · ANTES DEL FOOTER</span>
+      </div>
+      <div class="demo-stage" style="padding: 0;">
+        <div class="marquee-wrap">
+          <div class="marquee-track">
+            <span class="marquee-item">sabores que nos encuentran <span class="marquee-sep">✦</span></span>
+            <span class="marquee-item">desde 2019 <span class="marquee-sep">✦</span></span>
+            <span class="marquee-item">en rafaela <span class="marquee-sep">✦</span></span>
+            <span class="marquee-item">cocinar juntos <span class="marquee-sep">✦</span></span>
+            <span class="marquee-item">sabores que nos encuentran <span class="marquee-sep">✦</span></span>
+            <span class="marquee-item">desde 2019 <span class="marquee-sep">✦</span></span>
+            <span class="marquee-item">en rafaela <span class="marquee-sep">✦</span></span>
+            <span class="marquee-item">cocinar juntos <span class="marquee-sep">✦</span></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Demo 6.2 -->
+    <div class="demo">
+      <div class="demo-header">
+        <div>
+          <div class="demo-title">6.2 · Script wiggle (manuscrita que respira)</div>
+          <div class="demo-desc">Las frases en Caveat respiran sutilmente. Sin esto, las manuscritas se ven "pegadas".</div>
+        </div>
+        <span class="demo-tag">OPCIONAL · STICKERS</span>
+      </div>
+      <div class="demo-stage">
+        <div class="script-wiggle">¡reservá tu lugar!</div>
+      </div>
+    </div>
+
+    <!-- Demo 6.3 -->
+    <div class="demo">
+      <div class="demo-header">
+        <div>
+          <div class="demo-title">6.3 · Scroll indicator pulse (la línea del hero)</div>
+          <div class="demo-desc">La línea vertical "SCROLL" del hero pulsa para invitar a bajar. La que ya está implementada.</div>
+        </div>
+        <span class="demo-tag recommended">RECOMENDADA · HERO</span>
+      </div>
+      <div class="demo-stage">
+        <div style="display: flex; flex-direction: column; align-items: center; gap: 0.6rem; color: var(--mn-carbon);">
+          <span style="font-family: var(--font-mono); font-size: 0.65rem; letter-spacing: 0.3em; opacity: 0.6;">SCROLL</span>
+          <div style="width: 1px; height: 36px; background: var(--mn-carbon); opacity: 0.6; animation: scroll-pulse 2s ease-in-out infinite; transform-origin: top;"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       CATEGORÍA 7 — NÚMEROS Y DATOS
+  ============================================================ -->
+  <section class="category" id="cat-numbers">
+    <div class="category-label">07 — Números</div>
+    <h2 class="category-title">Datos en <em>movimiento</em></h2>
+    <p class="category-desc">Animaciones específicas para estadísticas, fechas y métricas. Hacen que la página "Sobre nosotros" deje de ser plana.</p>
+
+    <!-- Demo 7.1 -->
+    <div class="demo">
+      <div class="demo-header">
+        <div>
+          <div class="demo-title">7.1 · Counter animado</div>
+          <div class="demo-desc">Los números cuentan desde 0 hasta el valor real cuando entran en pantalla. Para "1.200 alumnos", "47 clases este año", etc.</div>
+        </div>
+        <span class="demo-tag recommended">RECOMENDADA · ABOUT</span>
+      </div>
+      <div class="demo-stage">
+        <button class="demo-replay" data-target="counter-trigger">↻ Replay</button>
+        <div class="counter-grid" id="counter-trigger">
+          <div class="counter-item">
+            <div class="counter-num" data-target="1200">0</div>
+            <div class="counter-label">Alumnos</div>
+          </div>
+          <div class="counter-item">
+            <div class="counter-num" data-target="47">0</div>
+            <div class="counter-label">Clases en 2026</div>
+          </div>
+          <div class="counter-item">
+            <div class="counter-num" data-target="7">0</div>
+            <div class="counter-label">Años de oficio</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Demo 7.2 -->
+    <div class="demo">
+      <div class="demo-header">
+        <div>
+          <div class="demo-title">7.2 · Number flip (slot machine)</div>
+          <div class="demo-desc">Los números rotan en vertical como una máquina tragamonedas. Ideal para countdown a la próxima clase.</div>
+        </div>
+        <span class="demo-tag">OPCIONAL · COUNTDOWN</span>
+      </div>
+      <div class="demo-stage">
+        <div class="flip-num-wrap">
+          <div class="flip-num-track">
+            <span>03</span>
+            <span>02</span>
+            <span>01</span>
+            <span>00</span>
+          </div>
+        </div>
+        <span style="font-family: var(--font-display); font-size: 1rem; margin-left: 0.75rem; opacity: 0.6;">días para la próxima clase</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       CATEGORÍA 8 — ESPECIALES / OPCIONALES
+  ============================================================ -->
+  <section class="category" id="cat-extras">
+    <div class="category-label">08 — Extras</div>
+    <h2 class="category-title">Animaciones <em>especiales</em></h2>
+    <p class="category-desc">Recursos que probablemente no entren en V1 pero que vale la pena tener documentados para cuando se quiera escalar el sitio.</p>
+
+    <!-- Demo 8.1 -->
+    <div class="demo">
+      <div class="demo-header">
+        <div>
+          <div class="demo-title">8.1 · Scroll horizontal con snap</div>
+          <div class="demo-desc">Galería de fotos que se navega lateralmente con scroll, snapping a cada item. Para "Nuestros alumnos" o "Galería del espacio".</div>
+        </div>
+        <span class="demo-tag">GALERÍAS</span>
+      </div>
+      <div class="demo-stage" style="padding: 1rem;">
+        <div class="h-scroll-wrap" style="width: 100%;">
+          <div class="h-scroll-track">
+            <div class="h-scroll-item"></div>
+            <div class="h-scroll-item"></div>
+            <div class="h-scroll-item"></div>
+            <div class="h-scroll-item"></div>
+            <div class="h-scroll-item"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Demo 8.2 -->
+    <div class="demo">
+      <div class="demo-header">
+        <div>
+          <div class="demo-title">8.2 · Page transition (fade entre páginas)</div>
+          <div class="demo-desc">Cuando hacés click en un link, la página se desvanece a terracota antes de cargar la nueva. Muy editorial pero requiere SPA o JS extra.</div>
+        </div>
+        <span class="demo-tag">FASE 2 · REQUIERE STACK SPA</span>
+      </div>
+      <div class="demo-stage" style="flex-direction: column; gap: 1rem;">
+        <div style="font-family: var(--font-mono); font-size: 0.75rem; color: var(--mn-carbon); opacity: 0.7; text-align: center;">Demo no aplicable acá. Ver en sitios como anafe.com.ar al navegar entre secciones.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       CIERRE / RECOMENDACIONES
+  ============================================================ -->
+  <section class="category">
+    <div class="category-label">— Cierre</div>
+    <h2 class="category-title">Mi recomendación <em>final</em></h2>
+    <p class="category-desc">No todas las animaciones del catálogo deberían entrar a la web. Acá te dejo el set mínimo que recomiendo para V1, y el resto queda como reserva táctica.</p>
+
+    <div class="tip-box" style="margin-bottom: 1.5rem;">
+      <div class="tip-box-title">SET RECOMENDADO PARA V1 (10 efectos)</div>
+      <div class="tip-box-text">
+        Stagger en hero · Section label dash grow · Italic word swap (debajo del hero) · Underline draw (en títulos clave) · Fade-in on scroll (global) · Parallax sutil (hero) · Ken Burns (hero) · Card lift · Magnet link · Índice editorial slide. <br><br>
+        <strong>Total: 10 efectos coordinados.</strong> Suficiente para que la web se sienta viva sin sobrecargar. El resto del catálogo queda disponible para versiones posteriores o secciones específicas.
+      </div>
+    </div>
+
+    <div class="tip-box">
+      <div class="tip-box-title">QUÉ EVITAR</div>
+      <div class="tip-box-text">
+        Animaciones muy bouncy o cartoon (transform: scale(1.2) con springs) — rompen el tono editorial. <br>
+        Cursor followers + parallax + reveals todos juntos — performance se cae y marea. <br>
+        Loops permanentes en más de 2 elementos por viewport — distrae de leer.<br>
+        Animaciones disparadas en mobile sin `prefers-reduced-motion` — accesibilidad básica.
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<script>
+  // Replay genérico
+  document.querySelectorAll('.demo-replay').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const targetId = btn.getAttribute('data-target');
+      const target = document.getElementById(targetId);
+      if (!target) return;
+
+      if (targetId === 'counter-trigger') {
+        runCounters(target);
+        return;
+      }
+
+      // Forzar restart de animación
+      const clone = target.cloneNode(true);
+      target.parentNode.replaceChild(clone, target);
+
+      if (targetId === 'split-target') buildSplitText(clone);
+    });
+  });
+
+  // Split text
+  function buildSplitText(container) {
+    const phrase = 'Cocinar es aprender, recordar y compartir.';
+    container.innerHTML = '';
+    phrase.split(' ').forEach((word, i) => {
+      const span = document.createElement('span');
+      span.className = 'split-word';
+      span.style.animationDelay = (i * 100) + 'ms';
+      span.textContent = word + ' ';
+      container.appendChild(span);
+    });
+  }
+  buildSplitText(document.getElementById('split-target'));
+
+  // Fade on scroll
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+      }
+    });
+  }, { threshold: 0.2 });
+  document.querySelectorAll('[data-fadeable]').forEach(el => observer.observe(el));
+
+  // Counter animado
+  function runCounters(container) {
+    container.querySelectorAll('[data-target]').forEach(el => {
+      const target = parseInt(el.getAttribute('data-target'));
+      const duration = 1500;
+      const start = performance.now();
+      function step(now) {
+        const progress = Math.min((now - start) / duration, 1);
+        const eased = 1 - Math.pow(1 - progress, 3);
+        el.textContent = Math.floor(target * eased).toLocaleString('es-AR');
+        if (progress < 1) requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
+    });
+  }
+  // Auto-run on first view
+  const counterObs = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        runCounters(entry.target);
+        counterObs.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.5 });
+  counterObs.observe(document.getElementById('counter-trigger'));
+
+  // Parallax demo
+  const parallaxTarget = document.getElementById('parallax-target');
+  if (parallaxTarget) {
+    window.addEventListener('scroll', () => {
+      const rect = parallaxTarget.parentElement.getBoundingClientRect();
+      const offset = (rect.top - window.innerHeight / 2) * 0.15;
+      parallaxTarget.style.transform = 'translateY(' + offset + 'px)';
+    });
+  }
+
+  // Magnet button
+  const magnetZone = document.getElementById('magnet-zone');
+  const magnetBtn = document.getElementById('magnet-btn');
+  if (magnetZone && magnetBtn) {
+    magnetZone.addEventListener('mousemove', (e) => {
+      const rect = magnetBtn.getBoundingClientRect();
+      const x = e.clientX - rect.left - rect.width / 2;
+      const y = e.clientY - rect.top - rect.height / 2;
+      magnetBtn.style.transform = `translate(${x * 0.25}px, ${y * 0.25}px)`;
+    });
+    magnetZone.addEventListener('mouseleave', () => {
+      magnetBtn.style.transform = 'translate(0, 0)';
+    });
+  }
+
+  // Ripple
+  const rippleBtn = document.getElementById('ripple-btn');
+  if (rippleBtn) {
+    rippleBtn.addEventListener('click', (e) => {
+      const ripple = document.createElement('span');
+      ripple.className = 'ripple-effect';
+      const rect = rippleBtn.getBoundingClientRect();
+      const size = Math.max(rect.width, rect.height);
+      ripple.style.width = ripple.style.height = size + 'px';
+      ripple.style.left = (e.clientX - rect.left - size / 2) + 'px';
+      ripple.style.top = (e.clientY - rect.top - size / 2) + 'px';
+      rippleBtn.appendChild(ripple);
+      setTimeout(() => ripple.remove(), 600);
+    });
+  }
+
+  // Cursor follower
+  const cursorStage = document.getElementById('cursor-stage');
+  const cursorDot = document.getElementById('cursor-dot');
+  if (cursorStage && cursorDot) {
+    cursorStage.addEventListener('mousemove', (e) => {
+      const rect = cursorStage.getBoundingClientRect();
+      cursorDot.style.left = (e.clientX - rect.left) + 'px';
+      cursorDot.style.top = (e.clientY - rect.top) + 'px';
+    });
+  }
+
+  // Scroll pulse keyframe (necesario porque está inline)
+  const style = document.createElement('style');
+  style.textContent = `
+    @keyframes scroll-pulse {
+      0%, 100% { transform: scaleY(1); opacity: 0.6; }
+      50%      { transform: scaleY(0.4); opacity: 0.2; }
+    }
+  `;
+  document.head.appendChild(style);
+</script>
+
+</body>
+</html>

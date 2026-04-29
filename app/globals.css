@@ -1,26 +1,350 @@
+@config "../tailwind.config.ts";
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --mn-terracota: #B84A26;
+  --mn-terracota-deep: #8b3818;
+  --mn-terracota-soft: #d8714f;
+  --mn-terracota-muted: #f2d9cc;
+  --mn-carbon: #1a1614;
+  --mn-carbon-soft: #2d2520;
+  --mn-crema: #f0e6d2;
+  --mn-crema-deep: #e5d8bd;
+  --mn-crema-light: #f8f2e4;
+  --mn-oliva: #5c6b3e;
+  --mn-radius-sm: 2px;
+  --mn-radius-md: 3px;
+  --mn-radius-lg: 4px;
+  --mn-shadow-deep: 0 12px 32px rgba(26, 22, 20, 0.18);
+  --ease-snap: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --ease-soft: cubic-bezier(0.4, 0, 0.2, 1);
+  --font-display: var(--font-fraunces), Georgia, serif;
+  --font-body: var(--font-dm-sans), system-ui, sans-serif;
+  --font-script: var(--font-caveat), cursive;
+  --font-mono: var(--font-jetbrains), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
+    "Courier New", monospace;
+
+  --c-terracota: 184 74 38;
+  --c-carbon: 26 22 20;
+  --c-crema: 240 230 210;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-body);
+  color: var(--mn-carbon);
+  line-height: 1.6;
+  overflow-x: hidden;
+  background-color: var(--mn-crema);
+  background-image:
+    radial-gradient(circle at 20% 30%, rgba(184, 74, 38, 0.025) 1px, transparent 2px),
+    radial-gradient(circle at 70% 60%, rgba(26, 22, 20, 0.02) 1px, transparent 2px);
+  background-size: 8px 8px, 14px 14px;
+}
+
+.photo-editorial {
+  filter: saturate(0.9);
+}
+
+.hero-mn {
+  box-shadow: var(--mn-shadow-deep);
+}
+
+/* Editorial: capa de contenido (foto/video). El fondo del bloque video va sin filtro para que el degradé se lea bien. */
+.hero-mn__media:not(.hero-mn__media--video) {
+  filter: saturate(0.85) brightness(0.95);
+}
+
+.hero-mn__media--video {
+  filter: none;
+  background:
+    radial-gradient(ellipse 100% 72% at 50% 36%, rgba(184, 74, 38, 0.38) 0%, rgba(139, 56, 24, 0.14) 45%, transparent 58%),
+    linear-gradient(168deg, #2a231e 0%, var(--mn-carbon) 48%, #12100d 100%);
+}
+
+.hero-mn__media--video :is(video, img) {
+  filter: saturate(0.85) brightness(0.95);
+}
+
+.hero-mn__overlay {
+  background: linear-gradient(
+    180deg,
+    rgba(26, 22, 20, 0.35) 0%,
+    rgba(26, 22, 20, 0.15) 40%,
+    rgba(26, 22, 20, 0.55) 100%
+  );
+}
+
+.hero-mn__meta-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--mn-crema);
+  opacity: 0.85;
+}
+
+.hero-mn__eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  color: var(--mn-crema);
+  opacity: 0.85;
+  margin-bottom: 1.25rem;
+}
+
+.hero-mn__title {
+  font-family: var(--font-display);
+  /* Mobile-first: no desborda en 320px; escala fuerte desde md */
+  font-size: clamp(2.25rem, 6vw + 0.75rem, 7rem);
+  line-height: 0.9;
+  letter-spacing: 0.04em;
+  font-weight: 400;
+  color: var(--mn-crema);
+}
+
+@media (min-width: 768px) {
+  .hero-mn__title {
+    font-size: clamp(3rem, 7vw + 0.25rem, 7rem);
+  }
+}
+
+.hero-mn__tagline {
+  margin-top: 1.5rem;
+  font-family: var(--font-script);
+  font-size: clamp(1.25rem, 3.5vw, 1.75rem);
+  line-height: 1.15;
+  color: var(--mn-crema);
+  opacity: 0.95;
+  max-width: min(100%, 22rem);
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.hero-mn__scroll {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  font-weight: 500;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--mn-crema);
+  opacity: 0.7;
+}
+
+.hero-mn__scroll-line {
+  width: 1px;
+  height: 32px;
+  background: var(--mn-crema);
+  opacity: 0.6;
+  transform-origin: top;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .hero-mn__scroll-line {
+    animation: hero-scroll-pulse 2s ease-in-out infinite;
+  }
+}
+
+@keyframes hero-scroll-pulse {
+  0%,
+  100% {
+    transform: scaleY(1);
+    opacity: 0.6;
+  }
+  50% {
+    transform: scaleY(0.4);
+    opacity: 0.2;
+  }
+}
+
+@keyframes section-label-dash-grow {
+  from {
+    width: 0px;
+  }
+  to {
+    width: 28px;
+  }
+}
+
+.section-label-dash {
+  width: 0px;
+}
+
+[data-inview="true"][data-reduced="false"] .section-label-dash {
+  animation: section-label-dash-grow 0.3s var(--ease-soft) forwards;
+}
+
+[data-reduced="true"] .section-label-dash {
+  width: 28px;
+}
+
+.section-title em {
+  font-style: italic;
+  color: rgb(var(--c-terracota));
+  position: relative;
+  white-space: nowrap;
+}
+
+.section-title em::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -0.12em;
+  height: 1px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: left;
+}
+
+[data-inview="true"][data-reduced="false"].section-title em::after {
+  transform: scaleX(1);
+  transition: transform 1.2s cubic-bezier(0.4, 0, 0.2, 1) 0.4s;
+}
+
+[data-reduced="true"].section-title em::after {
+  transform: scaleX(1);
+}
+
+/* Pull quote — subrayado en palabra en itálica (Nosotros) */
+.pull-quote-text .pull-quote-em {
+  font-style: italic;
+  color: var(--mn-terracota-soft);
+  position: relative;
+  display: inline-block;
+  white-space: nowrap;
+}
+
+.pull-quote-text .pull-quote-em::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -0.12em;
+  height: 1px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: left;
+}
+
+[data-pull-inview="true"][data-pull-reduced="false"] .pull-quote-text .pull-quote-em::after {
+  transform: scaleX(1);
+  transition: transform 1.15s cubic-bezier(0.4, 0, 0.2, 1) 0.35s;
+}
+
+[data-pull-reduced="true"] .pull-quote-text .pull-quote-em::after {
+  transform: scaleX(1);
+}
+
+@keyframes hero-kenburns {
+  0% {
+    transform: scale(1) translate(0, 0);
+  }
+  100% {
+    transform: scale(1.12) translate(-2%, -1%);
+  }
+}
+
+.kenburns.hero-mn__kenburns {
+  will-change: transform;
+}
+
+.kenburns.hero-mn__kenburns[data-reduced="false"] {
+  animation: hero-kenburns 18s ease-in-out infinite alternate;
+}
+
+@keyframes marquee-scroll {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-33.333%, 0, 0);
+  }
+}
+
+.marquee {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  transform: translateZ(0);
+}
+
+.marquee-track {
+  display: inline-block;
+  white-space: nowrap;
+  will-change: transform;
+  backface-visibility: hidden;
+  animation: marquee-scroll 18s linear infinite;
+}
+
+@keyframes script-wiggle {
+  0%,
+  100% {
+    transform: rotate(-1.25deg) translateY(0);
+  }
+  50% {
+    transform: rotate(1.75deg) translateY(-3px);
+  }
+}
+
+.script-wiggle {
+  display: inline-block;
+  transform-origin: 50% 60%;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .script-wiggle {
+    animation: script-wiggle 2.8s ease-in-out infinite;
+  }
+}
+
+.footer-link {
+  font-family: var(--font-jetbrains), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.22em;
+  color: rgba(var(--c-carbon), 0.7);
+  text-decoration: none;
+}
+
+.footer-link:hover {
+  color: var(--mn-terracota);
+}
+
+.footer-link:focus-visible {
+  outline: 2px solid rgba(var(--c-terracota), 0.35);
+  outline-offset: 2px;
+}
+
+.footer-surface-deep .footer-link {
+  color: rgba(248, 242, 228, 0.82);
+}
+
+.footer-surface-deep .footer-link:hover {
+  color: var(--mn-crema-light);
+}
+
+.footer-surface-deep .footer-link:focus-visible {
+  outline-color: rgba(248, 242, 228, 0.45);
+}
+
+@media (max-width: 639px) {
+  .footer-surface-deep .footer-link {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding-block: 0.2rem;
+  }
 }
