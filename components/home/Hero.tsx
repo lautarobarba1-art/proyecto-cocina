@@ -1,10 +1,10 @@
 "use client";
 
-import * as React from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 
 import { KenBurns } from "@/components/animations/KenBurns";
 import { Logotype } from "@/components/brand/Logotype";
+import { Button } from "@/components/ui/Button";
 import { HERO_AFTER_SPLASH_DELAYS, HERO_ENTRY } from "@/lib/motion";
 import { IMAGES } from "@/lib/images";
 import { useReducedMotion } from "@/lib/useReducedMotion";
@@ -24,7 +24,8 @@ export function Hero({ className, introReveal = true, staggerProfile = "default"
 
   const ready = reduced || introReveal;
   const delays = staggerProfile === "afterSplash" ? HERO_AFTER_SPLASH_DELAYS : HERO_ENTRY.delays;
-  const scrollDelay = delays[2] + 0.14;
+  const ctaDelay = delays[2] + 0.08;
+  const scrollDelay = ctaDelay + 0.12;
 
   return (
     <section
@@ -112,7 +113,7 @@ export function Hero({ className, introReveal = true, staggerProfile = "default"
           }
         >
           <h1 className="hero-mn__title">
-            <Logotype variant="onDark" />
+            <Logotype variant="onDark" size="xl" priority />
           </h1>
         </motion.div>
 
@@ -130,8 +131,30 @@ export function Hero({ className, introReveal = true, staggerProfile = "default"
                 }
           }
         >
-          sabores que nos encuentran
+          Sabores que nos encuentran
         </motion.p>
+
+        <motion.div
+          className="mt-8 flex flex-wrap items-center justify-center gap-3"
+          initial={reduced ? { opacity: 1, y: 0 } : { opacity: 0, y: 16 }}
+          animate={ready ? { opacity: 1, y: 0 } : { opacity: 0, y: 16 }}
+          transition={
+            reduced
+              ? undefined
+              : {
+                  duration: HERO_ENTRY.duration,
+                  ease: HERO_ENTRY.ease,
+                  delay: ready ? ctaDelay : 0,
+                }
+          }
+        >
+          <Button href="/clases" variant="primary" size="lg">
+            Reservar clase
+          </Button>
+          <Button href="/espacio" variant="outline-cream" size="lg">
+            Conocer el espacio
+          </Button>
+        </motion.div>
       </div>
 
       <motion.div

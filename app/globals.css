@@ -1,32 +1,82 @@
 @config "../tailwind.config.ts";
 @import "tailwindcss";
 
+/* ============================================================
+   Menesteres — Design Tokens (manual oficial v2)
+   ============================================================ */
 :root {
-  --mn-terracota: #B84A26;
-  --mn-terracota-deep: #8b3818;
-  --mn-terracota-soft: #d8714f;
+  /* —— Colores oficiales del manual —— */
+  --m-orange: #d65226;
+  --m-orange-deep: #b8421a;
+  --m-orange-light: #f8ab50;
+  --m-black: #141414;
+  --m-cream: #fffaf3;
+  --m-cream-warm: #f5e8d4;
+  --m-olive: #696027;
+  --m-brown: #813408;
+  --m-red: #a11506;
+  --m-mute: #8a7b6a;
+  --m-line: #e8d9c3;
+
+  /* —— Aliases legados (mantienen compatibilidad con código ya escrito) —— */
+  --mn-terracota: var(--m-orange);
+  --mn-terracota-deep: var(--m-orange-deep);
+  --mn-terracota-soft: var(--m-orange-light);
   --mn-terracota-muted: #f2d9cc;
-  --mn-carbon: #1a1614;
+  --mn-carbon: var(--m-black);
   --mn-carbon-soft: #2d2520;
-  --mn-crema: #f0e6d2;
-  --mn-crema-deep: #e5d8bd;
-  --mn-crema-light: #f8f2e4;
-  --mn-oliva: #5c6b3e;
-  --mn-radius-sm: 2px;
-  --mn-radius-md: 3px;
-  --mn-radius-lg: 4px;
-  --mn-shadow-deep: 0 12px 32px rgba(26, 22, 20, 0.18);
+  --mn-crema: var(--m-cream);
+  --mn-crema-deep: var(--m-cream-warm);
+  --mn-crema-light: #fffcf7;
+  --mn-oliva: var(--m-olive);
+  --mn-line: var(--m-line);
+  --mn-mute: var(--m-mute);
+
+  /* —— Spacing scale (manual: 1=4px, 2=8px, 3=12px, 4=16px, 5=24px, 6=32px, 7=48px, 8=64px, 9=96px, 10=128px) —— */
+  --s-1: 0.25rem;
+  --s-2: 0.5rem;
+  --s-3: 0.75rem;
+  --s-4: 1rem;
+  --s-5: 1.5rem;
+  --s-6: 2rem;
+  --s-7: 3rem;
+  --s-8: 4rem;
+  --s-9: 6rem;
+  --s-10: 8rem;
+
+  /* —— Border radius —— */
+  --r-sm: 4px;
+  --r-md: 8px;
+  --r-lg: 16px;
+  --r-pill: 999px;
+  --mn-radius-sm: var(--r-sm);
+  --mn-radius-md: var(--r-md);
+  --mn-radius-lg: var(--r-lg);
+
+  /* —— Shadows —— */
+  --sh-sm: 0 2px 4px rgba(214, 82, 38, 0.08);
+  --sh-md: 0 6px 20px rgba(20, 20, 20, 0.10);
+  --sh-lg: 0 16px 48px rgba(20, 20, 20, 0.18);
+  --sh-orange: 0 8px 32px rgba(214, 82, 38, 0.32);
+  --mn-shadow-deep: var(--sh-lg);
+
+  /* —— Easing —— */
   --ease-snap: cubic-bezier(0.25, 0.46, 0.45, 0.94);
   --ease-soft: cubic-bezier(0.4, 0, 0.2, 1);
-  --font-display: var(--font-fraunces), Georgia, serif;
-  --font-body: var(--font-dm-sans), system-ui, sans-serif;
-  --font-script: var(--font-caveat), cursive;
-  --font-mono: var(--font-jetbrains), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
-    "Courier New", monospace;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
 
-  --c-terracota: 184 74 38;
-  --c-carbon: 26 22 20;
-  --c-crema: 240 230 210;
+  /* —— Tipografías —— */
+  --font-sans: var(--font-montserrat), system-ui, sans-serif;
+  --font-serif: var(--font-cinzel), "Copperplate", serif;
+  --font-display: var(--font-montserrat), system-ui, sans-serif;
+  --font-body: var(--font-montserrat), system-ui, sans-serif;
+  --font-script: var(--font-cinzel), "Copperplate", serif;
+  --font-mono: var(--font-montserrat), system-ui, sans-serif;
+
+  /* —— RGB triplets para alpha dinámico —— */
+  --c-terracota: 214 82 38;
+  --c-carbon: 20 20 20;
+  --c-crema: 255 250 243;
 }
 
 *,
@@ -36,47 +86,62 @@
 }
 
 body {
-  font-family: var(--font-body);
-  color: var(--mn-carbon);
-  line-height: 1.6;
+  font-family: var(--font-sans);
+  color: var(--m-black);
+  line-height: 1.55;
   overflow-x: hidden;
-  background-color: var(--mn-crema);
-  background-image:
-    radial-gradient(circle at 20% 30%, rgba(184, 74, 38, 0.025) 1px, transparent 2px),
-    radial-gradient(circle at 70% 60%, rgba(26, 22, 20, 0.02) 1px, transparent 2px);
-  background-size: 8px 8px, 14px 14px;
+  background-color: var(--m-cream);
+  -webkit-font-smoothing: antialiased;
 }
 
+/* ============================================================
+   Editorial helpers
+   ============================================================ */
 .photo-editorial {
-  filter: saturate(0.9);
+  filter: saturate(0.95) contrast(1.02);
 }
 
+/* Logotype invertido a crema sobre fondos oscuros (hero, navbar, footer).
+   El asset original usa terracota; con este filter se reduce a luminancia
+   y luego se invierte para llegar a un blanco-crema visualmente compatible. */
+.logotype--on-dark {
+  filter: brightness(0) invert(1) brightness(0.985) sepia(0.04);
+}
+
+/* ============================================================
+   HERO — fondo, capas y tipografía editorial
+   ============================================================ */
 .hero-mn {
-  box-shadow: var(--mn-shadow-deep);
+  box-shadow: var(--sh-lg);
 }
 
-/* Editorial: capa de contenido (foto/video). El fondo del bloque video va sin filtro para que el degradé se lea bien. */
 .hero-mn__media:not(.hero-mn__media--video) {
-  filter: saturate(0.85) brightness(0.95);
+  filter: saturate(0.9) brightness(0.95);
 }
 
 .hero-mn__media--video {
   filter: none;
   background:
-    radial-gradient(ellipse 100% 72% at 50% 36%, rgba(184, 74, 38, 0.38) 0%, rgba(139, 56, 24, 0.14) 45%, transparent 58%),
-    linear-gradient(168deg, #2a231e 0%, var(--mn-carbon) 48%, #12100d 100%);
+    radial-gradient(
+      ellipse 100% 72% at 50% 36%,
+      rgba(214, 82, 38, 0.38) 0%,
+      rgba(184, 66, 26, 0.14) 45%,
+      transparent 58%
+    ),
+    linear-gradient(168deg, #2a231e 0%, var(--m-black) 48%, #0d0c0b 100%);
 }
 
 .hero-mn__media--video :is(video, img) {
-  filter: saturate(0.85) brightness(0.95);
+  filter: saturate(0.9) brightness(0.95);
 }
 
 .hero-mn__overlay {
   background: linear-gradient(
     180deg,
-    rgba(26, 22, 20, 0.35) 0%,
-    rgba(26, 22, 20, 0.15) 40%,
-    rgba(26, 22, 20, 0.55) 100%
+    rgba(20, 20, 20, 0.30) 0%,
+    transparent 35%,
+    transparent 55%,
+    rgba(20, 20, 20, 0.85) 100%
   );
 }
 
@@ -84,68 +149,63 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
   font-size: 0.7rem;
-  font-weight: 500;
+  font-weight: 700;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: var(--mn-crema);
+  color: var(--m-cream);
   opacity: 0.85;
 }
 
 .hero-mn__eyebrow {
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
   font-size: 0.7rem;
-  font-weight: 500;
-  letter-spacing: 0.4em;
+  font-weight: 700;
+  letter-spacing: 0.3em;
   text-transform: uppercase;
-  color: var(--mn-crema);
-  opacity: 0.85;
-  margin-bottom: 1.25rem;
+  color: var(--m-orange-light);
+  margin-bottom: var(--s-5);
 }
 
+/* El título del hero ahora aloja la imagen del wordmark; eliminamos el styling
+   de texto y dejamos sólo márgenes/contenedor neutros. */
 .hero-mn__title {
-  font-family: var(--font-display);
-  /* Mobile-first: no desborda en 320px; escala fuerte desde md */
-  font-size: clamp(2.25rem, 6vw + 0.75rem, 7rem);
-  line-height: 0.9;
-  letter-spacing: 0.04em;
-  font-weight: 400;
-  color: var(--mn-crema);
-}
-
-@media (min-width: 768px) {
-  .hero-mn__title {
-    font-size: clamp(3rem, 7vw + 0.25rem, 7rem);
-  }
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  padding: 0;
+  line-height: 1;
 }
 
 .hero-mn__tagline {
-  margin-top: 1.5rem;
-  font-family: var(--font-script);
-  font-size: clamp(1.25rem, 3.5vw, 1.75rem);
-  line-height: 1.15;
-  color: var(--mn-crema);
-  opacity: 0.95;
-  max-width: min(100%, 22rem);
+  margin-top: var(--s-5);
+  font-family: var(--font-serif);
+  font-size: clamp(1rem, 1.6vw + 0.4rem, 1.4rem);
+  font-weight: 500;
+  letter-spacing: 0.15em;
+  line-height: 1.4;
+  text-transform: uppercase;
+  color: rgba(255, 250, 243, 0.92);
+  max-width: min(100%, 30rem);
   margin-left: auto;
   margin-right: auto;
 }
 
 .hero-mn__scroll {
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
   font-size: 0.65rem;
-  font-weight: 500;
+  font-weight: 700;
   letter-spacing: 0.3em;
   text-transform: uppercase;
-  color: var(--mn-crema);
-  opacity: 0.7;
+  color: rgba(255, 250, 243, 0.7);
 }
 
 .hero-mn__scroll-line {
   width: 1px;
   height: 32px;
-  background: var(--mn-crema);
+  background: var(--m-cream);
   opacity: 0.6;
   transform-origin: top;
 }
@@ -168,6 +228,9 @@ body {
   }
 }
 
+/* ============================================================
+   Section labels (eyebrow + dash creciendo en viewport)
+   ============================================================ */
 @keyframes section-label-dash-grow {
   from {
     width: 0px;
@@ -189,9 +252,12 @@ body {
   width: 28px;
 }
 
+/* ============================================================
+   Section title — italic word con underline animado
+   ============================================================ */
 .section-title em {
-  font-style: italic;
-  color: rgb(var(--c-terracota));
+  font-style: normal;
+  color: var(--m-orange);
   position: relative;
   white-space: nowrap;
 }
@@ -210,17 +276,42 @@ body {
 
 [data-inview="true"][data-reduced="false"].section-title em::after {
   transform: scaleX(1);
-  transition: transform 1.2s cubic-bezier(0.4, 0, 0.2, 1) 0.4s;
+  transition: transform 1.2s var(--ease-soft) 0.4s;
 }
 
 [data-reduced="true"].section-title em::after {
   transform: scaleX(1);
 }
 
-/* Pull quote — subrayado en palabra en itálica (Nosotros) */
+/* Section heading "card" — estilo del DS con accent bar arriba */
+.ds-section-heading {
+  position: relative;
+  padding: var(--s-8);
+  border: 1px solid var(--m-line);
+  border-radius: var(--r-md);
+  background: var(--m-cream);
+  text-align: center;
+  overflow: hidden;
+}
+
+.ds-section-heading::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 4px;
+  background: var(--m-orange);
+  border-radius: 0 0 var(--r-sm) var(--r-sm);
+}
+
+/* ============================================================
+   Pull quote
+   ============================================================ */
 .pull-quote-text .pull-quote-em {
   font-style: italic;
-  color: var(--mn-terracota-soft);
+  color: var(--m-orange-light);
   position: relative;
   display: inline-block;
   white-space: nowrap;
@@ -240,13 +331,16 @@ body {
 
 [data-pull-inview="true"][data-pull-reduced="false"] .pull-quote-text .pull-quote-em::after {
   transform: scaleX(1);
-  transition: transform 1.15s cubic-bezier(0.4, 0, 0.2, 1) 0.35s;
+  transition: transform 1.15s var(--ease-soft) 0.35s;
 }
 
 [data-pull-reduced="true"] .pull-quote-text .pull-quote-em::after {
   transform: scaleX(1);
 }
 
+/* ============================================================
+   KenBurns + marquee + script-wiggle
+   ============================================================ */
 @keyframes hero-kenburns {
   0% {
     transform: scale(1) translate(0, 0);
@@ -309,35 +403,39 @@ body {
   }
 }
 
+/* ============================================================
+   Footer links (tipografía editorial)
+   ============================================================ */
 .footer-link {
-  font-family: var(--font-jetbrains), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-  font-size: 0.75rem;
+  font-family: var(--font-sans);
+  font-size: 0.8125rem;
   font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.22em;
-  color: rgba(var(--c-carbon), 0.7);
+  letter-spacing: 0.05em;
+  color: rgb(var(--c-carbon) / 0.7);
   text-decoration: none;
+  transition: color 200ms var(--ease-out), padding-left 200ms var(--ease-out);
 }
 
 .footer-link:hover {
-  color: var(--mn-terracota);
+  color: var(--m-orange);
+  padding-left: 4px;
 }
 
 .footer-link:focus-visible {
-  outline: 2px solid rgba(var(--c-terracota), 0.35);
+  outline: 2px solid rgb(var(--c-terracota) / 0.35);
   outline-offset: 2px;
 }
 
 .footer-surface-deep .footer-link {
-  color: rgba(248, 242, 228, 0.82);
+  color: rgba(255, 250, 243, 0.7);
 }
 
 .footer-surface-deep .footer-link:hover {
-  color: var(--mn-crema-light);
+  color: var(--m-orange-light);
 }
 
 .footer-surface-deep .footer-link:focus-visible {
-  outline-color: rgba(248, 242, 228, 0.45);
+  outline-color: rgb(255 250 243 / 0.45);
 }
 
 @media (max-width: 639px) {

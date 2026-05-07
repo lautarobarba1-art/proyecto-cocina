@@ -69,7 +69,7 @@ export function SplashIntro({ onComplete }: SplashIntroProps) {
         }}
       >
         <h1 className="hero-mn__title select-none">
-          <Logotype variant="onDark" />
+          <Logotype variant="onDark" size="xl" priority />
         </h1>
       </motion.div>
     </motion.div>

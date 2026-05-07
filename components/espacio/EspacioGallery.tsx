@@ -16,7 +16,7 @@ export function EspacioGallery({ className }: EspacioGalleryProps) {
         {ESPACIO_GALLERY.map((item) => (
           <div
             key={item.src}
-            className={["relative isolate min-h-0 overflow-hidden bg-carbon-soft/15", item.gridClass].join(" ")}
+            className={["relative min-h-0 overflow-hidden bg-carbon-soft/15", item.gridClass].join(" ")}
           >
             <Image
               src={item.src}

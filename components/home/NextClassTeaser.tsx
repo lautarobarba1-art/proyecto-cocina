@@ -1,6 +1,5 @@
-import Link from "next/link";
-
 import { Container } from "@/components/layout/Container";
+import { Button } from "@/components/ui/Button";
 import { SectionLabel } from "@/components/ui/SectionLabel";
 import { NEXT_CLASS } from "@/lib/classes";
 
@@ -24,12 +23,9 @@ export function NextClassTeaser({ className }: NextClassTeaserProps) {
             </h3>
           </div>
 
-          <Link
-            href={NEXT_CLASS.href}
-            className="inline-flex min-h-11 w-full shrink-0 items-center justify-center border border-terracota bg-terracota px-6 py-3 font-mono text-[0.75rem] font-medium uppercase tracking-meta text-crema-light transition-colors duration-300 ease-snap hover:border-terracota-deep hover:bg-terracota-deep focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-terracota/40 md:w-auto"
-          >
+          <Button href={NEXT_CLASS.href} variant="primary" className="w-full shrink-0 md:w-auto">
             Reservar
-          </Link>
+          </Button>
         </div>
       </Container>
     </section>

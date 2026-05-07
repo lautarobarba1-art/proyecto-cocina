@@ -15,9 +15,21 @@ import type { CalendarView } from "@/components/calendario/ViewToggle";
 import { ViewToggle } from "@/components/calendario/ViewToggle";
 import { EmptyMonth } from "@/components/calendario/EmptyMonth";
 import { WaitlistBlock } from "@/components/calendario/WaitlistBlock";
-import { getMonthEvents } from "@/lib/calendar/data";
 import { encodeClaseParam } from "@/lib/calendar/helpers";
 import type { ClassEvent, MonthData } from "@/lib/calendar/types";
+
+async function fetchMonthEventsClient(year: number, month: number): Promise<MonthData> {
+  const res = await fetch(
+    `/api/calendar/month?year=${encodeURIComponent(String(year))}&month=${encodeURIComponent(String(month))}`,
+    { cache: "no-store" },
+  );
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}));
+    const msg = typeof body?.error === "string" ? body.error : res.statusText;
+    throw new Error(msg || `HTTP ${res.status}`);
+  }
+  return res.json() as Promise<MonthData>;
+}
 
 /** &lt;700px: list-only view (CalendarioPageClient is client-only via `dynamic(..., { ssr: false })`). */
 function useNarrowCalendar(): boolean {
@@ -89,7 +101,7 @@ export function CalendarioPageClient({
 
   React.useEffect(() => {
     let cancelled = false;
-    void getMonthEvents(year, month).then((d) => {
+    void fetchMonthEventsClient(year, month).then((d) => {
       if (!cancelled) setMonthData(d);
     });
     return () => {
@@ -192,7 +204,7 @@ export function CalendarioPageClient({
   );
 
   return (
-    <main className="flex-1 bg-crema pb-24">
+    <main className="flex-1 bg-crema pb-20 lg:pb-28">
       <CalendarHeader
         year={year}
         month={month}

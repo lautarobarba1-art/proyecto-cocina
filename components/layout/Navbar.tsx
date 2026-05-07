@@ -6,6 +6,7 @@ import { Menu, X } from "lucide-react";
 
 import { Logotype } from "@/components/brand/Logotype";
 import { Container } from "@/components/layout/Container";
+import { Button } from "@/components/ui/Button";
 import { useReducedMotion } from "@/lib/useReducedMotion";
 
 export interface NavbarProps {
@@ -64,6 +65,19 @@ function useNavbarVisible(): boolean {
   return visible;
 }
 
+/**
+ * Tipografía de los links del DS:
+ *  font-sans / 12px / 600 / tracking 0.1em / uppercase
+ *  underline 2px terracota animado en hover
+ */
+const NAV_LINK_BASE =
+  "relative inline-block py-1 font-sans text-[12px] font-semibold uppercase leading-tight tracking-[0.1em] transition-colors duration-300 ease-snap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-terracota/40";
+
+const NAV_LINK_DARK = "text-crema/75 hover:text-crema";
+
+const NAV_LINK_UNDERLINE =
+  "after:pointer-events-none after:absolute after:bottom-0 after:left-0 after:h-[2px] after:w-0 after:bg-terracota after:transition-[width] after:duration-300 after:ease-snap hover:after:w-full";
+
 export function Navbar({ className }: NavbarProps) {
   const reduced = useReducedMotion();
   const isMobile = useIsMobile();
@@ -104,15 +118,15 @@ export function Navbar({ className }: NavbarProps) {
           barHidden ? "pointer-events-none -translate-y-full opacity-0" : "translate-y-0 opacity-100",
         ].join(" ")}
       >
-        <div className="bg-carbon/92 backdrop-blur-md">
+        <div className="bg-carbon/95 backdrop-blur-md">
           <Container as="div" className="h-16">
             <div className="flex h-full items-center justify-between gap-6">
               <Link
                 href="/"
-                className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-terracota/40"
+                className="focus-visible:outline-none focus-visible:rounded-sm focus-visible:ring-2 focus-visible:ring-terracota/40"
                 aria-label="Ir al inicio"
               >
-                <Logotype variant="onDark" className="text-[1.05rem] tracking-editorial" />
+                <Logotype variant="onDark" size="xs" />
               </Link>
 
               {isMobile ? (
@@ -122,30 +136,27 @@ export function Navbar({ className }: NavbarProps) {
                   aria-controls={overlayId}
                   aria-expanded={open}
                   aria-label={open ? "Cerrar menú" : "Abrir menú"}
-                  className="inline-flex min-h-11 min-w-11 items-center justify-center border border-crema-light/20 bg-transparent px-3 py-3 text-crema-light transition-colors duration-300 ease-snap hover:border-crema-light/35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-terracota/40"
+                  className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-sm border border-crema/20 bg-transparent px-3 py-3 text-crema transition-colors duration-300 ease-snap hover:border-crema/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-terracota/40"
                 >
                   {open ? <X className="h-5 w-5" aria-hidden="true" /> : <Menu className="h-5 w-5" aria-hidden="true" />}
                 </button>
               ) : (
-                <nav aria-label="Navegación principal" className="ml-auto flex items-center gap-8">
+                <nav aria-label="Navegación principal" className="ml-auto flex items-center gap-10">
                   <ul className="flex items-center gap-8">
                     {NAV.map((item) => (
                       <li key={item.href}>
                         <Link
                           href={item.href}
-                          className="font-display text-[1.1rem] font-normal leading-tight tracking-tightish text-crema-light/95 transition-colors duration-300 ease-snap hover:text-terracota-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-terracota/40"
+                          className={[NAV_LINK_BASE, NAV_LINK_DARK, NAV_LINK_UNDERLINE].join(" ")}
                         >
                           {item.label}
                         </Link>
                       </li>
                     ))}
                   </ul>
-                  <Link
-                    href={CTA.href}
-                    className="inline-flex items-center justify-center rounded-sm bg-terracota px-5 py-2 font-display text-[1.05rem] font-normal leading-none tracking-tightish text-crema shadow-sm transition-colors duration-300 ease-snap hover:bg-terracota-deep focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-terracota-soft/50 focus-visible:ring-offset-2 focus-visible:ring-offset-carbon"
-                  >
+                  <Button href={CTA.href} variant="primary" size="sm">
                     {CTA.label}
-                  </Link>
+                  </Button>
                 </nav>
               )}
             </div>
@@ -157,31 +168,31 @@ export function Navbar({ className }: NavbarProps) {
         <div
           id={overlayId}
           className={[
-            "fixed inset-0 z-60 min-h-dvh overflow-y-auto overscroll-contain bg-carbon text-crema-light backdrop-blur-sm transition-opacity duration-400 ease-soft",
+            "fixed inset-0 z-60 min-h-dvh overflow-y-auto overscroll-contain bg-carbon text-crema backdrop-blur-sm transition-opacity duration-400 ease-soft",
             open ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0",
           ].join(" ")}
           aria-hidden={!open}
         >
           <Container as="div" className="flex min-h-dvh flex-col">
-            <div className="sticky top-0 z-10 -mx-4 bg-carbon/92 px-4 backdrop-blur-md sm:-mx-6 sm:px-6 lg:-mx-10 lg:px-10">
+            <div className="sticky top-0 z-10 -mx-4 bg-carbon/95 px-4 backdrop-blur-md sm:-mx-6 sm:px-6 lg:-mx-10 lg:px-10">
               <div className="flex h-16 items-center justify-between">
-              <Link
-                href="/"
-                onClick={() => setOpen(false)}
-                className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-terracota/40"
-                aria-label="Ir al inicio"
-              >
-                <Logotype variant="onDark" className="text-[1.05rem] tracking-editorial" />
-              </Link>
-              <button
-                type="button"
-                onClick={() => setOpen(false)}
-                aria-label="Cerrar menú"
-                className="inline-flex min-h-11 min-w-11 items-center justify-center border border-crema-light/20 bg-transparent px-3 py-3 text-crema-light transition-colors duration-300 ease-snap hover:border-crema-light/35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-terracota/40"
-              >
-                <X className="h-5 w-5" aria-hidden="true" />
-              </button>
-            </div>
+                <Link
+                  href="/"
+                  onClick={() => setOpen(false)}
+                  className="focus-visible:outline-none focus-visible:rounded-sm focus-visible:ring-2 focus-visible:ring-terracota/40"
+                  aria-label="Ir al inicio"
+                >
+                  <Logotype variant="onDark" size="xs" />
+                </Link>
+                <button
+                  type="button"
+                  onClick={() => setOpen(false)}
+                  aria-label="Cerrar menú"
+                  className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-sm border border-crema/20 bg-transparent px-3 py-3 text-crema transition-colors duration-300 ease-snap hover:border-crema/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-terracota/40"
+                >
+                  <X className="h-5 w-5" aria-hidden="true" />
+                </button>
+              </div>
             </div>
 
             <nav aria-label="Menú" className="flex-1 py-10">
@@ -191,7 +202,7 @@ export function Navbar({ className }: NavbarProps) {
                     <Link
                       href={item.href}
                       onClick={() => setOpen(false)}
-                      className="block min-h-11 py-1 font-display text-3xl font-normal leading-tight tracking-tightish text-crema-light transition-colors duration-300 ease-snap hover:text-terracota-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-terracota/40 sm:text-4xl md:text-5xl"
+                      className="block min-h-11 py-1 font-sans text-3xl font-extrabold uppercase leading-tight tracking-tightish text-crema transition-colors duration-300 ease-snap hover:text-terracota-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-terracota/40 sm:text-4xl md:text-5xl"
                     >
                       {item.label}
                     </Link>
@@ -200,17 +211,16 @@ export function Navbar({ className }: NavbarProps) {
               </ul>
             </nav>
 
-            <div className="border-t border-crema-light/15 py-8">
-              <Link
+            <div className="border-t border-crema/15 py-8">
+              <Button
                 href={CTA.href}
+                variant="primary"
+                size="lg"
+                className="w-full"
                 onClick={() => setOpen(false)}
-                className="inline-flex w-full items-center justify-center rounded-sm bg-terracota px-6 py-3 font-display text-[1.35rem] font-normal leading-none tracking-tightish text-crema shadow-sm transition-colors duration-300 ease-snap hover:bg-terracota-deep focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-terracota-soft/50 focus-visible:ring-offset-2 focus-visible:ring-offset-carbon"
               >
                 {CTA.label}
-              </Link>
-              <p className="mt-4 font-mono text-[0.75rem] font-medium uppercase tracking-meta text-crema-light/60">
-                {reduced ? "Animaciones reducidas" : "Menú"}
-              </p>
+              </Button>
             </div>
           </Container>
         </div>
@@ -218,4 +228,3 @@ export function Navbar({ className }: NavbarProps) {
     </header>
   );
 }
-

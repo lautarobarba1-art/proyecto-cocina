@@ -7,7 +7,7 @@ import { SectionTitle } from "@/components/ui/SectionTitle";
 
 export default function EspacioPage() {
   return (
-    <main className="flex-1">
+    <main className="flex-1 overflow-x-clip pt-20 lg:pt-24">
       <Container as="div" className="py-20 lg:py-28">
         <SectionLabel>ALQUILER DEL ESPACIO</SectionLabel>
 
@@ -29,11 +29,11 @@ export default function EspacioPage() {
         <EspacioSpecs className="mt-20 lg:mt-24" />
       </Container>
 
-      <Container as="div" className="py-24 lg:py-32">
+      <Container as="div" className="py-20 lg:py-28">
         <EspacioGallery />
       </Container>
 
-      <Container as="div" className="border-t border-carbon/10 pb-24 pt-20 lg:pb-32 lg:pt-24">
+      <Container as="div" className="border-t border-carbon/10 pb-20 pt-20 lg:pb-28 lg:pt-28">
         <EspacioAlquilerForm />
       </Container>
     </main>

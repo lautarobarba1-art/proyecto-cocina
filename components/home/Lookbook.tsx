@@ -1,9 +1,9 @@
 "use client";
 
 import * as React from "react";
-import Link from "next/link";
 
 import { Container } from "@/components/layout/Container";
+import { Button } from "@/components/ui/Button";
 import { type LookbookClip, LOOKBOOK_CLIPS } from "@/lib/lookbook";
 
 export interface LookbookProps {
@@ -117,7 +117,7 @@ export function Lookbook({ className }: LookbookProps) {
     <section
       ref={sectionRef}
       className={[
-        "overflow-x-clip border-t border-crema-light/10 bg-terracota-soft py-16 text-crema-light lg:py-20",
+        "overflow-x-clip border-t border-crema-light/10 bg-terracota-soft py-20 text-crema-light lg:py-28",
         className ?? "",
       ].join(" ")}
       aria-label="Lookbook en video"
@@ -134,7 +134,7 @@ export function Lookbook({ className }: LookbookProps) {
         </p>
       </Container>
 
-      <div className="relative left-1/2 w-[100vw] max-w-[100vw] -translate-x-1/2 border-y border-white/10">
+      <div className="relative left-1/2 w-screen max-w-[100vw] -translate-x-1/2 border-y border-white/10">
         <div
           className={[
             "mx-auto grid min-w-0 max-w-[1600px] grid-cols-2 max-md:gap-0 max-md:border-x max-md:border-white/10 md:auto-rows-fr md:gap-0",
@@ -156,12 +156,9 @@ export function Lookbook({ className }: LookbookProps) {
       </div>
 
       <Container as="div" className="mt-10 flex justify-center lg:mt-12">
-        <Link
-          href="/clases"
-          className="inline-flex items-center justify-center border border-crema-light/45 px-8 py-3 font-mono text-[0.7rem] font-medium uppercase tracking-eyebrow text-crema-light transition-colors duration-300 ease-snap hover:border-terracota-deep hover:text-crema-light focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-terracota-deep/50"
-        >
+        <Button href="/clases" variant="outline-cream">
           Descúbrelo
-        </Link>
+        </Button>
       </Container>
     </section>
   );

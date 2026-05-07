@@ -10,7 +10,7 @@ export function Container({ as: Tag = "div", className, children }: ContainerPro
   return (
     <Tag
       className={[
-        "mx-auto w-full min-w-0 max-w-screen-xl px-4 sm:px-6 lg:px-10",
+        "mx-auto w-full min-w-0 max-w-7xl px-4 sm:px-6 lg:px-10",
         className ?? "",
       ].join(" ")}
     >

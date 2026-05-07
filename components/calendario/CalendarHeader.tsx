@@ -5,6 +5,7 @@ import { addMonths, format, subMonths } from "date-fns";
 import { es } from "date-fns/locale";
 import { useInView } from "framer-motion";
 
+import { SectionLabel } from "@/components/ui/SectionLabel";
 import { useReducedMotion } from "@/lib/useReducedMotion";
 
 export interface CalendarHeaderProps {
@@ -18,9 +19,7 @@ export interface CalendarHeaderProps {
 
 export function CalendarHeader({ year, month, onPrev, onNext, prevDisabled, nextDisabled }: CalendarHeaderProps) {
   const reduced = useReducedMotion();
-  const labelRef = React.useRef<HTMLDivElement | null>(null);
   const titleRef = React.useRef<HTMLHeadingElement | null>(null);
-  const labelInView = useInView(labelRef, { once: true, margin: "0px 0px -15% 0px" });
   const titleInView = useInView(titleRef, { once: true, margin: "0px 0px -15% 0px" });
 
   const current = new Date(year, month - 1, 1);
@@ -31,17 +30,9 @@ export function CalendarHeader({ year, month, onPrev, onNext, prevDisabled, next
   const centerMonth = format(current, "LLLL", { locale: es });
 
   return (
-    <header className="bg-crema px-8 py-20 lg:px-10 lg:py-24">
+    <header className="bg-crema px-8 py-20 lg:px-10 lg:py-28">
       <div className="mx-auto max-w-[1280px]">
-        <div
-          ref={labelRef}
-          data-inview={labelInView ? "true" : "false"}
-          data-reduced={reduced ? "true" : "false"}
-          className="flex items-center gap-3"
-        >
-          <span aria-hidden="true" className="section-label-dash block h-px bg-terracota" />
-          <span className="font-mono text-[10px] font-medium uppercase tracking-eyebrow text-terracota">— Agenda</span>
-        </div>
+        <SectionLabel>Agenda</SectionLabel>
 
         <h1
           ref={titleRef}

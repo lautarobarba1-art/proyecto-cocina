@@ -10,6 +10,12 @@ export interface SectionLabelProps {
   className?: string;
 }
 
+/**
+ * SectionLabel — eyebrow editorial del DS Menesteres.
+ *
+ * Especificación: 12px / 700 / tracking 0.2em / uppercase / terracota.
+ * Acompañado de un dash de 28×3px que crece desde 0 cuando entra al viewport.
+ */
 export function SectionLabel({ children, className }: SectionLabelProps) {
   const reduced = useReducedMotion();
   const ref = React.useRef<HTMLDivElement | null>(null);
@@ -21,16 +27,12 @@ export function SectionLabel({ children, className }: SectionLabelProps) {
       data-inview={inView ? "true" : "false"}
       data-reduced={reduced ? "true" : "false"}
       className={[
-        "flex items-center gap-3 font-mono text-[0.75rem] font-medium uppercase tracking-eyebrow text-terracota",
+        "flex items-center gap-3 font-sans text-[12px] font-bold uppercase tracking-meta text-terracota",
         className ?? "",
       ].join(" ")}
     >
-      <span
-        aria-hidden="true"
-        className="section-label-dash block h-px bg-terracota"
-      />
+      <span aria-hidden="true" className="section-label-dash block h-[3px] bg-terracota" />
       <span>{children}</span>
     </div>
   );
 }
-

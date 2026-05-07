@@ -8,32 +8,31 @@ export interface FooterProps {
   className?: string;
 }
 
+/** Tipografía de los títulos de columna (DS): 11px / 700 / tracking 0.22em / uppercase / terracota */
+const COL_TITLE = "font-sans text-[11px] font-bold uppercase tracking-eyebrow text-terracota";
+
 export function Footer({ className }: FooterProps) {
   return (
     <footer
       className={[
-        "footer-surface-deep border-t border-crema-light/10 bg-terracota-deep py-20 text-crema-light lg:py-28",
+        "footer-surface-deep relative overflow-hidden border-t border-crema/10 bg-carbon py-20 text-crema lg:py-28",
         className ?? "",
       ].join(" ")}
     >
-      <Container as="div">
-        <div className="grid min-w-0 gap-10 sm:grid-cols-2 sm:gap-x-10 sm:gap-y-12 md:gap-14 lg:grid-cols-[1.3fr_1fr_1fr_1fr] lg:gap-x-16 lg:gap-y-0 xl:gap-20">
-          <div>
-            <div className="text-[1.25rem]">
-              <Logotype variant="onDark" />
-            </div>
-            <div className="mt-4">
-              <Tagline className="text-crema-light/90" />
-            </div>
-            <p className="mt-6 font-mono text-[0.75rem] font-medium uppercase tracking-meta text-crema-light/55">
-              San Martín 1234, Rafaela, Santa Fe
+      <Container as="div" className="relative z-10">
+        <div className="grid min-w-0 gap-10 sm:grid-cols-2 sm:gap-x-10 sm:gap-y-12 md:gap-14 lg:grid-cols-[2fr_1fr_1fr_1fr] lg:gap-x-16 lg:gap-y-0 xl:gap-20">
+          <div className="flex flex-col gap-4">
+            <Logotype variant="onDark" size="md" />
+            <Tagline className="text-crema/70 text-[12px] tracking-[0.2em]" />
+            <p className="mt-2 font-sans text-[13px] font-medium leading-[1.7] text-crema/55">
+              San Martín 1234<br />
+              Rafaela · Santa Fe · AR<br />
+              hola@menesteres.com
             </p>
           </div>
 
           <div>
-            <p className="font-mono text-[0.75rem] font-medium uppercase tracking-eyebrow text-terracota-soft">
-              Explorar
-            </p>
+            <p className={COL_TITLE}>Visitar</p>
             <ul className="mt-6 grid gap-4 md:gap-3">
               <li>
                 <Link className="footer-link" href="/clases">
@@ -46,26 +45,29 @@ export function Footer({ className }: FooterProps) {
                 </Link>
               </li>
               <li>
-                <Link className="footer-link" href="/recetas">
-                  Recetas
+                <Link className="footer-link" href="/espacio">
+                  Nuestro espacio
                 </Link>
               </li>
               <li>
-                <Link className="footer-link" href="/espacio">
-                  Nuestro espacio
+                <Link className="footer-link" href="/nosotros">
+                  Nosotros
                 </Link>
               </li>
             </ul>
           </div>
 
           <div>
-            <p className="font-mono text-[0.75rem] font-medium uppercase tracking-eyebrow text-terracota-soft">
-              Contacto
-            </p>
+            <p className={COL_TITLE}>Reservar</p>
             <ul className="mt-6 grid gap-5 md:gap-3.5">
               <li>
                 <Link className="footer-link" href="/clases">
-                  Reservar clase
+                  Clases adultos
+                </Link>
+              </li>
+              <li>
+                <Link className="footer-link" href="/clases?categoria=ninos">
+                  Clases niños
                 </Link>
               </li>
               <li>
@@ -74,44 +76,44 @@ export function Footer({ className }: FooterProps) {
                 </Link>
               </li>
               <li>
-                <a className="footer-link" href="mailto:hola@menesteres.com">
-                  hola@menesteres.com
-                </a>
+                <Link className="footer-link" href="/espacio">
+                  Alquilar el espacio
+                </Link>
               </li>
             </ul>
           </div>
 
           <div>
-            <p className="font-mono text-[0.75rem] font-medium uppercase tracking-eyebrow text-terracota-soft">
-              Redes
-            </p>
+            <p className={COL_TITLE}>Seguinos</p>
             <ul className="mt-6 grid gap-5 md:gap-3.5">
               <li>
-                <a className="footer-link" href="#" rel="noreferrer">
+                <a className="footer-link" href="#" target="_blank" rel="noreferrer noopener" aria-label="Instagram (próximamente)">
                   Instagram
                 </a>
               </li>
               <li>
-                <a className="footer-link" href="#" rel="noreferrer">
-                  Facebook
+                <a className="footer-link" href="#" target="_blank" rel="noreferrer noopener" aria-label="WhatsApp (próximamente)">
+                  WhatsApp
                 </a>
               </li>
               <li>
-                <a className="footer-link" href="#" rel="noreferrer">
-                  WhatsApp
+                <a className="footer-link" href="#" target="_blank" rel="noreferrer noopener" aria-label="Facebook (próximamente)">
+                  Facebook
                 </a>
               </li>
             </ul>
           </div>
         </div>
 
-        <div className="mt-16 border-t border-crema-light/15 pt-8">
-          <p className="font-mono text-[0.75rem] font-medium uppercase tracking-meta text-crema-light/50">
-            © 2026 Menesteres · Hecho en Rafaela, Santa Fe
+        <div className="mt-16 flex flex-wrap items-center justify-between gap-3 border-t border-crema/15 pt-8">
+          <p className="font-sans text-[11px] font-medium uppercase tracking-meta text-crema/40">
+            © 2026 Menesteres · Todos los derechos reservados
+          </p>
+          <p className="font-sans text-[11px] font-medium uppercase tracking-meta text-crema/40">
+            Hecho en Rafaela, Santa Fe
           </p>
         </div>
       </Container>
     </footer>
   );
 }
-

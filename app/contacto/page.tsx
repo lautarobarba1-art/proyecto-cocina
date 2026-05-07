@@ -5,13 +5,13 @@ import { Container } from "@/components/layout/Container";
 
 export default function ContactoPage() {
   return (
-    <main className="flex-1 pb-24 lg:pb-32">
+    <main className="flex-1 pb-20 lg:pb-28">
       <Container as="div" className="py-20 lg:py-28">
         <p className="font-mono text-[0.65rem] font-medium uppercase tracking-eyebrow text-terracota">
           Contacto
         </p>
 
-        <div className="mt-14 grid gap-16 lg:mt-16 lg:grid-cols-[3fr_2fr] lg:items-start lg:gap-x-16 xl:gap-x-24">
+        <div className="mt-12 grid gap-16 lg:grid-cols-[3fr_2fr] lg:items-start lg:gap-x-16 xl:gap-x-24">
           <div className="min-w-0">
             <h1 className="max-w-[14ch] font-display text-[clamp(2.25rem,5.5vw,3.75rem)] font-normal leading-[1.05] tracking-tightish text-carbon">
               Hablemos y <em className="italic text-terracota">cocinemos.</em>

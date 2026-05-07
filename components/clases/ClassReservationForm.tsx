@@ -2,6 +2,15 @@
 
 import * as React from "react";
 
+import { Button } from "@/components/ui/Button";
+import {
+  Field,
+  FormError,
+  FormGroup,
+  FormInput,
+  FormSelect,
+  FormTextarea,
+} from "@/components/ui/form";
 import type { ClassMock } from "@/lib/classes-mock";
 import { DEFAULT_CLASS_SESSIONS } from "@/lib/classes-mock";
 
@@ -10,7 +19,10 @@ export interface ClassReservationFormProps {
   className?: string;
 }
 
-export function ClassReservationForm({ classItem, className }: ClassReservationFormProps) {
+export function ClassReservationForm({
+  classItem,
+  className,
+}: ClassReservationFormProps) {
   const soldOut = classItem.status === "agotado";
   const waitlist = soldOut;
   const sessions = waitlist ? [] : DEFAULT_CLASS_SESSIONS;
@@ -29,9 +41,14 @@ export function ClassReservationForm({ classItem, className }: ClassReservationF
   const notasScrollTimeoutRef = React.useRef<number | null>(null);
 
   const onNotasFocus = React.useCallback(() => {
-    if (notasScrollTimeoutRef.current != null) window.clearTimeout(notasScrollTimeoutRef.current);
+    if (notasScrollTimeoutRef.current != null)
+      window.clearTimeout(notasScrollTimeoutRef.current);
     notasScrollTimeoutRef.current = window.setTimeout(() => {
-      submitRef.current?.scrollIntoView({ block: "center", behavior: "smooth", inline: "nearest" });
+      submitRef.current?.scrollIntoView({
+        block: "center",
+        behavior: "smooth",
+        inline: "nearest",
+      });
     }, 280);
   }, []);
 
@@ -44,7 +61,8 @@ export function ClassReservationForm({ classItem, className }: ClassReservationF
 
   React.useEffect(() => {
     return () => {
-      if (notasScrollTimeoutRef.current != null) window.clearTimeout(notasScrollTimeoutRef.current);
+      if (notasScrollTimeoutRef.current != null)
+        window.clearTimeout(notasScrollTimeoutRef.current);
     };
   }, []);
 
@@ -66,15 +84,15 @@ export function ClassReservationForm({ classItem, className }: ClassReservationF
     }, 900);
   };
 
+  const cardClass = [
+    "border border-carbon/10 bg-crema-light p-8 lg:p-10",
+    "shadow-brand-lg",
+    className ?? "",
+  ].join(" ");
+
   if (success) {
     return (
-      <div
-        className={[
-          "border border-carbon/10 bg-crema-light p-8 lg:p-10",
-          "shadow-[var(--mn-shadow-deep)]",
-          className ?? "",
-        ].join(" ")}
-      >
+      <div className={cardClass}>
         <p className="font-mono text-[0.7rem] font-medium uppercase tracking-eyebrow text-terracota">
           {waitlist ? "Lista de espera" : "Reserva"}
         </p>
@@ -84,10 +102,14 @@ export function ClassReservationForm({ classItem, className }: ClassReservationF
         <p className="mt-4 font-body text-[0.95rem] leading-relaxed text-carbon/75">
           {waitlist
             ? "Cuando haya cupos te escribimos a " + email.trim() + "."
-            : "Te enviamos un correo a " + email.trim() + " con los próximos pasos y el medio de pago (mock — sin envío real)."}
+            : "Te enviamos un correo a " +
+              email.trim() +
+              " con los próximos pasos y el medio de pago (mock — sin envío real)."}
         </p>
-        <button
-          type="button"
+        <Button
+          variant="ghost"
+          size="sm"
+          className="mt-8"
           onClick={() => {
             setSuccess(false);
             setNombre("");
@@ -97,26 +119,21 @@ export function ClassReservationForm({ classItem, className }: ClassReservationF
             setCupos("1");
             setMensaje("");
           }}
-          className="mt-8 font-mono text-[0.65rem] font-medium uppercase tracking-eyebrow text-terracota underline decoration-terracota/40 underline-offset-4 transition-colors hover:text-terracota-deep"
         >
           Enviar otro
-        </button>
+        </Button>
       </div>
     );
   }
 
   return (
-    <div
-      className={[
-        "border border-carbon/10 bg-crema-light p-8 lg:p-10",
-        "shadow-[var(--mn-shadow-deep)]",
-        className ?? "",
-      ].join(" ")}
-    >
+    <div className={cardClass}>
       <p className="font-mono text-[0.7rem] font-medium uppercase tracking-eyebrow text-terracota">
         {waitlist ? "Lista de espera" : "Reservar lugar"}
       </p>
-      <h3 className="mt-3 font-display text-2xl font-normal tracking-tightish text-carbon">{classItem.title}</h3>
+      <h3 className="mt-3 font-display text-2xl font-normal tracking-tightish text-carbon">
+        {classItem.title}
+      </h3>
       <p className="mt-2 font-body text-[0.9rem] text-carbon/65">
         {waitlist
           ? "Dejá tus datos y te avisamos si se libera un cupo."
@@ -125,122 +142,125 @@ export function ClassReservationForm({ classItem, className }: ClassReservationF
 
       <form
         onSubmit={onSubmit}
-        className="mt-8 grid gap-5 pb-[max(7rem,env(safe-area-inset-bottom,0px))] sm:pb-0"
+        className="mt-8 pb-[max(7rem,env(safe-area-inset-bottom,0px))] sm:pb-0"
       >
-        <div>
-          <label htmlFor="res-nombre" className="block font-mono text-[0.6rem] font-medium uppercase tracking-[0.18em] text-carbon/55">
-            Nombre y apellido
-          </label>
-          <input
-            id="res-nombre"
-            name="nombre"
-            autoComplete="name"
-            value={nombre}
-            onChange={(e) => setNombre(e.target.value)}
-            className="mt-2 w-full border-b border-carbon/20 bg-transparent py-2 font-body text-[0.95rem] text-carbon outline-none transition-colors focus:border-terracota"
-          />
-        </div>
-        <div>
-          <label htmlFor="res-email" className="block font-mono text-[0.6rem] font-medium uppercase tracking-[0.18em] text-carbon/55">
-            Correo
-          </label>
-          <input
-            id="res-email"
-            name="email"
-            type="email"
-            autoComplete="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="mt-2 w-full border-b border-carbon/20 bg-transparent py-2 font-body text-[0.95rem] text-carbon outline-none transition-colors focus:border-terracota"
-          />
-        </div>
-        <div>
-          <label htmlFor="res-tel" className="block font-mono text-[0.6rem] font-medium uppercase tracking-[0.18em] text-carbon/55">
-            WhatsApp <span className="font-body normal-case tracking-normal text-carbon/40">(opcional)</span>
-          </label>
-          <input
+        <FormGroup>
+          <Field id="res-nombre" label="Nombre y apellido">
+            <FormInput
+              name="nombre"
+              autoComplete="name"
+              value={nombre}
+              onChange={(e) => setNombre(e.target.value)}
+            />
+          </Field>
+
+          <Field id="res-email" label="Correo">
+            <FormInput
+              name="email"
+              type="email"
+              autoComplete="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+          </Field>
+
+          <Field
             id="res-tel"
-            name="telefono"
-            type="tel"
-            autoComplete="tel"
-            value={telefono}
-            onChange={(e) => setTelefono(e.target.value)}
-            className="mt-2 w-full border-b border-carbon/20 bg-transparent py-2 font-body text-[0.95rem] text-carbon outline-none transition-colors focus:border-terracota"
-          />
-        </div>
+            label={
+              <>
+                WhatsApp{" "}
+                <span className="font-sans normal-case tracking-normal text-[11px] font-normal text-carbon/40">
+                  (opcional)
+                </span>
+              </>
+            }
+          >
+            <FormInput
+              name="telefono"
+              type="tel"
+              autoComplete="tel"
+              value={telefono}
+              onChange={(e) => setTelefono(e.target.value)}
+            />
+          </Field>
 
-        {!waitlist && sessions.length > 0 ? (
-          <div>
-            <label htmlFor="res-turno" className="block font-mono text-[0.6rem] font-medium uppercase tracking-[0.18em] text-carbon/55">
-              Turno
-            </label>
-            <select
-              id="res-turno"
-              name="sessionId"
-              value={sessionId}
-              onChange={(e) => setSessionId(e.target.value)}
-              className="mt-2 w-full cursor-pointer border-b border-carbon/20 bg-transparent py-2 font-body text-[0.95rem] text-carbon outline-none transition-colors focus:border-terracota"
-            >
-              {sessions.map((s) => (
-                <option key={s.id} value={s.id}>
-                  {s.label}
-                </option>
-              ))}
-            </select>
-          </div>
-        ) : null}
+          {!waitlist && sessions.length > 0 ? (
+            <Field id="res-turno" label="Turno">
+              <FormSelect
+                name="sessionId"
+                value={sessionId}
+                onChange={(e) => setSessionId(e.target.value)}
+              >
+                {sessions.map((s) => (
+                  <option key={s.id} value={s.id}>
+                    {s.label}
+                  </option>
+                ))}
+              </FormSelect>
+            </Field>
+          ) : null}
 
-        {!waitlist ? (
-          <div>
-            <label htmlFor="res-cupos" className="block font-mono text-[0.6rem] font-medium uppercase tracking-[0.18em] text-carbon/55">
-              Cupos
-            </label>
-            <select
-              id="res-cupos"
-              name="cupos"
-              value={cupos}
-              onChange={(e) => setCupos(e.target.value)}
-              className="mt-2 w-full cursor-pointer border-b border-carbon/20 bg-transparent py-2 font-body text-[0.95rem] text-carbon outline-none transition-colors focus:border-terracota"
-            >
-              {[1, 2, 3, 4].map((n) => (
-                <option key={n} value={String(n)}>
-                  {n} {n === 1 ? "persona" : "personas"}
-                </option>
-              ))}
-            </select>
-          </div>
-        ) : null}
+          {!waitlist ? (
+            <Field id="res-cupos" label="Cupos">
+              <FormSelect
+                name="cupos"
+                value={cupos}
+                onChange={(e) => setCupos(e.target.value)}
+              >
+                {[1, 2, 3, 4].map((n) => (
+                  <option key={n} value={String(n)}>
+                    {n} {n === 1 ? "persona" : "personas"}
+                  </option>
+                ))}
+              </FormSelect>
+            </Field>
+          ) : null}
 
-        <div>
-          <label htmlFor="res-msg" className="block font-mono text-[0.6rem] font-medium uppercase tracking-[0.18em] text-carbon/55">
-            Notas <span className="font-body normal-case tracking-normal text-carbon/40">(opcional)</span>
-          </label>
-          <textarea
+          <Field
             id="res-msg"
-            name="mensaje"
-            rows={3}
-            value={mensaje}
-            onChange={(e) => setMensaje(e.target.value)}
-            onFocus={onNotasFocus}
-            onBlur={onNotasBlur}
-            enterKeyHint="done"
-            className="mt-2 w-full resize-y border border-carbon/15 bg-crema-deep/40 px-3 py-2 font-body text-[0.9rem] text-carbon outline-none transition-colors focus:border-terracota/50"
-          />
-        </div>
+            label={
+              <>
+                Notas{" "}
+                <span className="font-sans normal-case tracking-normal text-[11px] font-normal text-carbon/40">
+                  (opcional)
+                </span>
+              </>
+            }
+          >
+            <FormTextarea
+              name="mensaje"
+              rows={3}
+              value={mensaje}
+              onChange={(e) => setMensaje(e.target.value)}
+              onFocus={onNotasFocus}
+              onBlur={onNotasBlur}
+              enterKeyHint="done"
+              className="min-h-[80px]"
+            />
+          </Field>
 
-        {error ? <p className="font-body text-sm text-terracota">{error}</p> : null}
+          {error ? <FormError>{error}</FormError> : null}
 
-        <button
-          ref={submitRef}
-          type="submit"
-          disabled={loading}
-          className="mt-2 inline-flex w-full scroll-mt-6 items-center justify-center border border-carbon/20 bg-carbon px-6 py-3.5 font-mono text-[0.7rem] font-medium uppercase tracking-eyebrow text-crema-light transition-colors duration-300 ease-snap hover:bg-carbon-soft disabled:opacity-60"
-        >
-          {loading ? "Enviando…" : waitlist ? "Unirme a la lista" : "Solicitar reserva"}
-        </button>
-        <p className="font-body text-[0.72rem] leading-relaxed text-carbon/45">
-          Este envío es una simulación en el navegador; no se guardan datos en servidor.
-        </p>
+          <Button
+            ref={submitRef}
+            type="submit"
+            variant="primary"
+            size="default"
+            disabled={loading}
+            className="mt-2 w-full scroll-mt-6"
+          >
+            {loading
+              ? "Enviando…"
+              : waitlist
+                ? "Unirme a la lista"
+                : "Solicitar reserva"}
+          </Button>
+
+          <p className="font-body text-[0.72rem] leading-relaxed text-carbon/45">
+            Este envío es una simulación en el navegador; no se guardan datos en
+            servidor.
+          </p>
+        </FormGroup>
       </form>
     </div>
   );

@@ -1,11 +1,12 @@
 "use client";
 
 import * as React from "react";
-import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion, useReducedMotion } from "framer-motion";
 import { Link2, MessageCircle, Share2 } from "lucide-react";
 
+import { Badge } from "@/components/ui/Badge";
+import { Button } from "@/components/ui/Button";
 import type { ClassEvent } from "@/lib/calendar/types";
 import { formatPreviewDateLabel } from "@/lib/calendar/helpers";
 
@@ -14,12 +15,14 @@ function formatArs(value: number): string {
   return new Intl.NumberFormat("es-AR", { style: "currency", currency: "ARS", maximumFractionDigits: 0 }).format(value);
 }
 
-function statusBlock(event: ClassEvent): { label: string; tone: string } {
-  if (event.status === "cancelled") return { label: "Cancelada", tone: "border border-crema/35 text-crema/80" };
-  if (event.status === "full") return { label: "Lleno", tone: "border border-crema/35 text-crema/80" };
-  if (event.status === "few-spots") return { label: "Pocos lugares", tone: "border border-terracota-soft bg-terracota-soft/15 text-terracota-soft" };
-  if (event.spotsLeft != null) return { label: `${event.spotsLeft} cupos`, tone: "border border-crema/25 bg-crema/10 text-crema" };
-  return { label: "Cupos", tone: "border border-crema/25 text-crema" };
+type StatusInfo = { label: string; variant: import("@/components/ui/Badge").BadgeVariant };
+
+function statusBlock(event: ClassEvent): StatusInfo {
+  if (event.status === "cancelled") return { label: "Cancelada", variant: "cream" };
+  if (event.status === "full") return { label: "Lleno", variant: "cream" };
+  if (event.status === "few-spots") return { label: "Pocos lugares", variant: "orange-light" };
+  if (event.spotsLeft != null) return { label: `${event.spotsLeft} cupos`, variant: "orange" };
+  return { label: "Cupos", variant: "orange" };
 }
 
 function titleWithAccent(title: string) {
@@ -83,7 +86,7 @@ export function ClassPreview({ event, onClose }: ClassPreviewProps) {
       <button
         type="button"
         onClick={onClose}
-        className="absolute right-4 top-4 font-mono text-xl leading-none text-crema/50 transition-opacity hover:opacity-100"
+        className="absolute right-3 top-3 inline-flex min-h-[44px] min-w-[44px] items-center justify-center font-mono text-xl leading-none text-crema/50 transition-opacity hover:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-crema/30"
         aria-label="Cerrar"
       >
         ×
@@ -131,9 +134,7 @@ export function ClassPreview({ event, onClose }: ClassPreviewProps) {
 
         <div className="flex flex-col gap-6 border-t border-crema/10 pt-8 md:border-t-0 md:border-l md:pl-10 md:pt-0">
           <div>
-            <span className={`inline-block rounded-full px-4 py-2 font-mono text-[14px] font-medium uppercase tracking-meta ${status.tone}`}>
-              {status.label}
-            </span>
+            <Badge variant={status.variant}>{status.label}</Badge>
           </div>
           <p className="font-display text-[2rem] font-normal italic text-terracota-soft">{formatArs(event.price)}</p>
           <div>
@@ -145,12 +146,9 @@ export function ClassPreview({ event, onClose }: ClassPreviewProps) {
             </ul>
           </div>
           {event.status !== "cancelled" && event.status !== "full" ? (
-            <Link
-              href={reserveHref}
-              className="block w-full border border-terracota-soft bg-terracota-soft px-6 py-3 text-center font-mono text-[11px] font-medium uppercase tracking-meta text-carbon transition-opacity hover:opacity-90"
-            >
-              Reservar mi lugar →
-            </Link>
+            <Button href={reserveHref} variant="primary" className="w-full">
+              Reservar mi lugar
+            </Button>
           ) : event.status === "cancelled" ? (
             <p className="font-display text-[1rem] italic text-crema/70">Esta fecha fue cancelada. Mirá el calendario para nuevas fechas.</p>
           ) : null}

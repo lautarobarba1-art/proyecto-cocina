@@ -1,37 +1,30 @@
 import type { Metadata } from "next";
-import { Caveat, DM_Sans, Fraunces, JetBrains_Mono } from "next/font/google";
+import { Cinzel, Montserrat } from "next/font/google";
 import "./globals.css";
 
 import { Footer } from "@/components/layout/Footer";
 import { Navbar } from "@/components/layout/Navbar";
 import { ScrollToTop } from "@/components/layout/ScrollToTop";
 
-const fraunces = Fraunces({
-  variable: "--font-fraunces",
+/**
+ * Tipografías oficiales del manual (v2):
+ *   - Montserrat (300-900) → todo el sistema sans-serif (display, body, eyebrow, meta).
+ *   - Cinzel (400-600)     → slogan & detalles editoriales (sustituto web de Copperplate).
+ *
+ * Nota: el wordmark "Menesteres" usa Nersans Two (sin licencia web) y SIEMPRE
+ * se renderiza como imagen, no como texto CSS. Ver components/brand/Logotype.tsx.
+ */
+const montserrat = Montserrat({
+  variable: "--font-montserrat",
   subsets: ["latin"],
-  weight: ["400"],
-  style: ["normal", "italic"],
+  weight: ["400", "500", "600", "700", "800", "900"],
   display: "swap",
 });
 
-const dmSans = DM_Sans({
-  variable: "--font-dm-sans",
+const cinzel = Cinzel({
+  variable: "--font-cinzel",
   subsets: ["latin"],
-  weight: ["400", "500"],
-  display: "swap",
-});
-
-const caveat = Caveat({
-  variable: "--font-caveat",
-  subsets: ["latin"],
-  weight: ["400", "600"],
-  display: "swap",
-});
-
-const jetbrainsMono = JetBrains_Mono({
-  variable: "--font-jetbrains",
-  subsets: ["latin"],
-  weight: ["500"],
+  weight: ["400", "500", "600"],
   display: "swap",
 });
 
@@ -48,7 +41,7 @@ export default function RootLayout({
   return (
     <html
       lang="es"
-      className={`${fraunces.variable} ${dmSans.variable} ${caveat.variable} ${jetbrainsMono.variable} h-full antialiased`}
+      className={`${montserrat.variable} ${cinzel.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col font-body text-carbon">
         <Navbar />

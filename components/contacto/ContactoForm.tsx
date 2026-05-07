@@ -3,24 +3,29 @@
 import * as React from "react";
 import { AnimatePresence, motion } from "framer-motion";
 
+import { Button } from "@/components/ui/Button";
+import {
+  Field,
+  FormGroup,
+  FormInput,
+  FormTextarea,
+} from "@/components/ui/form";
+
 export interface ContactoFormProps {
   className?: string;
 }
 
-type FieldErrors = Partial<Record<"nombre" | "email" | "mensaje", boolean>>;
+type FieldErrors = Partial<Record<"nombre" | "email" | "mensaje", string>>;
 
 function validate(nombre: string, email: string, mensaje: string): FieldErrors {
   const e: FieldErrors = {};
-  if (!nombre.trim()) e.nombre = true;
-  if (!email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) e.email = true;
-  if (!mensaje.trim() || mensaje.trim().length < 8) e.mensaje = true;
+  if (!nombre.trim()) e.nombre = "Requerido";
+  if (!email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim()))
+    e.email = "Correo inválido";
+  if (!mensaje.trim() || mensaje.trim().length < 8)
+    e.mensaje = "Mínimo 8 caracteres";
   return e;
 }
-
-const inputBase =
-  "w-full border-0 border-b bg-transparent py-2.5 font-body text-[0.95rem] text-carbon outline-none transition-[border-color] duration-300 ease-snap";
-const inputNormal = "border-carbon/15 focus:border-terracota";
-const inputError = "border-terracota-deep/50 focus:border-terracota-deep";
 
 export function ContactoForm({ className }: ContactoFormProps) {
   const [nombre, setNombre] = React.useState("");
@@ -45,9 +50,6 @@ export function ContactoForm({ className }: ContactoFormProps) {
     }, 750);
   };
 
-  const fieldClass = (key: keyof FieldErrors) =>
-    [inputBase, errors[key] && submitted ? inputError : inputNormal].join(" ");
-
   return (
     <div className={["relative min-h-[280px]", className ?? ""].join(" ")}>
       <AnimatePresence mode="wait">
@@ -59,75 +61,67 @@ export function ContactoForm({ className }: ContactoFormProps) {
             initial={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.35, ease: [0.4, 0, 0.2, 1] }}
-            className="grid gap-8"
           >
-            <div>
-              <label htmlFor="ct-nombre" className="block font-mono text-[0.6rem] font-medium uppercase tracking-[0.2em] text-carbon/45">
-                Nombre
-              </label>
-              <input
+            <FormGroup>
+              <Field
                 id="ct-nombre"
-                name="nombre"
-                autoComplete="name"
-                value={nombre}
-                onChange={(e) => {
-                  setNombre(e.target.value);
-                  if (submitted) setErrors(validate(e.target.value, email, mensaje));
-                }}
-                className={fieldClass("nombre")}
-              />
-            </div>
-
-            <div>
-              <label htmlFor="ct-email" className="block font-mono text-[0.6rem] font-medium uppercase tracking-[0.2em] text-carbon/45">
-                Email
-              </label>
-              <input
-                id="ct-email"
-                name="email"
-                type="email"
-                autoComplete="email"
-                value={email}
-                onChange={(e) => {
-                  setEmail(e.target.value);
-                  if (submitted) setErrors(validate(nombre, e.target.value, mensaje));
-                }}
-                className={fieldClass("email")}
-              />
-            </div>
-
-            <div>
-              <label htmlFor="ct-mensaje" className="block font-mono text-[0.6rem] font-medium uppercase tracking-[0.2em] text-carbon/45">
-                Mensaje
-              </label>
-              <textarea
-                id="ct-mensaje"
-                name="mensaje"
-                rows={5}
-                value={mensaje}
-                onChange={(e) => {
-                  setMensaje(e.target.value);
-                  if (submitted) setErrors(validate(nombre, email, e.target.value));
-                }}
-                className={[
-                  "w-full resize-y min-h-[140px] border-0 border-b bg-transparent py-2.5 font-body text-[0.95rem] text-carbon outline-none transition-[border-color] duration-300 ease-snap",
-                  errors.mensaje && submitted ? inputError : inputNormal,
-                ].join(" ")}
-              />
-            </div>
-
-            <div className="pt-2">
-              <button
-                type="submit"
-                disabled={loading}
-                className="group inline-flex items-baseline gap-2 rounded-full border border-carbon/20 bg-transparent px-1 py-2 font-mono text-[0.7rem] font-medium uppercase tracking-[0.22em] text-carbon transition-[border-color,color] duration-300 ease-snap hover:border-terracota hover:text-terracota disabled:opacity-50"
+                label="Nombre"
+                error={submitted ? errors.nombre : undefined}
               >
-                <span>Enviar mensaje</span>
-                <span className="text-terracota transition-transform duration-300 ease-snap group-hover:translate-x-0.5">
-                  →
-                </span>
-              </button>
-            </div>
+                <FormInput
+                  name="nombre"
+                  autoComplete="name"
+                  value={nombre}
+                  onChange={(e) => {
+                    setNombre(e.target.value);
+                    if (submitted)
+                      setErrors(validate(e.target.value, email, mensaje));
+                  }}
+                />
+              </Field>
+
+              <Field
+                id="ct-email"
+                label="Email"
+                error={submitted ? errors.email : undefined}
+              >
+                <FormInput
+                  name="email"
+                  type="email"
+                  autoComplete="email"
+                  value={email}
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    if (submitted)
+                      setErrors(validate(nombre, e.target.value, mensaje));
+                  }}
+                />
+              </Field>
+
+              <Field
+                id="ct-mensaje"
+                label="Mensaje"
+                error={submitted ? errors.mensaje : undefined}
+              >
+                <FormTextarea
+                  name="mensaje"
+                  rows={5}
+                  value={mensaje}
+                  onChange={(e) => {
+                    setMensaje(e.target.value);
+                    if (submitted)
+                      setErrors(validate(nombre, email, e.target.value));
+                  }}
+                  className="min-h-[140px]"
+                />
+              </Field>
+
+              <div className="pt-2">
+                <Button type="submit" variant="primary" disabled={loading}>
+                  Enviar mensaje
+                </Button>
+              </div>
+            </FormGroup>
           </motion.form>
         ) : (
           <motion.div
@@ -141,8 +135,11 @@ export function ContactoForm({ className }: ContactoFormProps) {
             <p className="font-display text-[clamp(1.5rem,2.8vw,2rem)] font-normal leading-[1.35] tracking-tightish text-carbon">
               Gracias. Nos pondremos en contacto pronto para empezar a crear.
             </p>
-            <button
+            <Button
               type="button"
+              variant="ghost"
+              size="sm"
+              className="mt-10"
               onClick={() => {
                 setSuccess(false);
                 setSubmitted(false);
@@ -151,10 +148,9 @@ export function ContactoForm({ className }: ContactoFormProps) {
                 setEmail("");
                 setMensaje("");
               }}
-              className="mt-10 font-mono text-[0.65rem] font-medium uppercase tracking-eyebrow text-terracota underline decoration-terracota/35 underline-offset-4 transition-colors hover:text-terracota-deep"
             >
               Enviar otro mensaje
-            </button>
+            </Button>
           </motion.div>
         )}
       </AnimatePresence>

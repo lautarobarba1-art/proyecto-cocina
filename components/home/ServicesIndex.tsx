@@ -13,7 +13,7 @@ export interface ServicesIndexProps {
 export function ServicesIndex({ className }: ServicesIndexProps) {
   return (
     <section className={className ?? ""} aria-label="Servicios">
-      <Container as="div" className="py-16 lg:py-20">
+      <Container as="div" className="py-20 lg:py-28">
         <SectionLabel>LO QUE HACEMOS</SectionLabel>
       </Container>
 
@@ -23,7 +23,7 @@ export function ServicesIndex({ className }: ServicesIndexProps) {
             href="/clases?cat=adultos"
             className="group relative block w-full min-w-0 overflow-hidden border-b border-carbon/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-terracota/50 md:border-r md:border-carbon/15 lg:border-b-0 lg:border-r"
           >
-            <div className="relative aspect-[4/5] w-full min-h-[240px] sm:min-h-[280px] md:aspect-[16/10] md:min-h-[320px] lg:aspect-auto lg:min-h-[min(52vh,560px)]">
+            <div className="relative aspect-4/5 w-full min-h-[240px] sm:min-h-[280px] md:aspect-16/10 md:min-h-[320px] lg:aspect-auto lg:min-h-[min(52vh,560px)]">
               <Image
                 src={IMAGES.servicesAdultos.src}
                 alt={IMAGES.servicesAdultos.alt}
@@ -53,7 +53,7 @@ export function ServicesIndex({ className }: ServicesIndexProps) {
             href="/clases?cat=ninos"
             className="group relative block w-full min-w-0 overflow-hidden border-b border-carbon/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-terracota/50 md:border-b-0"
           >
-            <div className="relative aspect-[4/5] w-full min-h-[240px] sm:min-h-[280px] md:aspect-[16/10] md:min-h-[320px] lg:aspect-auto lg:min-h-[min(52vh,560px)]">
+            <div className="relative aspect-4/5 w-full min-h-[240px] sm:min-h-[280px] md:aspect-16/10 md:min-h-[320px] lg:aspect-auto lg:min-h-[min(52vh,560px)]">
               <Image
                 src={IMAGES.servicesNinos.src}
                 alt={IMAGES.servicesNinos.alt}
@@ -99,7 +99,7 @@ export function ServicesIndex({ className }: ServicesIndexProps) {
               </p>
             </div>
 
-            <div className="flex min-w-0 shrink-0 flex-col gap-8 md:max-w-[min(280px,38%)] md:gap-10 md:pt-2 lg:pt-13">
+            <div className="flex min-w-0 shrink-0 flex-col gap-8 md:max-w-[min(280px,38%)] md:gap-10 md:pt-2 lg:pt-12">
               <ul className="space-y-3" aria-label="Detalles">
                 <li className="font-body text-[0.65rem] font-light uppercase leading-relaxed tracking-[0.2em] text-carbon/55">
                   Respuesta en 24–48 hs
@@ -139,7 +139,7 @@ export function ServicesIndex({ className }: ServicesIndexProps) {
               </p>
             </div>
 
-            <div className="flex min-w-0 shrink-0 flex-col gap-8 md:max-w-[min(280px,38%)] md:gap-10 md:pt-2 lg:pt-13">
+            <div className="flex min-w-0 shrink-0 flex-col gap-8 md:max-w-[min(280px,38%)] md:gap-10 md:pt-2 lg:pt-12">
               <ul className="space-y-3" aria-label="Detalles del espacio">
                 <li className="font-body text-[0.65rem] font-light uppercase leading-relaxed tracking-[0.2em] text-carbon/55">
                   Cocina equipada
