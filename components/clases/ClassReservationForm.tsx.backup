@@ -1,5 +1,7 @@
 "use client";
+
 import * as React from "react";
+
 import { Button } from "@/components/ui/Button";
 import {
   Field,
@@ -12,54 +14,28 @@ import {
 import type { ClassMock } from "@/lib/classes-mock";
 import { DEFAULT_CLASS_SESSIONS } from "@/lib/classes-mock";
 
-export interface SessionOption {
-  id: string;
-  label: string;
-  classId?: string;
-  date?: string;
-}
-
 export interface ClassReservationFormProps {
   classItem: ClassMock;
   className?: string;
-  sessions?: SessionOption[];
-  initialSessionId?: string;
 }
 
 export function ClassReservationForm({
   classItem,
   className,
-  sessions: sessionsProp,
-  initialSessionId,
 }: ClassReservationFormProps) {
   const soldOut = classItem.status === "agotado";
   const waitlist = soldOut;
-
-  // Si vienen sessions por prop, las usamos. Si no, fallback al mock.
-  const sessions: SessionOption[] = waitlist
-    ? []
-    : sessionsProp && sessionsProp.length > 0
-      ? sessionsProp
-      : DEFAULT_CLASS_SESSIONS;
+  const sessions = waitlist ? [] : DEFAULT_CLASS_SESSIONS;
 
   const [nombre, setNombre] = React.useState("");
   const [email, setEmail] = React.useState("");
   const [telefono, setTelefono] = React.useState("");
-  const [sessionId, setSessionId] = React.useState(
-    initialSessionId ?? sessions[0]?.id ?? "",
-  );
+  const [sessionId, setSessionId] = React.useState(sessions[0]?.id ?? "");
   const [cupos, setCupos] = React.useState("1");
   const [mensaje, setMensaje] = React.useState("");
-  const [honeypot, setHoneypot] = React.useState("");
   const [loading, setLoading] = React.useState(false);
   const [success, setSuccess] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
-
-  // idempotency key generada al montar el form
-  const idempotencyKeyRef = React.useRef<string>("");
-  React.useEffect(() => {
-    idempotencyKeyRef.current = crypto.randomUUID();
-  }, []);
 
   const submitRef = React.useRef<HTMLButtonElement>(null);
   const notasScrollTimeoutRef = React.useRef<number | null>(null);
@@ -90,87 +66,22 @@ export function ClassReservationForm({
     };
   }, []);
 
-  const onSubmit = async (e: React.FormEvent) => {
+  const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-
     if (!nombre.trim() || !email.trim()) {
       setError("Completá nombre y correo.");
       return;
     }
-
-    if (!waitlist && sessions.length === 0) {
-      setError("No hay sesiones disponibles para reservar en este momento.");
-      return;
-    }
-    if (!waitlist && !sessionId) {
+    if (!waitlist && sessions.length > 0 && !sessionId) {
       setError("Elegí un turno.");
       return;
     }
-
-    // Si es waitlist, todavía no hay endpoint para lista de espera.
-    // Mantenemos el comportamiento mock anterior.
-    if (waitlist) {
-      setLoading(true);
-      window.setTimeout(() => {
-        setLoading(false);
-        setSuccess(true);
-      }, 600);
-      return;
-    }
-
-    // Buscar el classId real de la sesión elegida
-    const selected = sessions.find((s) => s.id === sessionId);
-    const classId = selected?.classId ?? selected?.id;
-
-    if (!classId) {
-      setError("No se pudo identificar la sesión.");
-      return;
-    }
-
     setLoading(true);
-    try {
-      const res = await fetch("/api/reservations", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          classId,
-          name: nombre.trim(),
-          email: email.trim(),
-          phone: telefono.trim() || null,
-          notes: mensaje.trim() || null,
-          spots: parseInt(cupos, 10),
-          idempotencyKey: idempotencyKeyRef.current,
-          honeypot,
-        }),
-      });
-
-      const json = await res.json().catch(() => null);
-
-      if (!res.ok) {
-        const code = json?.error;
-        if (code === "no_spots") {
-          setError("Ya no quedan cupos para esta sesión.");
-        } else if (code === "cancelled") {
-          setError("Esta sesión fue cancelada.");
-        } else if (code === "invalid_email") {
-          setError("Correo inválido.");
-        } else if (code === "invalid_spots") {
-          setError("Cantidad de cupos inválida.");
-        } else {
-          setError("No pudimos procesar tu reserva. Intentá de nuevo.");
-        }
-        setLoading(false);
-        return;
-      }
-
+    window.setTimeout(() => {
       setLoading(false);
       setSuccess(true);
-    } catch (err) {
-      console.error(err);
-      setError("Error de conexión. Probá de nuevo en un momento.");
-      setLoading(false);
-    }
+    }, 900);
   };
 
   const cardClass = [
@@ -193,7 +104,7 @@ export function ClassReservationForm({
             ? "Cuando haya cupos te escribimos a " + email.trim() + "."
             : "Te enviamos un correo a " +
               email.trim() +
-              " con los próximos pasos y el medio de pago."}
+              " con los próximos pasos y el medio de pago (mock — sin envío real)."}
         </p>
         <Button
           variant="ghost"
@@ -204,10 +115,9 @@ export function ClassReservationForm({
             setNombre("");
             setEmail("");
             setTelefono("");
-            setSessionId(initialSessionId ?? sessions[0]?.id ?? "");
+            setSessionId(sessions[0]?.id ?? "");
             setCupos("1");
             setMensaje("");
-            idempotencyKeyRef.current = crypto.randomUUID();
           }}
         >
           Enviar otro
@@ -229,32 +139,12 @@ export function ClassReservationForm({
           ? "Dejá tus datos y te avisamos si se libera un cupo."
           : "Completá el formulario; confirmamos disponibilidad en 24–48 h."}
       </p>
+
       <form
         onSubmit={onSubmit}
         className="mt-8 pb-[max(7rem,env(safe-area-inset-bottom,0px))] sm:pb-0"
       >
         <FormGroup>
-          {/* Honeypot oculto: bots lo llenan, humanos no */}
-          <div
-            style={{
-              position: "absolute",
-              left: "-9999px",
-              width: "1px",
-              height: "1px",
-              overflow: "hidden",
-            }}
-            aria-hidden="true"
-          >
-            <input
-              type="text"
-              name="website"
-              tabIndex={-1}
-              autoComplete="off"
-              value={honeypot}
-              onChange={(e) => setHoneypot(e.target.value)}
-            />
-          </div>
-
           <Field id="res-nombre" label="Nombre y apellido">
             <FormInput
               name="nombre"
@@ -263,6 +153,7 @@ export function ClassReservationForm({
               onChange={(e) => setNombre(e.target.value)}
             />
           </Field>
+
           <Field id="res-email" label="Correo">
             <FormInput
               name="email"
@@ -272,6 +163,7 @@ export function ClassReservationForm({
               onChange={(e) => setEmail(e.target.value)}
             />
           </Field>
+
           <Field
             id="res-tel"
             label={
@@ -291,6 +183,7 @@ export function ClassReservationForm({
               onChange={(e) => setTelefono(e.target.value)}
             />
           </Field>
+
           {!waitlist && sessions.length > 0 ? (
             <Field id="res-turno" label="Turno">
               <FormSelect
@@ -306,6 +199,7 @@ export function ClassReservationForm({
               </FormSelect>
             </Field>
           ) : null}
+
           {!waitlist ? (
             <Field id="res-cupos" label="Cupos">
               <FormSelect
@@ -321,6 +215,7 @@ export function ClassReservationForm({
               </FormSelect>
             </Field>
           ) : null}
+
           <Field
             id="res-msg"
             label={
@@ -343,7 +238,9 @@ export function ClassReservationForm({
               className="min-h-[80px]"
             />
           </Field>
+
           {error ? <FormError>{error}</FormError> : null}
+
           <Button
             ref={submitRef}
             type="submit"
@@ -358,8 +255,10 @@ export function ClassReservationForm({
                 ? "Unirme a la lista"
                 : "Solicitar reserva"}
           </Button>
+
           <p className="font-body text-[0.72rem] leading-relaxed text-carbon/45">
-            Recibirás un correo con los próximos pasos.
+            Este envío es una simulación en el navegador; no se guardan datos en
+            servidor.
           </p>
         </FormGroup>
       </form>
