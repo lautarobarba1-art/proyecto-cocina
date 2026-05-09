@@ -1,4 +1,5 @@
 import { getReservasForAdmin, type ReservaAdmin } from "@/lib/admin/reservas-queries";
+import { ReservaActions } from "./ReservaActions";
 
 export const dynamic = "force-dynamic";
 
@@ -98,6 +99,7 @@ export default async function ReservasAdminPage() {
                   <Th>Fecha clase</Th>
                   <Th>Cupos</Th>
                   <Th>Estado</Th>
+                  <Th>Acciones</Th>
                 </tr>
               </thead>
               <tbody>
@@ -152,6 +154,13 @@ export default async function ReservasAdminPage() {
                         {statusLabel(r.status)}
                       </span>
                     </Td>
+                    <Td>
+                      <ReservaActions
+                        reservaId={r.id}
+                        status={r.status}
+                        customerName={r.customerName}
+                      />
+                    </Td>
                   </tr>
                 ))}
               </tbody>
@@ -161,8 +170,7 @@ export default async function ReservasAdminPage() {
       )}
 
       <p className="mt-8 font-body text-[0.78rem] text-carbon/40">
-        Mostrando las últimas {reservas.length} reservas. Las acciones (marcar
-        pagada, cancelar) se habilitan en próxima etapa.
+        Mostrando las últimas {reservas.length} reservas.
       </p>
     </div>
   );
