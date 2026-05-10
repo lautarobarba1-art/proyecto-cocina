@@ -135,9 +135,12 @@ export default async function ClasesAdminPage({ searchParams }: PageProps) {
             Todas
           </FilterLink>
         </nav>
-        <span className="font-body text-[0.78rem] text-carbon/40">
-          (Crear / editar próximamente)
-        </span>
+        <Link
+          href="/admin/clases/nueva"
+          className="rounded bg-terracota px-4 py-2 font-sans text-[0.85rem] font-medium uppercase tracking-wide text-crema transition hover:bg-terracota-deep"
+        >
+          + Nueva clase
+        </Link>
       </div>
 
       {clases.length === 0 ? (
@@ -176,9 +179,12 @@ export default async function ClasesAdminPage({ searchParams }: PageProps) {
                         {formatDateLong(c.date)}
                       </Td>
                       <Td>
-                        <div className="font-medium text-carbon">
+                        <Link
+                          href={`/admin/clases/${c.id}`}
+                          className="font-medium text-carbon hover:text-terracota"
+                        >
                           {c.title}
-                        </div>
+                        </Link>
                         <div className="text-carbon/60 text-[0.78rem]">
                           {c.categoryLabel} · {c.slug}
                         </div>
