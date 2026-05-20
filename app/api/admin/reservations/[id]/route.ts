@@ -5,24 +5,17 @@ import { isAdminEmail } from "@/lib/admin/config";
 
 export const runtime = "nodejs";
 
-/**
- * POST /api/admin/reservations/[id]
- * Body: { action: "confirm" | "cancel" }
- *
- * Acciones del admin sobre una reserva específica.
- * Requiere sesión admin válida (allowlist).
- */
 export async function POST(
   req: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  // 1. Verificar que sea admin autorizado
+  // 1. Auth
   const email = await getCurrentUserEmail();
   if (!email || !isAdminEmail(email)) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
 
-  // 2. Parsear body
+  // 2. Body
   let body: unknown;
   try {
     body = await req.json();
@@ -35,15 +28,15 @@ export async function POST(
     return NextResponse.json({ error: "invalid_action" }, { status: 400 });
   }
 
-  // 3. Obtener id de la reserva
+  // 3. ID
   const { id } = await params;
   if (!id) {
     return NextResponse.json({ error: "missing_id" }, { status: 400 });
   }
 
-  // 4. Ejecutar la acción
   const supabase = getSupabaseAdmin();
 
+  // ─── CONFIRM ────────────────────────────────────────────────────────────────
   if (action === "confirm") {
     const { data, error } = await supabase
       .from("reservations")
@@ -52,8 +45,8 @@ export async function POST(
         confirmed_at: new Date().toISOString(),
       })
       .eq("id", id)
-      .eq("status", "pending") // solo si está pending
-      .select("id, status")
+      .eq("status", "pending")
+      .select("id, status, customer_name, customer_email, class_id")
       .maybeSingle();
 
     if (error) {
@@ -61,17 +54,36 @@ export async function POST(
       return NextResponse.json({ error: "server_error" }, { status: 500 });
     }
     if (!data) {
-      // No se actualizó: la reserva no existe o no estaba en pending
       return NextResponse.json(
         { error: "not_pending_or_not_found" },
         { status: 409 },
       );
     }
 
+    // Email al cliente: pago confirmado
+    try {
+      const { sendEmailReservaConfirmada } = await import("@/lib/resend/send");
+
+      // Traer nombre de la clase
+      const { data: cls } = await supabase
+        .from("classes")
+        .select("title")
+        .eq("id", data.class_id)
+        .maybeSingle();
+
+      await sendEmailReservaConfirmada(
+        data.customer_email,
+        data.customer_name,
+        cls?.title ?? "(clase)",
+      );
+    } catch (emailErr) {
+      console.error("[admin/reservations confirm] Email error:", emailErr);
+    }
+
     return NextResponse.json({ ok: true, status: data.status });
   }
 
-  // action === "cancel"
+  // ─── CANCEL ─────────────────────────────────────────────────────────────────
   const { data, error } = await supabase
     .from("reservations")
     .update({
@@ -79,8 +91,8 @@ export async function POST(
       cancelled_at: new Date().toISOString(),
     })
     .eq("id", id)
-    .neq("status", "cancelled") // no cancelar lo ya cancelado
-    .select("id, status")
+    .neq("status", "cancelled")
+    .select("id, status, customer_name, customer_email, class_id")
     .maybeSingle();
 
   if (error) {
@@ -92,6 +104,25 @@ export async function POST(
       { error: "already_cancelled_or_not_found" },
       { status: 409 },
     );
+  }
+
+  // Email al cliente: reserva cancelada
+  try {
+    const { sendEmailReservaCancelada } = await import("@/lib/resend/send");
+
+    const { data: cls } = await supabase
+      .from("classes")
+      .select("title")
+      .eq("id", data.class_id)
+      .maybeSingle();
+
+    await sendEmailReservaCancelada(
+      data.customer_email,
+      data.customer_name,
+      cls?.title ?? "(clase)",
+    );
+  } catch (emailErr) {
+    console.error("[admin/reservations cancel] Email error:", emailErr);
   }
 
   return NextResponse.json({ ok: true, status: data.status });
