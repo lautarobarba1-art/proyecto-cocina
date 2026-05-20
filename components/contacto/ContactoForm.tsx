@@ -4,12 +4,14 @@ import * as React from "react";
 import { AnimatePresence, motion } from "framer-motion";
 
 import { Button } from "@/components/ui/Button";
+import { HoneypotField } from "@/components/ui/HoneypotField";
 import {
   Field,
   FormGroup,
   FormInput,
   FormTextarea,
 } from "@/components/ui/form";
+import { submitInquiry } from "@/lib/inquiries/submit";
 
 export interface ContactoFormProps {
   className?: string;
@@ -31,23 +33,36 @@ export function ContactoForm({ className }: ContactoFormProps) {
   const [nombre, setNombre] = React.useState("");
   const [email, setEmail] = React.useState("");
   const [mensaje, setMensaje] = React.useState("");
+  const [honeypot, setHoneypot] = React.useState("");
   const [submitted, setSubmitted] = React.useState(false);
   const [loading, setLoading] = React.useState(false);
   const [success, setSuccess] = React.useState(false);
   const [errors, setErrors] = React.useState<FieldErrors>({});
+  const [serverError, setServerError] = React.useState<string | null>(null);
 
-  const onSubmit = (e: React.FormEvent) => {
+  const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitted(true);
+    setServerError(null);
     const next = validate(nombre, email, mensaje);
     setErrors(next);
     if (Object.keys(next).length > 0) return;
 
     setLoading(true);
-    window.setTimeout(() => {
-      setLoading(false);
+    const result = await submitInquiry({
+      type: "contact",
+      name: nombre.trim(),
+      email: email.trim(),
+      mensaje: mensaje.trim(),
+      honeypot,
+    });
+    setLoading(false);
+
+    if (result.ok) {
       setSuccess(true);
-    }, 750);
+      return;
+    }
+    setServerError(result.userMessage);
   };
 
   return (
@@ -62,6 +77,7 @@ export function ContactoForm({ className }: ContactoFormProps) {
             exit={{ opacity: 0 }}
             transition={{ duration: 0.35, ease: [0.4, 0, 0.2, 1] }}
           >
+            <HoneypotField value={honeypot} onChange={setHoneypot} />
             <FormGroup>
               <Field
                 id="ct-nombre"
@@ -116,9 +132,15 @@ export function ContactoForm({ className }: ContactoFormProps) {
                 />
               </Field>
 
+              {serverError ? (
+                <p className="font-sans text-[11px] font-medium text-rojo" role="alert" aria-live="polite">
+                  {serverError}
+                </p>
+              ) : null}
+
               <div className="pt-2">
                 <Button type="submit" variant="primary" disabled={loading}>
-                  Enviar mensaje
+                  {loading ? "Enviando…" : "Enviar mensaje"}
                 </Button>
               </div>
             </FormGroup>
@@ -144,9 +166,11 @@ export function ContactoForm({ className }: ContactoFormProps) {
                 setSuccess(false);
                 setSubmitted(false);
                 setErrors({});
+                setServerError(null);
                 setNombre("");
                 setEmail("");
                 setMensaje("");
+                setHoneypot("");
               }}
             >
               Enviar otro mensaje

@@ -4,22 +4,31 @@ import * as React from "react";
 import { AnimatePresence, motion } from "framer-motion";
 
 import { Button } from "@/components/ui/Button";
+import { HoneypotField } from "@/components/ui/HoneypotField";
 import {
   Field,
   FormGroup,
   FormInput,
   FormTextarea,
 } from "@/components/ui/form";
+import { submitInquiry } from "@/lib/inquiries/submit";
 
 export interface EspacioAlquilerFormProps {
   className?: string;
 }
 
-type FieldErrors = Partial<Record<"marca" | "fecha" | "mensaje", string>>;
+type FieldErrors = Partial<Record<"marca" | "email" | "fecha" | "mensaje", string>>;
 
-function validate(marca: string, fecha: string, mensaje: string): FieldErrors {
+function validate(
+  marca: string,
+  email: string,
+  fecha: string,
+  mensaje: string,
+): FieldErrors {
   const e: FieldErrors = {};
   if (!marca.trim()) e.marca = "Requerido";
+  if (!email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim()))
+    e.email = "Correo inválido";
   if (!fecha.trim()) e.fecha = "Requerida";
   if (!mensaje.trim() || mensaje.trim().length < 8)
     e.mensaje = "Mínimo 8 caracteres";
@@ -28,24 +37,41 @@ function validate(marca: string, fecha: string, mensaje: string): FieldErrors {
 
 export function EspacioAlquilerForm({ className }: EspacioAlquilerFormProps) {
   const [marca, setMarca] = React.useState("");
+  const [email, setEmail] = React.useState("");
   const [fecha, setFecha] = React.useState("");
   const [mensaje, setMensaje] = React.useState("");
+  const [honeypot, setHoneypot] = React.useState("");
   const [submitted, setSubmitted] = React.useState(false);
   const [loading, setLoading] = React.useState(false);
   const [success, setSuccess] = React.useState(false);
   const [errors, setErrors] = React.useState<FieldErrors>({});
+  const [serverError, setServerError] = React.useState<string | null>(null);
 
-  const onSubmit = (e: React.FormEvent) => {
+  const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitted(true);
-    const next = validate(marca, fecha, mensaje);
+    setServerError(null);
+    const next = validate(marca, email, fecha, mensaje);
     setErrors(next);
     if (Object.keys(next).length > 0) return;
+
     setLoading(true);
-    window.setTimeout(() => {
-      setLoading(false);
+    const result = await submitInquiry({
+      type: "espacio",
+      name: marca.trim(),
+      email: email.trim(),
+      marca: marca.trim(),
+      fecha: fecha.trim(),
+      mensaje: mensaje.trim(),
+      honeypot,
+    });
+    setLoading(false);
+
+    if (result.ok) {
       setSuccess(true);
-    }, 750);
+      return;
+    }
+    setServerError(result.userMessage);
   };
 
   return (
@@ -57,8 +83,8 @@ export function EspacioAlquilerForm({ className }: EspacioAlquilerFormProps) {
         Consulta por alquiler
       </p>
       <p className="mt-3 max-w-[48ch] font-body text-[0.9rem] leading-relaxed text-carbon/65">
-        Contanos marca o proyecto, fecha tentativa y qué necesitás rodar.
-        Respondemos con disponibilidad y condiciones (simulación en navegador).
+        Contanos marca o proyecto, fecha tentativa y qué necesitás rodar. Te respondemos con
+        disponibilidad y condiciones.
       </p>
 
       <div className="relative mt-10 min-h-[260px] max-w-md">
@@ -72,6 +98,7 @@ export function EspacioAlquilerForm({ className }: EspacioAlquilerFormProps) {
               exit={{ opacity: 0 }}
               transition={{ duration: 0.35, ease: [0.4, 0, 0.2, 1] }}
             >
+              <HoneypotField value={honeypot} onChange={setHoneypot} />
               <FormGroup>
                 <Field
                   id="alq-marca"
@@ -85,20 +112,34 @@ export function EspacioAlquilerForm({ className }: EspacioAlquilerFormProps) {
                     onChange={(e) => {
                       setMarca(e.target.value);
                       if (submitted)
-                        setErrors(validate(e.target.value, fecha, mensaje));
+                        setErrors(validate(e.target.value, email, fecha, mensaje));
+                    }}
+                  />
+                </Field>
+
+                <Field
+                  id="alq-email"
+                  label="Email"
+                  error={submitted ? errors.email : undefined}
+                >
+                  <FormInput
+                    name="email"
+                    type="email"
+                    autoComplete="email"
+                    value={email}
+                    onChange={(e) => {
+                      setEmail(e.target.value);
+                      if (submitted)
+                        setErrors(validate(marca, e.target.value, fecha, mensaje));
                     }}
                   />
                 </Field>
 
                 <Field
                   id="alq-fecha"
-                  label="Fecha"
+                  label="Fecha tentativa"
                   error={submitted ? errors.fecha : undefined}
                 >
-                  {/*
-                    scheme-light: fuerza el picker de fecha al tema claro
-                    independientemente del modo del sistema operativo.
-                  */}
                   <FormInput
                     name="fecha"
                     type="date"
@@ -106,7 +147,7 @@ export function EspacioAlquilerForm({ className }: EspacioAlquilerFormProps) {
                     onChange={(e) => {
                       setFecha(e.target.value);
                       if (submitted)
-                        setErrors(validate(marca, e.target.value, mensaje));
+                        setErrors(validate(marca, email, e.target.value, mensaje));
                     }}
                     className="min-h-11 cursor-pointer scheme-light"
                   />
@@ -124,15 +165,21 @@ export function EspacioAlquilerForm({ className }: EspacioAlquilerFormProps) {
                     onChange={(e) => {
                       setMensaje(e.target.value);
                       if (submitted)
-                        setErrors(validate(marca, fecha, e.target.value));
+                        setErrors(validate(marca, email, fecha, e.target.value));
                     }}
                     className="min-h-[120px]"
                   />
                 </Field>
 
+                {serverError ? (
+                  <p className="font-sans text-[11px] font-medium text-rojo" role="alert" aria-live="polite">
+                    {serverError}
+                  </p>
+                ) : null}
+
                 <div className="pt-1">
                   <Button type="submit" variant="primary" disabled={loading}>
-                    Enviar consulta
+                    {loading ? "Enviando…" : "Enviar consulta"}
                   </Button>
                 </div>
               </FormGroup>
@@ -147,8 +194,7 @@ export function EspacioAlquilerForm({ className }: EspacioAlquilerFormProps) {
               className="max-w-[30ch]"
             >
               <p className="font-display text-[clamp(1.35rem,2.4vw,1.75rem)] font-normal leading-snug tracking-tightish text-carbon">
-                Recibimos tu consulta. Te respondemos con disponibilidad y plano
-                de trabajo.
+                Recibimos tu consulta. Te respondemos con disponibilidad y plano de trabajo.
               </p>
               <Button
                 type="button"
@@ -159,9 +205,12 @@ export function EspacioAlquilerForm({ className }: EspacioAlquilerFormProps) {
                   setSuccess(false);
                   setSubmitted(false);
                   setErrors({});
+                  setServerError(null);
                   setMarca("");
+                  setEmail("");
                   setFecha("");
                   setMensaje("");
+                  setHoneypot("");
                 }}
               >
                 Nueva consulta

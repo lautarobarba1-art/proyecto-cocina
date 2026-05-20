@@ -4,6 +4,7 @@ import { EspacioSpecs } from "@/components/espacio/EspacioSpecs";
 import { Container } from "@/components/layout/Container";
 import { SectionLabel } from "@/components/ui/SectionLabel";
 import { SectionTitle } from "@/components/ui/SectionTitle";
+import { ESPACIO_INTRO } from "@/lib/espacio";
 
 export default function EspacioPage() {
   return (
@@ -16,13 +17,10 @@ export default function EspacioPage() {
             Un lugar listo para <em>rodar</em>
           </SectionTitle>
           <p className="mt-8 font-display text-[clamp(1.35rem,2.5vw,1.85rem)] font-normal leading-[1.35] tracking-tightish text-carbon/90">
-            Estético por defecto: quien alquila se ahorra la escenografía. Cocina a la vista, luz honesta y
-            silencio de fondo — para foto, video, talleres chicos o sesiones que piden rigor sin montar un set
-            desde cero.
+            {ESPACIO_INTRO.lead}
           </p>
           <p className="mt-6 max-w-[62ch] font-body text-[1.02rem] leading-[1.75] text-carbon/75">
-            Ficha técnica resumida y referencias visuales. Si tu proyecto necesita otra logística (horario,
-            catering externo, equipo extra), lo vemos en la consulta.
+            {ESPACIO_INTRO.body}
           </p>
         </div>
 

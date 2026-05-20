@@ -1,4 +1,12 @@
-/** Contenido editorial / técnico para la página de alquiler del espacio (mock). */
+/**
+ * Contenido de /espacio (alquiler).
+ * Guía de actualización: docs/CONTENT.md
+ */
+
+export const ESPACIO_INTRO = {
+  lead: "Estético por defecto: quien alquila se ahorra la escenografía. Cocina a la vista, luz honesta y silencio de fondo — para foto, video, talleres chicos o sesiones que piden rigor sin montar un set desde cero.",
+  body: "Ficha técnica resumida y referencias visuales. Si tu proyecto necesita otra logística (horario extendido, catering externo, equipo extra), lo vemos en la consulta.",
+} as const;
 
 export interface EspacioSpec {
   label: string;
@@ -16,7 +24,11 @@ export const ESPACIO_SPECS: EspacioSpec[] = [
   },
   {
     label: "Luz natural",
-    value: "Ventanales NE; luz matinal muy estable para foto y video sin parches agresivos",
+    value: "Ventanales NE; luz matinal estable para foto y video sin parches agresivos",
+  },
+  {
+    label: "Capacidad",
+    value: "Hasta 12 personas en mesa · ideal 4–8 para rodaje con movimiento de cámara",
   },
   {
     label: "Servicios",

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Logotype } from "@/components/brand/Logotype";
 import { Tagline } from "@/components/brand/Tagline";
 import { Container } from "@/components/layout/Container";
+import { mailtoHref, siteContact, whatsappHref } from "@/lib/site/contact";
 
 export interface FooterProps {
   className?: string;
@@ -11,7 +12,42 @@ export interface FooterProps {
 /** Tipografía de los títulos de columna (DS): 11px / 700 / tracking 0.22em / uppercase / terracota */
 const COL_TITLE = "font-sans text-[11px] font-bold uppercase tracking-eyebrow text-terracota";
 
+function SocialLink({
+  href,
+  label,
+  pending,
+}: {
+  href: string | null;
+  label: string;
+  pending?: boolean;
+}) {
+  if (!href) {
+    return (
+      <span
+        className="footer-link cursor-not-allowed opacity-50"
+        aria-disabled="true"
+        title="Próximamente"
+      >
+        {label}
+      </span>
+    );
+  }
+  return (
+    <a
+      className="footer-link"
+      href={href}
+      target="_blank"
+      rel="noreferrer noopener"
+      aria-label={pending ? `${label} (próximamente)` : label}
+    >
+      {label}
+    </a>
+  );
+}
+
 export function Footer({ className }: FooterProps) {
+  const { address, email, social } = siteContact;
+
   return (
     <footer
       className={[
@@ -25,9 +61,13 @@ export function Footer({ className }: FooterProps) {
             <Logotype variant="onDark" size="md" />
             <Tagline className="text-crema/70 text-[12px] tracking-[0.2em]" />
             <p className="mt-2 font-sans text-[13px] font-medium leading-[1.7] text-crema/55">
-              San Martín 1234<br />
-              Rafaela · Santa Fe · AR<br />
-              hola@menesteres.com
+              {address.footerLines[0]}
+              <br />
+              {address.footerLines[1]}
+              <br />
+              <a href={mailtoHref()} className="transition-colors hover:text-crema/80">
+                {email}
+              </a>
             </p>
           </div>
 
@@ -87,19 +127,13 @@ export function Footer({ className }: FooterProps) {
             <p className={COL_TITLE}>Seguinos</p>
             <ul className="mt-6 grid gap-5 md:gap-3.5">
               <li>
-                <a className="footer-link" href="#" target="_blank" rel="noreferrer noopener" aria-label="Instagram (próximamente)">
-                  Instagram
-                </a>
+                <SocialLink href={social.instagram} label="Instagram" pending={!social.instagram} />
               </li>
               <li>
-                <a className="footer-link" href="#" target="_blank" rel="noreferrer noopener" aria-label="WhatsApp (próximamente)">
-                  WhatsApp
-                </a>
+                <SocialLink href={social.whatsapp ?? whatsappHref()} label="WhatsApp" />
               </li>
               <li>
-                <a className="footer-link" href="#" target="_blank" rel="noreferrer noopener" aria-label="Facebook (próximamente)">
-                  Facebook
-                </a>
+                <SocialLink href={social.facebook} label="Facebook" pending={!social.facebook} />
               </li>
             </ul>
           </div>

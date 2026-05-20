@@ -1,15 +1,10 @@
 import type { ClassEvent, ClassStatus } from "@/lib/calendar/types";
+import { postalAddressSchema, siteContact } from "@/lib/site/contact";
 
 const VENUE = {
   "@type": "Place",
   name: "Menesteres",
-  address: {
-    "@type": "PostalAddress",
-    streetAddress: "San Martín 1234",
-    addressLocality: "Rafaela",
-    addressRegion: "Santa Fe",
-    addressCountry: "AR",
-  },
+  address: postalAddressSchema(),
 } as const;
 
 function toIso(date: string, time: string): string {
@@ -45,7 +40,7 @@ function eventToJsonLd(event: ClassEvent): Record<string, unknown> | null {
       price: String(event.price),
       priceCurrency: "ARS",
       availability: availabilityUrl(event.status),
-      url: `https://menesteres.com/clases/${event.slug}?fecha=${encodeURIComponent(event.date)}`,
+      url: `${siteContact.siteUrl}/clases/${event.slug}?fecha=${encodeURIComponent(event.date)}`,
     },
   };
 }
