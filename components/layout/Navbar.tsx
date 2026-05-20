@@ -38,7 +38,7 @@ function useIsMobile(): boolean {
 }
 
 function useNavbarVisible(): boolean {
-  const reduced = useReducedMotion();
+  const _reduced = useReducedMotion();
   const [visible, setVisible] = React.useState<boolean>(false);
 
   React.useEffect(() => {
@@ -60,7 +60,7 @@ function useNavbarVisible(): boolean {
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", onScroll);
     };
-  }, [reduced]);
+  }, [_reduced]);
 
   return visible;
 }
