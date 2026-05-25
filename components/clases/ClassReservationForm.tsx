@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/form";
 import type { ClassMock } from "@/lib/classes-mock";
 import { DEFAULT_CLASS_SESSIONS } from "@/lib/classes-mock";
+import { whatsappHref } from "@/lib/site/contact";
 
 export interface SessionOption {
   id: string;
@@ -108,16 +109,7 @@ export function ClassReservationForm({
       return;
     }
 
-    // Si es waitlist, todavía no hay endpoint para lista de espera.
-    // Mantenemos el comportamiento mock anterior.
-    if (waitlist) {
-      setLoading(true);
-      window.setTimeout(() => {
-        setLoading(false);
-        setSuccess(true);
-      }, 600);
-      return;
-    }
+    // waitlist nunca llega aquí — el soldOut card se muestra antes del form
 
     // Buscar el classId real de la sesión elegida
     const selected = sessions.find((s) => s.id === sessionId);
@@ -179,21 +171,44 @@ export function ClassReservationForm({
     className ?? "",
   ].join(" ");
 
+  if (soldOut) {
+    return (
+      <div className={cardClass}>
+        <p className="font-mono text-[0.7rem] font-medium uppercase tracking-eyebrow text-terracota">
+          Sin cupos
+        </p>
+        <h3 className="mt-4 font-display text-2xl font-normal tracking-tightish text-carbon">
+          Esta clase está agotada
+        </h3>
+        <p className="mt-4 font-body text-[0.95rem] leading-relaxed text-carbon/75">
+          Escribinos por WhatsApp y te avisamos si se libera un lugar o cuándo
+          abre la próxima fecha.
+        </p>
+        <Button
+          href={whatsappHref()}
+          variant="primary"
+          size="default"
+          className="mt-8 w-full"
+          external
+        >
+          Consultar por WhatsApp
+        </Button>
+      </div>
+    );
+  }
+
   if (success) {
     return (
       <div className={cardClass}>
         <p className="font-mono text-[0.7rem] font-medium uppercase tracking-eyebrow text-terracota">
-          {waitlist ? "Lista de espera" : "Reserva"}
+          Reserva
         </p>
         <h3 className="mt-4 font-display text-2xl font-normal tracking-tightish text-carbon">
-          {waitlist ? "Te sumamos a la lista" : "Listo, recibimos tu pedido"}
+          Listo, recibimos tu pedido
         </h3>
         <p className="mt-4 font-body text-[0.95rem] leading-relaxed text-carbon/75">
-          {waitlist
-            ? "Cuando haya cupos te escribimos a " + email.trim() + "."
-            : "Te enviamos un correo a " +
-              email.trim() +
-              " con los próximos pasos y el medio de pago."}
+          Te enviamos un correo a {email.trim()} con los próximos pasos y el
+          medio de pago.
         </p>
         <Button
           variant="ghost"

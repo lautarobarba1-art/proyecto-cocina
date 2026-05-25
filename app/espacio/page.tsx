@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { EspacioAlquilerForm } from "@/components/espacio/EspacioAlquilerForm";
 import { EspacioGallery } from "@/components/espacio/EspacioGallery";
 import { EspacioSpecs } from "@/components/espacio/EspacioSpecs";
@@ -5,6 +6,11 @@ import { Container } from "@/components/layout/Container";
 import { SectionLabel } from "@/components/ui/SectionLabel";
 import { SectionTitle } from "@/components/ui/SectionTitle";
 import { ESPACIO_INTRO } from "@/lib/espacio";
+
+export const metadata: Metadata = {
+  title: "Alquiler del espacio · Menesteres",
+  description: "Espacio gastronómico disponible para fotógrafos, talleres y producciones en Rafaela, Santa Fe. Cocina equipada y luz natural.",
+};
 
 export default function EspacioPage() {
   return (

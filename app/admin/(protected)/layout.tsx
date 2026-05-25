@@ -18,7 +18,7 @@ export default async function AdminLayout({
   }
 
   return (
-    <div className="fixed inset-0 z-[9999] overflow-y-auto bg-crema-light">
+    <div className="fixed inset-0 z-9999 overflow-y-auto bg-crema-light">
       <header className="border-b border-carbon/10 bg-white">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
           <div className="flex items-center gap-8">

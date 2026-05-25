@@ -1,4 +1,3 @@
-import Image from "next/image";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { ClassReservationForm } from "@/components/clases/ClassReservationForm";
@@ -69,35 +68,34 @@ export default async function ClaseDetallePage({
 
   return (
     <main className="flex-1 pb-20 lg:pb-28">
-      {/* Imagen hero full-width */}
+      {/* Header band — text-forward, sin imagen */}
       <div className="relative left-1/2 w-screen max-w-none -translate-x-1/2 border-b border-line">
-        <div className="relative aspect-video min-h-[220px] max-h-[min(52vh,560px)] w-full bg-crema-deep">
-          <Image
-            src={clase.image.src}
-            alt={clase.image.alt}
-            fill
-            priority
-            sizes="100vw"
-            className={[
-              "object-cover object-center photo-editorial",
-              soldOut ? "grayscale-[0.25]" : "",
-            ].join(" ")}
-          />
-          <div
-            className="pointer-events-none absolute inset-0 bg-linear-to-t from-carbon/50 via-transparent to-carbon/20"
+        <div
+          className={[
+            "relative flex h-[min(32vh,280px)] min-h-[160px] items-end overflow-hidden px-8 pb-10 lg:px-16 lg:pb-14",
+            soldOut ? "bg-crema-deep/60" : "bg-crema-deep",
+          ].join(" ")}
+        >
+          {/* Letra decorativa — misma lógica que ClaseCard */}
+          <span
             aria-hidden="true"
-          />
+            className="pointer-events-none absolute right-8 top-1/2 -translate-y-1/2 select-none font-display text-[clamp(8rem,20vw,16rem)] font-normal italic leading-none text-terracota/8 lg:right-16"
+          >
+            {clase.title.charAt(0)}
+          </span>
+
+          {/* Category + status badges */}
+          <div className="relative z-10 flex flex-wrap items-center gap-3">
+            <SectionLabel>{clase.category}</SectionLabel>
+            {lastSpots && <Badge variant="orange-light">Últimos cupos</Badge>}
+            {soldOut && <Badge variant="black">Agotado</Badge>}
+          </div>
         </div>
       </div>
       <Container as="div" className="mt-10 lg:mt-12">
         <Button href="/clases" variant="ghost" size="sm">
           ← Catálogo de clases
         </Button>
-        <div className="mt-8 flex flex-wrap items-center gap-3">
-          <SectionLabel>{clase.category}</SectionLabel>
-          {lastSpots && <Badge variant="orange-light">Últimos cupos</Badge>}
-          {soldOut && <Badge variant="black">Agotado</Badge>}
-        </div>
         <h1 className="mt-5 max-w-[22ch] font-sans text-[clamp(2rem,5vw,3rem)] font-extrabold uppercase leading-[1.05] tracking-tighter text-carbon">
           {clase.title}
         </h1>

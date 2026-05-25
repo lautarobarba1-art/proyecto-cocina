@@ -2,6 +2,8 @@ import { Container } from "@/components/layout/Container";
 import { SectionLabel } from "@/components/ui/SectionLabel";
 import { SectionTitle } from "@/components/ui/SectionTitle";
 
+export const metadata= {robots: "noindex"}
+
 export default function RecetasPage() {
   return (
     <main className="flex-1 py-20 lg:py-28">

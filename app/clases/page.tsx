@@ -1,8 +1,14 @@
+import type { Metadata } from "next";
 import { ClassesCatalog } from "@/components/clases/ClassesCatalog";
 import { Container } from "@/components/layout/Container";
 import { SectionLabel } from "@/components/ui/SectionLabel";
 import { SectionTitle } from "@/components/ui/SectionTitle";
 import { getAllClasses } from "@/lib/classes-mock";
+
+export const metadata: Metadata = {
+  title: "Clases de cocina · Menesteres",
+  description: "Catálogo de clases para adultos, niños y eventos privados en Rafaela, Santa Fe. Reservá tu lugar.",
+};
 
 export const dynamic = "force-dynamic";
 

@@ -40,17 +40,17 @@ export async function POST(req: Request) {
     );
   }
 
-  console.log("[POST /api/reservations] Iniciando RPC...", {
+  /**console.log("[POST /api/reservations] Iniciando RPC...", {
     classId,
     spots,
     customerName,
     customerEmail,
-  });
+  });*/
 
   const supabase = getSupabaseAdmin();
 
   // Llamar función transaccional
-  console.log("[POST /api/reservations] Llamando RPC create_reservation_atomic...");
+  /**console.log("[POST /api/reservations] Llamando RPC create_reservation_atomic...");*/
   const { data, error } = await supabase.rpc("create_reservation_atomic", {
     p_class_id: classId,
     p_customer_email: customerEmail,
@@ -61,7 +61,7 @@ export async function POST(req: Request) {
     p_spots: spots,
   });
 
-  console.log("[POST /api/reservations] RPC completado. Error:", error, "Data:", data);
+  /**console.log("[POST /api/reservations] RPC completado. Error:", error, "Data:", data);*/
 
   if (error) {
     console.error("[POST /api/reservations] RPC error:", error);

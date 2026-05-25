@@ -267,14 +267,7 @@ export default async function ReservasAdminPage({ searchParams }: PageProps) {
           : ""}
         {mes ? ` · ${meses.find((m) => m.value === mes)?.label ?? mes}` : ""}.
         {" "}
-        
-        <a
-            href={exportUrl}
-            download
-            className="flex items-center gap-2 border border-carbon/20 bg-white px-4 py-2 font-sans text-[0.82rem] text-carbon/70 transition hover:border-carbon/40 hover:text-carbon"
-          >
-            ↓ Exportar CSV
-          </a>
+      
       </p>
     </div>
   );

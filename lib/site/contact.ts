@@ -28,17 +28,16 @@ export const siteContact = {
   map: {
     /** Enlace "Cómo llegar" en Google Maps */
     directionsUrl:
-      "https://www.google.com/maps/search/?api=1&query=San+Mart%C3%ADn+1234%2C+Rafaela%2C+Santa+Fe%2C+Argentina",
+      "https://maps.app.goo.gl/pv6Q49pCwXhJpmvdA",
     /**
      * iframe embed por búsqueda de dirección. Reemplazar con Place ID cuando exista ubicación fija.
      */
     embedUrl:
-      "https://maps.app.goo.gl/iycWJq9H2mnyQkuW6",
+      "https://maps.app.goo.gl/pv6Q49pCwXhJpmvdA",
   },
   social: {
     /** null = enlace deshabilitado en footer hasta tener URL real */
-    instagram: null as string | null,
-    facebook: null as string | null,
+    instagram: "https://www.instagram.com/menesteress",
     whatsapp: "https://wa.me/3492694750",
   },
   /** Dominio canónico para schema.org (eventos, etc.) */

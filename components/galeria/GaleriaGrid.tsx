@@ -26,16 +26,28 @@ function galeriaItemClass(index: number): string {
   }
 }
 
-function GaleriaMedia({ item }: { item: GaleriaItem }) {
+function GaleriaMedia({ item, booted, playing }: { item: GaleriaItem; booted: boolean; playing: boolean }) {
+  const videoRef = React.useRef<HTMLVideoElement | null>(null);
+
+  React.useEffect(() => {
+    const v = videoRef.current;
+    if (!v || !booted) return;
+    if (playing) {
+      void v.play().catch(() => {});
+    } else {
+      v.pause();
+    }
+  }, [booted, playing]);
+
   if (item.type === "video") {
     return (
       <video
+        ref={videoRef}
         className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 ease-snap group-hover:scale-[1.04]"
         muted
         loop
         playsInline
-        autoPlay
-        src={item.src}
+        src={booted ? item.src : undefined}
         aria-label={item.alt}
       />
     );
@@ -55,6 +67,25 @@ function GaleriaMedia({ item }: { item: GaleriaItem }) {
 export function GaleriaGrid({ items }: GaleriaGridProps) {
   const [selectedIndex, setSelectedIndex] = React.useState<number | null>(null);
 
+  const sectionRef = React.useRef<HTMLDivElement | null>(null);
+  const [inView, setInView] = React.useState(false);
+  const [booted, setBooted] = React.useState(false);
+
+  React.useEffect(() => {
+    const el = sectionRef.current;
+    if (!el) return;
+    const io = new IntersectionObserver(
+      ([e]) => {
+        const hit = Boolean(e?.isIntersecting);
+        setInView(hit);
+        if (hit) setBooted(true);
+      },
+      { rootMargin: "80px 0px", threshold: 0.1 },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+
   if (items.length === 0) {
     return (
       <div className="py-24 text-center">
@@ -65,7 +96,7 @@ export function GaleriaGrid({ items }: GaleriaGridProps) {
 
   return (
     <>
-      <div className="relative left-1/2 w-screen max-w-[100vw] -translate-x-1/2 border-y border-carbon/10">
+      <div ref={sectionRef} data-inview={inView ? "true" : "false"} className="relative left-1/2 w-screen max-w-[100vw] -translate-x-1/2 border-y border-carbon/10">
         <div className="grid grid-cols-3 gap-0">
           {items.map((item, index) => (
             <button
@@ -78,7 +109,7 @@ export function GaleriaGrid({ items }: GaleriaGridProps) {
               ].join(" ")}
               aria-label={`Ver: ${item.alt}`}
             >
-              <GaleriaMedia item={item} />
+              <GaleriaMedia item={item} booted={booted} playing={inView} />
               {item.title && (
                 <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-linear-to-t from-carbon/80 to-transparent p-4 pt-10 opacity-0 transition-opacity duration-300 ease-snap group-hover:opacity-100">
                   <p className="font-mono text-[0.65rem] font-medium uppercase tracking-meta text-crema-light">

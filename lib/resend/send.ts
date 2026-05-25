@@ -18,7 +18,7 @@ export async function sendEmailReservaConfirmacion(
   try {
     const html = templateReservaConfirmacion(data);
     const result = await resend.emails.send({
-      from: "onboarding@resend.dev", // En sandbox, el 'from' se ignora (siempre viene de Resend)
+      from: "aliciapalavecino02@gmail.com", // En sandbox, el 'from' se ignora (siempre viene de Resend)
       to: data.customerEmail,
       subject: `✓ Reserva confirmada: ${data.className}`,
       html,
@@ -46,7 +46,7 @@ export async function sendEmailAdminNewReserva(
   try {
     const html = templateAdminNewReserva(data);
     const result = await resend.emails.send({
-      from: "onboarding@resend.dev",
+      from: "aliciapalavecino02@gmail.com",
       to: ADMIN_EMAIL,
       subject: `📬 Nueva reserva: ${data.customerName}`,
       html,
@@ -92,7 +92,7 @@ export async function sendEmailReservaConfirmada(
     `;
 
     const result = await resend.emails.send({
-      from: "onboarding@resend.dev",
+      from: "aliciapalavecino02@gmail.com",
       to: customerEmail,
       subject: `✓ Pago confirmado: ${className}`,
       html,
@@ -137,7 +137,7 @@ export async function sendEmailReservaCancelada(
     `;
 
     const result = await resend.emails.send({
-      from: "onboarding@resend.dev",
+      from: "aliciapalavecino02@gmail.com",
       to: customerEmail,
       subject: `Reserva cancelada: ${className}`,
       html,

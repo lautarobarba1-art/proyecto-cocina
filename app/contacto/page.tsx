@@ -1,9 +1,15 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 
 import { ContactMap } from "@/components/contacto/ContactMap";
 import { ContactoForm } from "@/components/contacto/ContactoForm";
 import { Container } from "@/components/layout/Container";
 import { mailtoHref, siteContact, whatsappHref } from "@/lib/site/contact";
+
+export const metadata: Metadata = {
+  title: "Contacto · Menesteres",
+  description: "Contactanos para consultas, eventos privados o colaboraciones. Escuela de cocina en Rafaela, Santa Fe.",
+};
 
 export default function ContactoPage() {
   const { email, address, phone, hours } = siteContact;
