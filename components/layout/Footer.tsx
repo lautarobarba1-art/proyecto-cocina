@@ -132,9 +132,7 @@ export function Footer({ className }: FooterProps) {
               <li>
                 <SocialLink href={social.whatsapp ?? whatsappHref()} label="WhatsApp" />
               </li>
-              <li>
-                <SocialLink href={social.facebook} label="Facebook" pending={!social.facebook} />
-              </li>
+              
             </ul>
           </div>
         </div>

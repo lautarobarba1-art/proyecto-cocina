@@ -38,10 +38,17 @@ function useIsMobile(): boolean {
 }
 
 function useNavbarVisible(): boolean {
-  const _reduced = useReducedMotion();
+  const reduced = useReducedMotion();
   const [visible, setVisible] = React.useState<boolean>(false);
 
   React.useEffect(() => {
+    // Usuarios con reduced motion no ven la animación del hero,
+    // por lo que mostramos la barra inmediatamente.
+    if (reduced) {
+      setVisible(true);
+      return;
+    }
+
     const hero = document.getElementById("hero");
     const getThreshold = () => {
       const heroHeight = hero?.getBoundingClientRect().height ?? window.innerHeight;
@@ -60,7 +67,7 @@ function useNavbarVisible(): boolean {
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", onScroll);
     };
-  }, [_reduced]);
+  }, [reduced]);
 
   return visible;
 }

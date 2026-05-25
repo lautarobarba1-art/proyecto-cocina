@@ -18,8 +18,14 @@ export function GaleriaLightbox({
   const [index, setIndex] = React.useState(initialIndex);
   const item = items[index]!;
 
-  const prev = () => setIndex((i) => (i - 1 + items.length) % items.length);
-  const next = () => setIndex((i) => (i + 1) % items.length);
+  const prev = React.useCallback(
+    () => setIndex((i) => (i - 1 + items.length) % items.length),
+    [items.length],
+  );
+  const next = React.useCallback(
+    () => setIndex((i) => (i + 1) % items.length),
+    [items.length],
+  );
 
   // Cerrar con Escape, navegar con flechas
   React.useEffect(() => {
@@ -30,7 +36,7 @@ export function GaleriaLightbox({
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, []);
+  }, [next, onClose, prev]);
 
   // Bloquear scroll del body mientras está abierto
   React.useEffect(() => {
