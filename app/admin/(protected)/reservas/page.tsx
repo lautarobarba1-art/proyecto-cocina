@@ -216,7 +216,7 @@ export default async function ReservasAdminPage({ searchParams }: PageProps) {
                       )}
                       {r.notes && (
                         <div className="mt-2 max-w-[28ch] text-carbon/55 text-[0.78rem] italic">
-                          &quot;{r.notes}&quot;
+                          &ldquo;{r.notes}&rdquo;
                         </div>
                       )}
                     </Td>

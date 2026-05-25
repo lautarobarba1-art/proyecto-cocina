@@ -2,8 +2,13 @@ import { ClassesCatalog } from "@/components/clases/ClassesCatalog";
 import { Container } from "@/components/layout/Container";
 import { SectionLabel } from "@/components/ui/SectionLabel";
 import { SectionTitle } from "@/components/ui/SectionTitle";
+import { getAllClasses } from "@/lib/classes-mock";
 
-export default function ClasesPage() {
+export const dynamic = "force-dynamic";
+
+export default async function ClasesPage() {
+  const classes = await getAllClasses();
+
   return (
     <main className="min-w-0 flex-1 py-20 lg:py-28">
       <Container as="div">
@@ -18,7 +23,7 @@ export default function ClasesPage() {
           </p>
         </div>
 
-        <ClassesCatalog className="mt-20 lg:mt-24" />
+        <ClassesCatalog classes={classes} className="mt-20 lg:mt-24" />
       </Container>
     </main>
   );

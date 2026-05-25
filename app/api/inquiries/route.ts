@@ -67,10 +67,7 @@ export async function POST(req: Request) {
 
   if (error) {
     console.error("[POST /api/inquiries]", error);
-    return NextResponse.json(
-      { error: "server_error", detail: error.message },
-      { status: 500 },
-    );
+    return NextResponse.json({ error: "server_error" }, { status: 500 });
   }
 
   return NextResponse.json({ ok: true, inquiryId: data.id }, { status: 201 });

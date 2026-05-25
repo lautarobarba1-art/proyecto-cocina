@@ -11,6 +11,9 @@ export const siteContact = {
     waMe: "3492694750",
   },
   address: {
+    // TODO: confirmar dirección real con la clienta.
+    // address.street = "Malvinas Argentinas 1150" pero map.directionsUrl apunta a "San Martín 1234".
+    // Actualizar ambos (street, line, footerLines y directionsUrl) con la dirección confirmada.
     street: "Malvinas Argentinas 1150",
     locality: "Rafaela",
     region: "Santa Fe",
@@ -23,7 +26,7 @@ export const siteContact = {
   },
   hours: "Martes a sábado · 10:00 – 20:00 (consultar por WhatsApp)",
   map: {
-    /** Enlace “Cómo llegar” en Google Maps */
+    /** Enlace "Cómo llegar" en Google Maps */
     directionsUrl:
       "https://www.google.com/maps/search/?api=1&query=San+Mart%C3%ADn+1234%2C+Rafaela%2C+Santa+Fe%2C+Argentina",
     /**

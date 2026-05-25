@@ -132,24 +132,24 @@ export async function POST(req: Request) {
 
     // Email al cliente
     await sendEmailReservaConfirmacion({
-      customerName: reservationData.customer_name,
-      customerEmail: reservationData.customer_email,
+      customerName,
+      customerEmail,
       className: cls?.title ?? "(clase)",
       classDate: formatDateLong(cls?.date ?? ""),
       classTime: `${cls?.start_time?.slice(0, 5) ?? ""} - ${cls?.end_time?.slice(0, 5) ?? ""}`,
       paymentLink: cls?.payment_link,
-      cupos: reservationData.spots,
+      cupos: spots,
     });
 
     // Email a la admin
     await sendEmailAdminNewReserva({
-      customerName: reservationData.customer_name,
-      customerEmail: reservationData.customer_email,
-      customerPhone: reservationData.customer_phone,
+      customerName,
+      customerEmail,
+      customerPhone: customerPhone ?? null,
       className: cls?.title ?? "(clase)",
       classDate: formatDateLong(cls?.date ?? ""),
-      cupos: reservationData.spots,
-      notes: reservationData.notes,
+      cupos: spots,
+      notes: notes ?? null,
     });
   } catch (emailErr) {
     // No bloqueamos si fallan los emails — es una notificación, no crítica

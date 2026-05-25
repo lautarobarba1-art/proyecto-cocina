@@ -3,23 +3,24 @@
 import * as React from "react";
 import { AnimatePresence, motion } from "framer-motion";
 
-import { CLASSES_MOCK, getClassCategories } from "@/lib/classes-mock";
+import { getClassCategories, type ClassMock } from "@/lib/classes-mock";
 
 import { ClaseCard } from "./ClaseCard";
 
 const ALL = "Todas";
 
 export interface ClassesCatalogProps {
+  classes: ClassMock[];
   className?: string;
 }
 
-export function ClassesCatalog({ className }: ClassesCatalogProps) {
-  const categories = React.useMemo(() => [ALL, ...getClassCategories(CLASSES_MOCK)], []);
+export function ClassesCatalog({ classes, className }: ClassesCatalogProps) {
+  const categories = React.useMemo(() => [ALL, ...getClassCategories(classes)], [classes]);
   const [active, setActive] = React.useState<string>(ALL);
 
   const filtered = React.useMemo(
-    () => (active === ALL ? CLASSES_MOCK : CLASSES_MOCK.filter((c) => c.category === active)),
-    [active],
+    () => (active === ALL ? classes : classes.filter((c) => c.category === active)),
+    [active, classes],
   );
 
   return (

@@ -11,6 +11,7 @@ import type { CalendarFilter } from "@/components/calendario/FilterBar";
 import { FilterBar } from "@/components/calendario/FilterBar";
 import { MonthGrid } from "@/components/calendario/MonthGrid";
 import { MonthList } from "@/components/calendario/MonthList";
+import { MobileCalendarView } from "@/components/calendario/MobileCalendarView";
 import type { CalendarView } from "@/components/calendario/ViewToggle";
 import { ViewToggle } from "@/components/calendario/ViewToggle";
 import { EmptyMonth } from "@/components/calendario/EmptyMonth";
@@ -93,6 +94,7 @@ export function CalendarioPageClient({
   const [view, setView] = React.useState<CalendarView>(initialView);
   const [filter, setFilter] = React.useState<CalendarFilter>(initialFilter);
   const [selectedClassId, setSelectedClassId] = React.useState<string | null>(initialSelectedClassId);
+  const [mobileFocusDate, setMobileFocusDate] = React.useState<string | null>(null);
   const [monthData, setMonthData] = React.useState<MonthData>(initialMonthData);
 
   React.useLayoutEffect(() => {
@@ -100,6 +102,8 @@ export function CalendarioPageClient({
   }, [isNarrow]);
 
   React.useEffect(() => {
+    setMobileFocusDate(null);
+    setSelectedClassId(null);
     let cancelled = false;
     void fetchMonthEventsClient(year, month).then((d) => {
       if (!cancelled) setMonthData(d);
@@ -233,7 +237,15 @@ export function CalendarioPageClient({
             <p className="py-16 text-center font-display text-[1.1rem] text-carbon/70">
               No hay clases en esta categoría este mes. Probá otra etiqueta.
             </p>
-          ) : isNarrow || view === "list" ? (
+          ) : isNarrow ? (
+            <MobileCalendarView
+              year={year}
+              month={month}
+              events={filtered}
+              focusDate={mobileFocusDate}
+              onDayFocus={(dateKey) => setMobileFocusDate(dateKey)}
+            />
+          ) : view === "list" ? (
             <MonthList events={filtered} selectedClassId={selectedClassId} onSelectClass={onSelectClass} onClosePanel={onClosePanel} />
           ) : (
             gridBlock

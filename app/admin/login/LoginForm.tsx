@@ -41,7 +41,7 @@ export function LoginForm() {
       email: email.trim(),
       options: {
         emailRedirectTo: callbackUrl.toString(),
-        shouldCreateUser: true,
+        shouldCreateUser: false,
       },
     });
 

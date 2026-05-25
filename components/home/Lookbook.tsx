@@ -4,20 +4,21 @@ import * as React from "react";
 
 import { Container } from "@/components/layout/Container";
 import { Button } from "@/components/ui/Button";
-import { type LookbookClip, LOOKBOOK_CLIPS } from "@/lib/lookbook";
+import { type LookbookItem, LOOKBOOK_ITEMS } from "@/lib/lookbook";
+import Image from "next/image";
 
 export interface LookbookProps {
   className?: string;
 }
 
 interface LookbookCellProps {
-  clip: LookbookClip;
+  item: LookbookItem;
   booted: boolean;
   playing: boolean;
   className: string;
 }
 
-function LookbookCell({ clip, booted, playing, className }: LookbookCellProps) {
+function LookbookCell({ item, booted, playing, className }: LookbookCellProps) {
   const videoRef = React.useRef<HTMLVideoElement | null>(null);
 
   React.useEffect(() => {
@@ -33,29 +34,34 @@ function LookbookCell({ clip, booted, playing, className }: LookbookCellProps) {
   return (
     <div
       className={[
-        "group relative isolate min-w-0 overflow-hidden bg-carbon-soft rounded-none",
+        "group relative isolate min-w-0 overflow-hidden bg-transparent rounded-none border border-terracota-soft/25",
         className,
       ].join(" ")}
     >
-      <video
-        ref={videoRef}
-        className="absolute inset-0 h-full w-full origin-center object-cover photo-editorial transition-[opacity,transform] duration-500 ease-snap will-change-transform group-hover:scale-[1.03]"
-        muted
-        loop
-        playsInline
-        preload="metadata"
-        src={booted ? clip.src : undefined}
-        aria-label={clip.description}
-      />
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-linear-to-t from-carbon/85 via-carbon/40 to-transparent p-4 pt-14 opacity-90 transition-opacity duration-300 ease-snap group-hover:opacity-100">
-        <p className="font-mono text-[0.65rem] font-medium uppercase tracking-meta text-crema-light/95">
-          {clip.title}
-        </p>
-      </div>
-    </div>
+      {item.type === "image" ? (
+  <Image
+    src={item.src}
+    alt={item.description}
+    fill
+    sizes="(max-width: 768px) 50vw, 25vw"
+    className="object-cover photo-editorial transition-transform duration-500 ease-snap group-hover:scale-[1.03]"
+  />
+) : (
+  <video
+    ref={videoRef}
+    className="absolute inset-0 h-full w-full origin-center object-cover photo-editorial transition-[opacity,transform] duration-500 ease-snap will-change-transform group-hover:scale-[1.03]"
+    muted
+    loop
+    playsInline
+    preload="metadata"
+    src={booted ? item.src : undefined}
+    aria-label={item.description}
+  />
+)
+}
+</div>
   );
 }
-
 /** Layout editorial tablet/desktop para los primeros 5 clips (grid lg 4×2). */
 const LOOKBOOK_LG_CLASSES: readonly string[] = [
   "aspect-4/3 min-h-[200px] border-b border-white/10 md:min-h-[220px] md:border-r md:border-white/10 lg:col-start-1 lg:row-start-1 lg:aspect-auto lg:h-full lg:min-h-0 lg:border-b lg:border-r",
@@ -95,7 +101,7 @@ export function Lookbook({ className }: LookbookProps) {
   const sectionRef = React.useRef<HTMLElement | null>(null);
   const [inView, setInView] = React.useState<boolean>(false);
   const [booted, setBooted] = React.useState<boolean>(false);
-  const total = LOOKBOOK_CLIPS.length;
+  const total = LOOKBOOK_ITEMS.length;
   const lgMultiBlock = total > 5;
 
   React.useEffect(() => {
@@ -143,10 +149,10 @@ export function Lookbook({ className }: LookbookProps) {
             "lg:min-h-[min(62vh,720px)] lg:grid-cols-4 lg:gap-0",
           ].join(" ")}
         >
-          {LOOKBOOK_CLIPS.map((clip, index) => (
+          {LOOKBOOK_ITEMS.map((item, index) => (
             <LookbookCell
-              key={clip.id}
-              clip={clip}
+              key={item.id}
+              item={item}
               booted={booted}
               playing={inView}
               className={lookbookCellClass(index, total)}
@@ -156,7 +162,7 @@ export function Lookbook({ className }: LookbookProps) {
       </div>
 
       <Container as="div" className="mt-10 flex justify-center lg:mt-12">
-        <Button href="/clases" variant="outline-cream">
+        <Button href="/galeria" variant="outline-cream">
           Descúbrelo
         </Button>
       </Container>

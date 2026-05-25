@@ -182,7 +182,7 @@ export interface EmailReservaConfirmacionData {
             ` : ""}
   
             <p style="margin: 0; font-size: 13px; color: #6b7280;">
-              <a href="https://proyecto-cocina-seven.vercel.app/admin/reservas" style="color: #0284c7; text-decoration: none; font-weight: bold;">
+              <a href="https://menesteres.com/admin/reservas" style="color: #0284c7; text-decoration: none; font-weight: bold;">
                 Ver en el panel de admin →
               </a>
             </p>

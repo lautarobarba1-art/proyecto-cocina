@@ -10,14 +10,24 @@ Documento de referencia para actualizar textos del sitio. El código lee los val
 
 ## Contacto y ubicación
 
-| Campo | Valor actual | Acción |
-|-------|--------------|--------|
+| Campo | Valor actual en código | Acción |
+|-------|------------------------|--------|
 | Email | `hola@menesteres.com` | Confirmar buzón activo |
-| Dirección | San Martín 1234, Rafaela | Reemplazar por dirección real |
-| WhatsApp | +54 9 341 555-0000 | Número real (`wa.me` sin + ni espacios) |
+| Dirección (`address.street`) | `Malvinas Argentinas 1150, Rafaela` | **⚠️ Confirmar con la clienta** — el mapa apunta a "San Martín 1234" |
+| URL de mapa (`map.directionsUrl`) | Apunta a `San Martín 1234` | Actualizar cuando se confirme la dirección real |
+| WhatsApp | `+54 9 349 269-4750` | Confirmar número real |
 | Horarios | Martes a sábado · 10:00 – 20:00 | Ajustar según operación |
-| Instagram / Facebook | Pendiente | Completar URLs en `lib/site/contact.ts` → `social` |
-| Mapa | Google Maps (búsqueda por dirección) | Actualizar `map.embedUrl` si hay Place ID fijo |
+| Instagram / Facebook | `null` (deshabilitado) | Completar URLs en `lib/site/contact.ts` → `social` |
+| Mapa embed | `maps.app.goo.gl/iycWJq9H2mnyQkuW6` | Reemplazar con Place ID fijo una vez confirmada la dirección |
+
+### Cómo actualizar la dirección
+
+Cuando la clienta confirme la dirección real, editar en `lib/site/contact.ts`:
+1. `address.street` → dirección confirmada
+2. `address.line` → versión de una línea
+3. `address.footerLines` → dos líneas para el footer
+4. `map.directionsUrl` → URL de Google Maps con la dirección correcta
+5. `map.embedUrl` → URL del iframe embed (Place ID si disponible)
 
 ## Nosotros
 
@@ -35,8 +45,5 @@ Documento de referencia para actualizar textos del sitio. El código lee los val
 
 ## Formularios
 
-Las consultas de **Contacto** y **Alquiler del espacio** se guardan en Supabase (`inquiries`). Revisar la tabla desde el panel de Supabase o, en una fase posterior, desde el admin.
-
-## Próxima fase operativa
-
-Ver [`docs/NEXT-OPS.md`](./NEXT-OPS.md) para catálogo `/clases`, emails de reserva y lista de espera.
+Las consultas de **Contacto** y **Alquiler del espacio** se guardan en Supabase (`inquiries`).
+Se leen desde el panel en `/admin/inquiries`.

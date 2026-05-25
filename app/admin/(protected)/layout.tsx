@@ -41,6 +41,12 @@ export default async function AdminLayout({
               >
                 Clases
               </Link>
+              <Link
+                href="/admin/inquiries"
+                className="font-sans text-[0.85rem] text-carbon/70 hover:text-carbon"
+              >
+                Consultas
+              </Link>
             </nav>
           </div>
           <div className="flex items-center gap-4">

@@ -1,4 +1,3 @@
-import Image from "next/image";
 import Link from "next/link";
 
 import { Badge } from "@/components/ui/Badge";
@@ -12,26 +11,18 @@ export interface ClaseCardProps {
 }
 
 /**
- * ClaseCard — fiel al design system Menesteres (v2).
+ * ClaseCard — text-forward, sin imagen (v3).
+ *
+ * Header band: fondo crema-deep con letra decorativa (primera letra del título)
+ * como textura tipográfica. No requiere ninguna foto, cero mantenimiento visual.
  *
  * Patrón de navegación:
- *   - <Link> absoluto (inset-0, z-0) cubre toda la card para click en cualquier punto.
- *   - aria-hidden + tabIndex={-1}: invisible a SR y teclado (el Button CTA es el
- *     elemento de navegación accesible).
- *   - Image div y Body div: relative z-10 → siempre sobre el overlay.
- *   - Button CTA (ghost + arrow): único foco de teclado, tabIndex natural.
- *
- * CTA — variant="ghost":
- *   Correcto para este contexto. "ghost" es el patrón DS para links de
- *   descubrimiento/navegación dentro de una card. "primary" u "outline"
- *   compiten visualmente con los badges de estado. tracking-[0.15em] está
- *   en la variante ghost del Button (no override manual).
+ *   - <Link> absoluto (inset-0, z-0) cubre toda la card.
+ *   - Button CTA (ghost + arrow): único foco de teclado accesible.
  *
  * soldOut:
- *   - Sin overlay Link → no navegable por click.
- *   - Sin Button CTA → no navegable por teclado.
- *   - cursor-not-allowed comunica el estado visualmente.
- *   - aria-label en el article para screen readers.
+ *   - Sin overlay Link ni Button CTA.
+ *   - cursor-not-allowed + aria-label para screen readers.
  */
 export function ClaseCard({ item, isFeatured, className }: ClaseCardProps) {
   const soldOut = item.status === "agotado";
@@ -68,38 +59,36 @@ export function ClaseCard({ item, isFeatured, className }: ClaseCardProps) {
         />
       )}
 
-      {/* ── Imagen 5:3 — z-10 sobre el overlay Link ── */}
-      <div className="relative z-10 aspect-5/3 overflow-hidden bg-crema-deep">
-        <Image
-          src={item.image.src}
-          alt={item.image.alt}
-          fill
-          sizes={
-            isFeatured
-              ? "(max-width: 1023px) 100vw, 50vw"
-              : "(max-width: 767px) 100vw, (max-width: 1023px) 50vw, 25vw"
-          }
-          className={[
-            "object-cover transition-transform duration-600 ease-out",
-            soldOut ? "grayscale-[0.45]" : "group-hover:scale-[1.04]",
-          ].join(" ")}
-        />
+      {/* ── Header band — reemplaza la imagen ── */}
+      <div
+        className={[
+          "relative z-10 flex h-32 items-end overflow-hidden p-4",
+          soldOut ? "bg-crema-deep/60" : "bg-crema-deep",
+        ].join(" ")}
+      >
+        {/* Letra decorativa — textura tipográfica sin foto */}
+        <span
+          aria-hidden="true"
+          className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 select-none font-display text-[7rem] font-normal italic leading-none text-terracota/10"
+        >
+          {item.title.charAt(0)}
+        </span>
 
-        {/* Tag categoría — top-left */}
-        <div className="pointer-events-none absolute left-4 top-4 z-10">
+        {/* Tag categoría — bottom-left */}
+        <div className="pointer-events-none relative z-10">
           <Badge variant="orange">{item.category}</Badge>
         </div>
 
-        {/* Estado: últimos cupos — top-right para no solapar categoría */}
+        {/* Estado: últimos cupos — top-right */}
         {lastSpots && (
           <div className="pointer-events-none absolute right-4 top-4 z-10">
             <Badge variant="orange-light">Últimos cupos</Badge>
           </div>
         )}
 
-        {/* Estado: agotado — overlay centrado sobre imagen */}
+        {/* Estado: agotado — overlay centrado */}
         {soldOut && (
-          <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-carbon/20">
+          <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-carbon/10">
             <Badge variant="black">Agotado</Badge>
           </div>
         )}
