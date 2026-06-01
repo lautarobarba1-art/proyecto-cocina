@@ -12,7 +12,7 @@ export const metadata = {
 };
 
 interface PageProps {
-  searchParams: Promise<{ filtro?: string }>;
+  searchParams: Promise<{ filtro?: string; categoria?: string }>;
 }
 
 // ---------------------------------------------------------------------
@@ -49,6 +49,24 @@ interface StatusInfo {
 }
 
 function getStatusInfo(c: ClaseAdmin): StatusInfo {
+  if (c.categoryEvent === "eventos") {
+    if (c.isCancelled) {
+      return {
+        label: "Cancelado",
+        className: "bg-gray-100 text-gray-700 border-gray-300",
+      };
+    }
+    if (isClasePast(c.date)) {
+      return {
+        label: "Pasado",
+        className: "bg-blue-50 text-blue-800 border-blue-200",
+      };
+    }
+    return {
+      label: "Reservado",
+      className: "bg-terracota/10 text-terracota border-terracota/30",
+    };
+  }
   if (c.isCancelled) {
     return {
       label: "Cancelada",
@@ -79,19 +97,33 @@ function getStatusInfo(c: ClaseAdmin): StatusInfo {
   };
 }
 
-// ---------------------------------------------------------------------
-// Page
-// ---------------------------------------------------------------------
+function categoryLabel(cat: ClaseAdmin["categoryEvent"]): string {
+  if (cat === "eventos") return "Evento privado";
+  if (cat === "ninos") return "Niños";
+  return "Adultos";
+}
+
+function categoryBadgeClass(cat: ClaseAdmin["categoryEvent"]): string {
+  if (cat === "eventos") return "bg-terracota/10 text-terracota border-terracota/30";
+  if (cat === "ninos") return "bg-oliva/10 text-oliva border-oliva/30";
+  return "bg-carbon/5 text-carbon/70 border-carbon/20";
+}
 
 export default async function ClasesAdminPage({ searchParams }: PageProps) {
   const params = await searchParams;
   const filtro = params.filtro ?? "proximas"; // proximas | todas
+  const categoria = params.categoria ?? "todas"; // todas | adultos | ninos | eventos
   const onlyUpcoming = filtro !== "todas";
 
-  const clases = await getClasesForAdmin({ onlyUpcoming });
+  const categoryEvent =
+    categoria === "adultos" || categoria === "ninos" || categoria === "eventos"
+      ? categoria
+      : undefined;
 
-  // Counts para los pills de resumen (sin filtro)
-  const allClases = await getClasesForAdmin({ onlyUpcoming: false });
+  const clases = await getClasesForAdmin({ onlyUpcoming, categoryEvent });
+
+  // Counts para los pills de resumen (sin filtro de fecha)
+  const allClases = await getClasesForAdmin({ onlyUpcoming: false, categoryEvent });
   const counts = {
     proximas: allClases.filter(
       (c) => !c.isCancelled && !isClasePast(c.date),
@@ -102,6 +134,8 @@ export default async function ClasesAdminPage({ searchParams }: PageProps) {
     ).length,
   };
 
+  const showBookingColumns = categoria !== "eventos";
+
   return (
     <div>
       <header className="flex flex-wrap items-end justify-between gap-4">
@@ -110,8 +144,11 @@ export default async function ClasesAdminPage({ searchParams }: PageProps) {
             Panel · Clases
           </p>
           <h1 className="mt-3 font-display text-3xl font-normal tracking-tightish text-carbon">
-            Clases programadas
+            Calendario
           </h1>
+          <p className="mt-2 font-body text-[0.85rem] text-carbon/55">
+            Clases abiertas y eventos privados confirmados en el sitio.
+          </p>
         </div>
         <div className="flex flex-wrap gap-3">
           <SummaryPill label="Próximas" value={counts.proximas} />
@@ -120,35 +157,75 @@ export default async function ClasesAdminPage({ searchParams }: PageProps) {
         </div>
       </header>
 
-      <div className="mt-8 flex flex-wrap items-center justify-between gap-4">
-        <nav className="flex gap-1 border border-carbon/10 bg-white">
+      <div className="mt-8 flex flex-col gap-4">
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <nav className="flex flex-wrap gap-1 border border-carbon/10 bg-white">
+            <FilterLink
+              href={`/admin/clases?filtro=proximas${categoria !== "todas" ? `&categoria=${categoria}` : ""}`}
+              active={filtro === "proximas"}
+            >
+              Solo próximas
+            </FilterLink>
+            <FilterLink
+              href={`/admin/clases?filtro=todas${categoria !== "todas" ? `&categoria=${categoria}` : ""}`}
+              active={filtro === "todas"}
+            >
+              Todas
+            </FilterLink>
+          </nav>
+          <div className="flex flex-wrap gap-2">
+            <Link
+              href="/admin/clases/nueva"
+              className="rounded border border-carbon/15 bg-white px-4 py-2 font-sans text-[0.85rem] font-medium uppercase tracking-wide text-carbon transition hover:border-carbon/30"
+            >
+              + Nueva clase
+            </Link>
+            <Link
+              href="/admin/clases/nueva?tipo=evento"
+              className="rounded bg-terracota px-4 py-2 font-sans text-[0.85rem] font-medium uppercase tracking-wide text-crema transition hover:bg-terracota-deep"
+            >
+              + Evento privado
+            </Link>
+          </div>
+        </div>
+        <nav className="flex flex-wrap gap-1 border border-carbon/10 bg-white">
           <FilterLink
-            href="/admin/clases?filtro=proximas"
-            active={filtro === "proximas"}
+            href={`/admin/clases?filtro=${filtro}`}
+            active={categoria === "todas"}
           >
-            Solo próximas
+            Todas las categorías
           </FilterLink>
           <FilterLink
-            href="/admin/clases?filtro=todas"
-            active={filtro === "todas"}
+            href={`/admin/clases?filtro=${filtro}&categoria=adultos`}
+            active={categoria === "adultos"}
           >
-            Todas
+            Adultos
+          </FilterLink>
+          <FilterLink
+            href={`/admin/clases?filtro=${filtro}&categoria=ninos`}
+            active={categoria === "ninos"}
+          >
+            Niños
+          </FilterLink>
+          <FilterLink
+            href={`/admin/clases?filtro=${filtro}&categoria=eventos`}
+            active={categoria === "eventos"}
+          >
+            Eventos privados
           </FilterLink>
         </nav>
-        <Link
-          href="/admin/clases/nueva"
-          className="rounded bg-terracota px-4 py-2 font-sans text-[0.85rem] font-medium uppercase tracking-wide text-crema transition hover:bg-terracota-deep"
-        >
-          + Nueva clase
-        </Link>
       </div>
 
       {clases.length === 0 ? (
         <div className="mt-10 border border-dashed border-carbon/20 bg-white p-12 text-center">
           <p className="font-body text-[0.95rem] text-carbon/60">
             {onlyUpcoming
-              ? "No hay clases próximas programadas."
-              : "Todavía no hay clases registradas."}
+              ? categoria === "eventos"
+                ? "No hay eventos privados próximos."
+                : "No hay clases próximas programadas."
+              : categoria === "eventos"
+                ? "Todavía no hay eventos privados registrados."
+                : "Todavía no hay clases registradas."}
           </p>
         </div>
       ) : (
@@ -158,11 +235,16 @@ export default async function ClasesAdminPage({ searchParams }: PageProps) {
               <thead className="border-b border-carbon/10 bg-crema-light/40">
                 <tr className="text-carbon/60">
                   <Th>Fecha</Th>
-                  <Th>Clase</Th>
+                  <Th>Actividad</Th>
+                  <Th>Tipo</Th>
                   <Th>Horario</Th>
-                  <Th>Cupos</Th>
-                  <Th>Reservas</Th>
-                  <Th>Precio</Th>
+                  {showBookingColumns ? (
+                    <>
+                      <Th>Cupos</Th>
+                      <Th>Reservas</Th>
+                      <Th>Precio</Th>
+                    </>
+                  ) : null}
                   <Th>Estado</Th>
                   <Th>Acciones</Th>
                 </tr>
@@ -189,20 +271,42 @@ export default async function ClasesAdminPage({ searchParams }: PageProps) {
                           {c.categoryLabel} · {c.slug}
                         </div>
                       </Td>
+                      <Td>
+                        <span
+                          className={[
+                            "inline-block rounded border px-2 py-0.5 text-[0.68rem] font-medium uppercase tracking-wide",
+                            categoryBadgeClass(c.categoryEvent),
+                          ].join(" ")}
+                        >
+                          {categoryLabel(c.categoryEvent)}
+                        </span>
+                      </Td>
                       <Td className="whitespace-nowrap text-carbon/70">
                         {c.startTime} – {c.endTime}
                       </Td>
-                      <Td className="text-carbon/80">
-                        <span className="font-mono">
-                          {c.spotsLeft}/{c.totalSpots}
-                        </span>
-                      </Td>
-                      <Td className="text-carbon/80">
-                        {c.activeReservationsCount}
-                      </Td>
-                      <Td className="whitespace-nowrap text-carbon/80">
-                        {formatPrice(c.price)}
-                      </Td>
+                      {showBookingColumns ? (
+                        c.categoryEvent === "eventos" ? (
+                          <>
+                            <Td className="text-carbon/40">—</Td>
+                            <Td className="text-carbon/40">—</Td>
+                            <Td className="text-carbon/40">—</Td>
+                          </>
+                        ) : (
+                          <>
+                            <Td className="text-carbon/80">
+                              <span className="font-mono">
+                                {c.spotsLeft}/{c.totalSpots}
+                              </span>
+                            </Td>
+                            <Td className="text-carbon/80">
+                              {c.activeReservationsCount}
+                            </Td>
+                            <Td className="whitespace-nowrap text-carbon/80">
+                              {formatPrice(c.price)}
+                            </Td>
+                          </>
+                        )
+                      ) : null}
                       <Td>
                         <span
                           className={[
@@ -233,7 +337,15 @@ export default async function ClasesAdminPage({ searchParams }: PageProps) {
       )}
 
       <p className="mt-8 font-body text-[0.78rem] text-carbon/40">
-        Mostrando {clases.length} {clases.length === 1 ? "clase" : "clases"}.
+        Mostrando {clases.length}{" "}
+        {categoria === "eventos"
+          ? clases.length === 1
+            ? "evento"
+            : "eventos"
+          : clases.length === 1
+            ? "actividad"
+            : "actividades"}
+        .
       </p>
     </div>
   );

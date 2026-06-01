@@ -49,6 +49,19 @@ export async function POST(req: Request) {
 
   const supabase = getSupabaseAdmin();
 
+  const { data: classRow } = await supabase
+    .from("classes")
+    .select("category_event")
+    .eq("id", classId)
+    .maybeSingle();
+
+  if (classRow?.category_event === "eventos") {
+    return NextResponse.json(
+      { error: "private_event_not_bookable" },
+      { status: 403 },
+    );
+  }
+
   // Llamar función transaccional
   /**console.log("[POST /api/reservations] Llamando RPC create_reservation_atomic...");*/
   const { data, error } = await supabase.rpc("create_reservation_atomic", {
@@ -66,6 +79,12 @@ export async function POST(req: Request) {
   if (error) {
     console.error("[POST /api/reservations] RPC error:", error);
 
+    if (error.message.includes("cancelled")) {
+      return NextResponse.json(
+        { error: "cancelled" },
+        { status: 409 },
+      );
+    }
     if (error.message.includes("not_available")) {
       return NextResponse.json(
         { error: "not_available" },
@@ -112,48 +131,67 @@ export async function POST(req: Request) {
     .maybeSingle();
 
   // ============================================
-  // 📧 ENVIAR EMAILS (dentro del POST, tras éxito)
+  // 📧 ENVIAR EMAILS (fire-and-forget con timeout)
+  // Los emails son notificaciones: su fallo nunca revierte la reserva.
+  // Cada envío tiene su propio try/catch para que uno fallido no cancele el otro.
   // ============================================
+  const { sendEmailReservaConfirmacion, sendEmailAdminNewReserva } =
+    await import("@/lib/resend/send");
+
+  function formatDateLong(isoDate: string): string {
+    if (!isoDate) return "—";
+    const [y, m, d] = isoDate.split("-").map(Number);
+    const date = new Date(y, m - 1, d);
+    return date.toLocaleDateString("es-AR", {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    });
+  }
+
+  function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
+    return Promise.race([
+      promise,
+      new Promise<T>((_, reject) =>
+        setTimeout(() => reject(new Error(`email timeout after ${ms}ms`)), ms),
+      ),
+    ]);
+  }
+
+  // Email al cliente
   try {
-    const { sendEmailReservaConfirmacion, sendEmailAdminNewReserva } =
-      await import("@/lib/resend/send");
-
-    // Helper para formatear fecha
-    function formatDateLong(isoDate: string): string {
-      if (!isoDate) return "—";
-      const [y, m, d] = isoDate.split("-").map(Number);
-      const date = new Date(y, m - 1, d);
-      return date.toLocaleDateString("es-AR", {
-        day: "numeric",
-        month: "long",
-        year: "numeric",
-      });
-    }
-
-    // Email al cliente
-    await sendEmailReservaConfirmacion({
-      customerName,
-      customerEmail,
-      className: cls?.title ?? "(clase)",
-      classDate: formatDateLong(cls?.date ?? ""),
-      classTime: `${cls?.start_time?.slice(0, 5) ?? ""} - ${cls?.end_time?.slice(0, 5) ?? ""}`,
-      paymentLink: cls?.payment_link,
-      cupos: spots,
-    });
-
-    // Email a la admin
-    await sendEmailAdminNewReserva({
-      customerName,
-      customerEmail,
-      customerPhone: customerPhone ?? null,
-      className: cls?.title ?? "(clase)",
-      classDate: formatDateLong(cls?.date ?? ""),
-      cupos: spots,
-      notes: notes ?? null,
-    });
+    await withTimeout(
+      sendEmailReservaConfirmacion({
+        customerName,
+        customerEmail,
+        className: cls?.title ?? "(clase)",
+        classDate: formatDateLong(cls?.date ?? ""),
+        classTime: `${cls?.start_time?.slice(0, 5) ?? ""} - ${cls?.end_time?.slice(0, 5) ?? ""}`,
+        paymentLink: cls?.payment_link,
+        cupos: spots,
+      }),
+      5000,
+    );
   } catch (emailErr) {
-    // No bloqueamos si fallan los emails — es una notificación, no crítica
-    console.error("[POST /api/reservations] Email error:", emailErr);
+    console.error("[POST /api/reservations] Email cliente error:", emailErr);
+  }
+
+  // Email a la admin
+  try {
+    await withTimeout(
+      sendEmailAdminNewReserva({
+        customerName,
+        customerEmail,
+        customerPhone: customerPhone ?? null,
+        className: cls?.title ?? "(clase)",
+        classDate: formatDateLong(cls?.date ?? ""),
+        cupos: spots,
+        notes: notes ?? null,
+      }),
+      5000,
+    );
+  } catch (emailErr) {
+    console.error("[POST /api/reservations] Email admin error:", emailErr);
   }
 
   return NextResponse.json({ ok: true, id: reservationId }, { status: 201 });

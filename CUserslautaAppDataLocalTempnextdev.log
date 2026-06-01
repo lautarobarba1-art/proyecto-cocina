@@ -1,0 +1,118 @@
+   ▲ Next.js 15.5.15
+   - Local:        http://localhost:3333
+   - Network:      http://192.168.0.16:3333
+   - Environments: .env.local
+
+ ✓ Starting...
+ ✓ Ready in 2.2s
+ ○ Compiling /api/admin/classes ...
+ ✓ Compiled /api/admin/classes in 798ms (361 modules)
+ GET /api/admin/classes 405 in 1029ms
+ ○ Compiling / ...
+ ✓ Compiled / in 2.5s (1612 modules)
+ GET / 200 in 3384ms
+ GET /api/admin/classes 405 in 155ms
+ GET /api/admin/classes 405 in 14ms
+ ○ Compiling /api/calendar/month ...
+ ✓ Compiled /api/calendar/month in 552ms (2189 modules)
+ GET /api/calendar/month?year=2026&month=6 200 in 1873ms
+ GET /api/calendar/month?year=2026&month=5 200 in 1886ms
+ ✓ Compiled /api/classes/availability in 262ms (1421 modules)
+ GET /api/classes/availability 400 in 353ms
+ ✓ Compiled /api/reservations in 385ms (1633 modules)
+[POST /api/reservations] RPC error: {
+  code: 'PGRST203',
+  details: null,
+  hint: 'Try renaming the parameters or the function itself in the database so function overloading can be resolved',
+  message: 'Could not choose the best candidate function between: public.create_reservation_atomic(p_class_id => uuid, p_customer_email => text, p_customer_name => text, p_customer_phone => text, p_idempotency_key => text, p_notes => text, p_spots => integer), public.create_reservation_atomic(p_class_id => uuid, p_customer_name => text, p_customer_email => text, p_customer_phone => text, p_notes => text, p_spots => integer, p_idempotency_key => text)'
+}
+ POST /api/reservations 500 in 1211ms
+[POST /api/reservations] RPC error: {
+  code: 'PGRST203',
+  details: null,
+  hint: 'Try renaming the parameters or the function itself in the database so function overloading can be resolved',
+  message: 'Could not choose the best candidate function between: public.create_reservation_atomic(p_class_id => uuid, p_customer_email => text, p_customer_name => text, p_customer_phone => text, p_idempotency_key => text, p_notes => text, p_spots => integer), public.create_reservation_atomic(p_class_id => uuid, p_customer_name => text, p_customer_email => text, p_customer_phone => text, p_notes => text, p_spots => integer, p_idempotency_key => text)'
+}
+ POST /api/reservations 500 in 560ms
+(node:22928) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///C:/Users/lauta/Desktop/proyecto-menesteres/tailwind.config.ts?id=1780322251487 is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to C:\Users\lauta\Desktop\proyecto-menesteres\package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+ ✓ Compiled in 1325ms (1068 modules)
+ ✓ Compiled /_not-found in 360ms (1810 modules)
+ POST /api/reservations 404 in 731ms
+[POST /api/reservations] RPC error: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.create_reservation_atomic with parameters p_class_id, p_customer_email, p_customer_name, p_customer_phone, p_notes, p_spots or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.create_reservation_atomic(p_class_id, p_customer_email, p_customer_name, p_customer_phone, p_idempotency_key, p_notes, p_spots)',
+  message: 'Could not find the function public.create_reservation_atomic(p_class_id, p_customer_email, p_customer_name, p_customer_phone, p_notes, p_spots) in the schema cache'
+}
+ POST /api/reservations 500 in 924ms
+[POST /api/reservations] RPC error: {
+  code: 'PGRST203',
+  details: null,
+  hint: 'Try renaming the parameters or the function itself in the database so function overloading can be resolved',
+  message: 'Could not choose the best candidate function between: public.create_reservation_atomic(p_class_id => uuid, p_customer_email => text, p_customer_name => text, p_customer_phone => text, p_idempotency_key => text, p_notes => text, p_spots => integer), public.create_reservation_atomic(p_class_id => uuid, p_customer_name => text, p_customer_email => text, p_customer_phone => text, p_notes => text, p_spots => integer, p_idempotency_key => text)'
+}
+ POST /api/reservations 500 in 783ms
+ ✓ Compiled in 522ms (690 modules)
+ ✓ Compiled in 286ms (690 modules)
+ ✓ Compiled in 957ms (1068 modules)
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: ENOENT: no such file or directory, rename 'C:\Users\lauta\Desktop\proyecto-menesteres\.next\cache\webpack\client-development\9.pack.gz_' -> 'C:\Users\lauta\Desktop\proyecto-menesteres\.next\cache\webpack\client-development\9.pack.gz'
+[POST /api/reservations] RPC error: {
+  code: 'P0001',
+  details: null,
+  hint: null,
+  message: 'cancelled: class is cancelled'
+}
+ POST /api/reservations 409 in 1329ms
+[POST /api/reservations] RPC error: {
+  code: 'P0001',
+  details: null,
+  hint: null,
+  message: 'not_available: not enough spots'
+}
+ POST /api/reservations 409 in 425ms
+[sendEmailReservaConfirmacion] {
+  statusCode: 403,
+  message: 'The gmail.com domain is not verified. Please, add and verify your domain on https://resend.com/domains',
+  name: 'validation_error'
+}
+[sendEmailAdminNewReserva] {
+  statusCode: 403,
+  message: 'The gmail.com domain is not verified. Please, add and verify your domain on https://resend.com/domains',
+  name: 'validation_error'
+}
+ POST /api/reservations 201 in 2540ms
+[POST /api/reservations] RPC error: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.create_reservation_atomic with parameters p_class_id, p_customer_email, p_customer_name, p_customer_phone, p_notes, p_spots or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.create_reservation_atomic(p_class_id, p_customer_email, p_customer_name, p_customer_phone, p_idempotency_key, p_notes, p_spots)',
+  message: 'Could not find the function public.create_reservation_atomic(p_class_id, p_customer_email, p_customer_name, p_customer_phone, p_notes, p_spots) in the schema cache'
+}
+ POST /api/reservations 500 in 659ms
+[POST /api/reservations] RPC error: {
+  code: 'P0001',
+  details: null,
+  hint: null,
+  message: 'duplicate: reservation already exists for this email and class'
+}
+ POST /api/reservations 409 in 623ms
+ ○ Compiling /api/admin/reservations/[id] ...
+ ✓ Compiled /api/admin/reservations/[id] in 538ms (1076 modules)
+ DELETE /api/admin/reservations/2c5c5ccc-5387-498c-8313-17f67db3430d 405 in 1261ms
+ ✓ Compiled in 516ms (690 modules)
+ ✓ Compiled in 204ms (690 modules)
+ ✓ Compiled in 199ms (690 modules)
+ ✓ Compiled in 292ms (690 modules)
+ ✓ Compiled in 209ms (690 modules)
+ ✓ Compiled in 221ms (690 modules)
+ ✓ Compiled in 227ms (690 modules)
+   Reload env: .env.local
+ ✓ Compiled in 119ms (676 modules)
+ ✓ Compiled in 246ms (690 modules)
+ ✓ Compiled in 275ms (690 modules)
+ ✓ Compiled in 213ms (690 modules)
+ ✓ Compiled in 219ms (690 modules)
+   Reload env: .env.local
+ ✓ Compiled in 493ms (690 modules)

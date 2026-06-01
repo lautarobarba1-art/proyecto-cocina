@@ -23,6 +23,7 @@ export function ClasesActions({
   const router = useRouter();
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
+  const [successMsg, setSuccessMsg] = React.useState<string | null>(null);
 
   // No hay acciones si ya está cancelada o si es pasada
   if (isCancelled || isPast) {
@@ -34,7 +35,7 @@ export function ClasesActions({
 
     const reservasMsg =
       activeReservationsCount > 0
-        ? `\n\n⚠ Hay ${activeReservationsCount} reserva${activeReservationsCount === 1 ? "" : "s"} activa${activeReservationsCount === 1 ? "" : "s"} en esta clase. Se cancelarán automáticamente. Vas a tener que avisar manualmente a los clientes.`
+        ? `\n\n⚠ Hay ${activeReservationsCount} reserva${activeReservationsCount === 1 ? "" : "s"} activa${activeReservationsCount === 1 ? "" : "s"}. Se cancelarán automáticamente y se enviará un email de aviso a cada cliente.`
         : "";
 
     const confirmed = window.confirm(
@@ -65,6 +66,19 @@ export function ClasesActions({
         return;
       }
 
+      const { cancelledReservations = 0, emailsSent = 0, emailsFailed = 0 } =
+        json ?? {};
+
+      if (emailsFailed > 0) {
+        setSuccessMsg(
+          `Clase cancelada. ${cancelledReservations} reserva${cancelledReservations === 1 ? "" : "s"} cancelada${cancelledReservations === 1 ? "" : "s"}. ⚠ ${emailsFailed} email${emailsFailed === 1 ? "" : "s"} no pudo enviarse — revisá los logs.`,
+        );
+      } else if (cancelledReservations > 0) {
+        setSuccessMsg(
+          `Clase cancelada. Se notificó a ${emailsSent} cliente${emailsSent === 1 ? "" : "s"} por email.`,
+        );
+      }
+
       router.refresh();
       setLoading(false);
     } catch (e) {
@@ -85,6 +99,9 @@ export function ClasesActions({
         {loading ? "Cancelando…" : "Cancelar clase"}
       </button>
       {error && <p className="text-[0.72rem] text-red-700">{error}</p>}
+      {successMsg && (
+        <p className="text-[0.72rem] text-green-700">{successMsg}</p>
+      )}
     </div>
   );
 }

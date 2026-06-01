@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
 import { InquiryActions } from "./InquiryActions";
 
@@ -10,7 +11,7 @@ export const metadata = {
 // ─── Tipos ──────────────────────────────────────────────────────────────────
 
 type InquiryStatus = "new" | "read" | "archived";
-type InquiryType = "contact" | "espacio";
+type InquiryType = "contact" | "espacio" | "eventos";
 
 interface Inquiry {
   id: string;
@@ -63,12 +64,13 @@ function formatDateTime(iso: string): string {
 
 function typeLabel(type: InquiryType): string {
   if (type === "espacio") return "Espacio";
+  if (type === "eventos") return "Evento privado";
   return "Contacto";
 }
 
 function typeClass(type: InquiryType): string {
-  if (type === "espacio")
-    return "bg-oliva/10 text-oliva border-oliva/30";
+  if (type === "espacio") return "bg-oliva/10 text-oliva border-oliva/30";
+  if (type === "eventos") return "bg-terracota/10 text-terracota border-terracota/30";
   return "bg-crema-deep/40 text-carbon/70 border-carbon/20";
 }
 
@@ -86,16 +88,26 @@ function statusClass(status: InquiryStatus): string {
   return "bg-gray-100 text-gray-500 border-gray-200";
 }
 
-// ─── Page ───────────────────────────────────────────────────────────────────
+interface PageProps {
+  searchParams: Promise<{ tipo?: string }>;
+}
 
-export default async function InquiriesAdminPage() {
-  const inquiries = await getInquiries();
+export default async function InquiriesAdminPage({ searchParams }: PageProps) {
+  const params = await searchParams;
+  const tipoFiltro = params.tipo ?? "todas";
+
+  const allInquiries = await getInquiries();
+  const inquiries =
+    tipoFiltro === "todas"
+      ? allInquiries
+      : allInquiries.filter((i) => i.type === tipoFiltro);
 
   const counts = {
-    total: inquiries.length,
-    new: inquiries.filter((i) => i.status === "new").length,
-    read: inquiries.filter((i) => i.status === "read").length,
-    archived: inquiries.filter((i) => i.status === "archived").length,
+    total: allInquiries.length,
+    new: allInquiries.filter((i) => i.status === "new").length,
+    read: allInquiries.filter((i) => i.status === "read").length,
+    archived: allInquiries.filter((i) => i.status === "archived").length,
+    eventos: allInquiries.filter((i) => i.type === "eventos").length,
   };
 
   return (
@@ -109,16 +121,32 @@ export default async function InquiriesAdminPage() {
             Consultas recibidas
           </h1>
           <p className="mt-2 font-body text-[0.85rem] text-carbon/55">
-            Formularios de Contacto y Alquiler del espacio.
+            Contacto general, eventos privados y alquiler del espacio.
           </p>
         </div>
         <div className="flex flex-wrap gap-3">
           <SummaryPill label="Total" value={counts.total} />
           <SummaryPill label="Nuevas" value={counts.new} highlight />
+          <SummaryPill label="Eventos" value={counts.eventos} />
           <SummaryPill label="Leídas" value={counts.read} />
           <SummaryPill label="Archivadas" value={counts.archived} />
         </div>
       </header>
+
+      <nav className="mt-8 flex flex-wrap gap-1 border border-carbon/10 bg-white">
+        <FilterLink href="/admin/inquiries?tipo=todas" active={tipoFiltro === "todas"}>
+          Todas
+        </FilterLink>
+        <FilterLink href="/admin/inquiries?tipo=eventos" active={tipoFiltro === "eventos"}>
+          Eventos
+        </FilterLink>
+        <FilterLink href="/admin/inquiries?tipo=espacio" active={tipoFiltro === "espacio"}>
+          Espacio
+        </FilterLink>
+        <FilterLink href="/admin/inquiries?tipo=contact" active={tipoFiltro === "contact"}>
+          Contacto
+        </FilterLink>
+      </nav>
 
       {inquiries.length === 0 ? (
         <div className="mt-10 border border-dashed border-carbon/20 bg-white p-12 text-center">
@@ -179,9 +207,10 @@ export default async function InquiriesAdminPage() {
                           {inq.payload.marca}
                         </div>
                       )}
-                      {inq.type === "espacio" && inq.payload.fecha && (
+                      {(inq.type === "espacio" || inq.type === "eventos") &&
+                        inq.payload.fecha && (
                         <div className="text-carbon/50 text-[0.78rem]">
-                          Fecha evento: {inq.payload.fecha}
+                          Fecha tentativa: {inq.payload.fecha}
                         </div>
                       )}
                     </Td>
@@ -222,6 +251,30 @@ export default async function InquiriesAdminPage() {
 }
 
 // ─── Sub-componentes ─────────────────────────────────────────────────────────
+
+function FilterLink({
+  href,
+  active,
+  children,
+}: {
+  href: string;
+  active: boolean;
+  children: React.ReactNode;
+}) {
+  return (
+    <Link
+      href={href}
+      className={[
+        "px-4 py-2 font-sans text-[0.8rem] transition",
+        active
+          ? "bg-carbon text-crema"
+          : "text-carbon/70 hover:bg-crema-light/60",
+      ].join(" ")}
+    >
+      {children}
+    </Link>
+  );
+}
 
 function SummaryPill({
   label,

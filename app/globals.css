@@ -136,36 +136,66 @@ body {
 }
 
 .hero-mn__overlay {
-  background: linear-gradient(
-    180deg,
-    rgba(20, 20, 20, 0.30) 0%,
-    transparent 35%,
-    transparent 55%,
-    rgba(20, 20, 20, 0.85) 100%
-  );
+  background:
+    radial-gradient(
+      ellipse 85% 55% at 88% 92%,
+      rgba(20, 20, 20, 0.72) 0%,
+      rgba(20, 20, 20, 0.35) 42%,
+      transparent 68%
+    ),
+    linear-gradient(
+      180deg,
+      rgba(20, 20, 20, 0.22) 0%,
+      transparent 28%,
+      transparent 52%,
+      rgba(20, 20, 20, 0.48) 78%,
+      rgba(20, 20, 20, 0.88) 100%
+    );
 }
 
-.hero-mn__meta-top {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  font-family: var(--font-sans);
-  font-size: 0.7rem;
-  font-weight: 700;
+.hero-mn__content {
+  pointer-events: none;
+}
+
+.hero-mn__content :is(a, button) {
+  pointer-events: auto;
+}
+
+.hero-mn__brand {
+  text-shadow: 0 1px 24px rgba(20, 20, 20, 0.45);
+}
+
+.hero-mn__action {
+  text-shadow: 0 1px 20px rgba(20, 20, 20, 0.5);
+}
+
+.hero-mn__tagline-intimate {
+  font-family: var(--font-serif);
+  font-size: clamp(0.95rem, 1.1vw + 0.35rem, 1.125rem);
+  font-style: italic;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  line-height: 1.45;
+  color: rgba(255, 250, 243, 0.88);
+  max-width: 22ch;
+}
+
+.hero-mn__action-meta {
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  font-weight: 500;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: var(--m-cream);
-  opacity: 0.85;
+  color: rgba(255, 250, 243, 0.55);
 }
 
 .hero-mn__eyebrow {
   font-family: var(--font-sans);
-  font-size: 0.7rem;
+  font-size: 0.65rem;
   font-weight: 700;
-  letter-spacing: 0.3em;
+  letter-spacing: 0.28em;
   text-transform: uppercase;
   color: var(--m-orange-light);
-  margin-bottom: var(--s-5);
 }
 
 /* El título del hero ahora aloja la imagen del wordmark; eliminamos el styling
@@ -404,6 +434,255 @@ body {
 }
 
 /* ============================================================
+   Sketch buttons — trazo a mano
+   ============================================================ */
+.sketch-btn {
+  touch-action: manipulation;
+  transition:
+    transform 180ms var(--ease-out),
+    color 200ms var(--ease-out);
+}
+
+.sketch-btn-label {
+  transition: transform 180ms var(--ease-out);
+}
+
+.sketch-oval-wrap {
+  transform-origin: 50% 50%;
+  transition:
+    transform 220ms var(--ease-out),
+    opacity 200ms var(--ease-out);
+}
+
+.sketch-arrow-wrap {
+  transform-origin: 0% 50%;
+  transition: transform 180ms var(--ease-out);
+}
+
+@keyframes sketch-oval-wiggle {
+  0%,
+  100% {
+    transform: rotate(-1.2deg) scale(1);
+  }
+  22% {
+    transform: rotate(-2.6deg) scale(1.015) translate(0.6px, -0.4px);
+  }
+  48% {
+    transform: rotate(-0.4deg) scale(0.992) translate(-0.5px, 0.5px);
+  }
+  72% {
+    transform: rotate(-1.9deg) scale(1.008);
+  }
+}
+
+@keyframes sketch-oval-hover-float {
+  0%,
+  100% {
+    transform: rotate(-1.4deg) scale(1.03);
+  }
+  50% {
+    transform: rotate(-2deg) scale(1.045);
+  }
+}
+
+@keyframes sketch-oval-press {
+  0% {
+    transform: rotate(-1.2deg) scale(1);
+  }
+  35% {
+    transform: rotate(0.8deg) scale(0.94) translateY(1px);
+  }
+  70% {
+    transform: rotate(-0.5deg) scale(0.97) translateY(0.5px);
+  }
+  100% {
+    transform: rotate(-0.8deg) scale(0.95) translateY(1px);
+  }
+}
+
+@keyframes sketch-stroke-redraw {
+  from {
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes sketch-stroke-press {
+  from {
+    stroke-dashoffset: 0.9;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes sketch-arrow-nudge {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  55% {
+    transform: translateX(3px);
+  }
+}
+
+@keyframes sketch-arrow-press {
+  0% {
+    transform: translateX(0) scale(1);
+  }
+  45% {
+    transform: translateX(5px) scale(0.92);
+  }
+  100% {
+    transform: translateX(4px) scale(0.96);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .sketch-btn:hover {
+    transform: scale(1.02);
+  }
+
+  .sketch-btn:hover .sketch-btn-label {
+    transform: translateX(2px);
+  }
+
+  .sketch-btn:hover .sketch-oval-wrap {
+    opacity: 1;
+    animation:
+      sketch-oval-wiggle 0.62s var(--ease-out),
+      sketch-oval-hover-float 2.6s ease-in-out 0.62s infinite;
+  }
+
+  .sketch-btn:focus-visible .sketch-oval-wrap {
+    opacity: 1;
+    animation: sketch-oval-wiggle 0.62s var(--ease-out);
+  }
+
+  .sketch-btn:hover .sketch-stroke,
+  .sketch-btn:focus-visible .sketch-stroke {
+    stroke-dasharray: 1;
+    animation: sketch-stroke-redraw 0.68s var(--ease-out);
+  }
+
+  .sketch-btn:hover .sketch-oval-wrap .sketch-stroke:nth-child(2),
+  .sketch-btn:focus-visible .sketch-oval-wrap .sketch-stroke:nth-child(2) {
+    animation-delay: 0.07s;
+  }
+
+  .sketch-btn:hover .sketch-oval-wrap .sketch-stroke:nth-child(3),
+  .sketch-btn:focus-visible .sketch-oval-wrap .sketch-stroke:nth-child(3) {
+    animation-delay: 0.14s;
+  }
+
+  .sketch-btn:hover .sketch-oval-wrap .sketch-stroke:nth-child(4),
+  .sketch-btn:focus-visible .sketch-oval-wrap .sketch-stroke:nth-child(4) {
+    animation-delay: 0.2s;
+  }
+
+  .sketch-btn:hover .sketch-arrow-wrap,
+  .sketch-btn:focus-visible .sketch-arrow-wrap {
+    animation: sketch-arrow-nudge 0.45s var(--ease-out);
+  }
+
+  /* Presionar / click */
+  .sketch-btn:active {
+    transform: scale(0.96);
+    transition-duration: 80ms;
+  }
+
+  .sketch-btn:active .sketch-btn-label {
+    transform: translateX(3px) translateY(1px);
+    transition-duration: 80ms;
+  }
+
+  .sketch-btn:active .sketch-oval-wrap {
+    animation: sketch-oval-press 0.28s var(--ease-out) forwards;
+  }
+
+  .sketch-btn:active .sketch-stroke {
+    stroke-dasharray: 1;
+    animation: sketch-stroke-press 0.32s var(--ease-out) forwards;
+  }
+
+  .sketch-btn:active .sketch-oval-wrap .sketch-stroke:nth-child(2) {
+    animation-delay: 0.04s;
+  }
+
+  .sketch-btn:active .sketch-oval-wrap .sketch-stroke:nth-child(3) {
+    animation-delay: 0.08s;
+  }
+
+  .sketch-btn:active .sketch-oval-wrap .sketch-stroke:nth-child(4) {
+    animation-delay: 0.11s;
+  }
+
+  .sketch-btn:active .sketch-arrow-wrap {
+    animation: sketch-arrow-press 0.26s var(--ease-out) forwards;
+  }
+
+  /* Al presionar mientras hover, gana el estado active */
+  .sketch-btn:active:hover .sketch-oval-wrap {
+    animation: sketch-oval-press 0.28s var(--ease-out) forwards;
+  }
+
+  .sketch-btn:active:hover .sketch-stroke {
+    animation: sketch-stroke-press 0.32s var(--ease-out) forwards;
+  }
+
+  .sketch-btn:active:hover .sketch-arrow-wrap {
+    animation: sketch-arrow-press 0.26s var(--ease-out) forwards;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sketch-btn:active {
+    opacity: 0.82;
+  }
+}
+
+/* ============================================================
+   Home — ritmo de sección (Fase 1)
+   ============================================================ */
+.home-opening,
+.home-clases,
+.home-services-secondary,
+.home-lookbook,
+.home-marquee {
+  overflow-x: clip;
+}
+
+/* Aire editorial — mobile first (home) */
+.home-pad-x {
+  padding-inline: 1.5rem;
+}
+
+@media (min-width: 640px) {
+  .home-pad-x {
+    padding-inline: 2rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .home-pad-x {
+    padding-inline: 2.5rem;
+  }
+}
+
+.home-service-mini:focus-within {
+  outline: 2px solid rgb(var(--c-terracota) / 0.35);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .home-marquee .marquee-track {
+    animation-duration: 22s;
+  }
+}
+
+/* ============================================================
    Footer links (tipografía editorial)
    ============================================================ */
 .footer-link {
@@ -442,7 +721,7 @@ body {
   .footer-surface-deep .footer-link {
     display: inline-flex;
     align-items: center;
-    min-height: 44px;
-    padding-block: 0.2rem;
+    min-height: 2rem;
+    padding-block: 0.125rem;
   }
 }

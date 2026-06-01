@@ -6,6 +6,14 @@ import {
   slugFromTitle,
   type ClaseFormData,
 } from "@/lib/admin/clases-validation";
+import {
+  FieldRow,
+  FieldSelect,
+  FieldText,
+  FieldTextarea,
+  FormActions,
+  Section,
+} from "./AdminFormFields";
 
 interface Props {
   /** Si se pasa, es modo edición. Si no, modo crear. */
@@ -35,7 +43,6 @@ export function ClaseFormCliente({ initial }: Props) {
   const router = useRouter();
   const isEdit = Boolean(initial);
 
-  // Si initial existe, sacamos el id y usamos el resto como form data.
   const initialFormData: ClaseFormData = initial
     ? {
         slug: initial.slug,
@@ -65,7 +72,6 @@ export function ClaseFormCliente({ initial }: Props) {
     Partial<Record<keyof ClaseFormData, string>>
   >({});
 
-  // Auto-generar slug desde el título (solo si no fue editado manualmente)
   React.useEffect(() => {
     if (slugManuallyEdited) return;
     const auto = slugFromTitle(form.title);
@@ -80,7 +86,6 @@ export function ClaseFormCliente({ initial }: Props) {
     value: ClaseFormData[K],
   ) => {
     setForm((f) => ({ ...f, [key]: value }));
-    // Limpiar error del campo al editar
     if (fieldErrors[key]) {
       setFieldErrors((e: Partial<Record<keyof ClaseFormData, string>>) => {
         const copy = { ...e };
@@ -90,11 +95,12 @@ export function ClaseFormCliente({ initial }: Props) {
     }
   };
 
-  // Cargar plantilla por slug (solo en modo crear)
   const loadTemplate = async () => {
     if (isEdit) return;
     if (!form.slug) {
-      setServerError("Ingresá primero un slug (escribiendo el título o editando el campo).");
+      setServerError(
+        "Ingresá primero un slug (escribiendo el título o editando el campo).",
+      );
       return;
     }
     setServerError(null);
@@ -146,7 +152,7 @@ export function ClaseFormCliente({ initial }: Props) {
       const res = await fetch(url, {
         method,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: JSON.stringify({ kind: "clase", ...form }),
       });
       const json = await res.json().catch(() => null);
 
@@ -164,7 +170,7 @@ export function ClaseFormCliente({ initial }: Props) {
         } else if (code === "unauthorized") {
           setServerError("Sesión expirada. Volvé a entrar.");
         } else if (code === "not_found") {
-          setServerError("La clase no existe (puede haber sido borrada).");
+          setServerError("La clase no existe (puede haber sido borrado).");
         } else {
           setServerError("No se pudo guardar la clase.");
         }
@@ -172,7 +178,6 @@ export function ClaseFormCliente({ initial }: Props) {
         return;
       }
 
-      // Éxito → al listado
       router.replace("/admin/clases");
       router.refresh();
     } catch (err) {
@@ -190,7 +195,6 @@ export function ClaseFormCliente({ initial }: Props) {
         </div>
       )}
 
-      {/* Sección 1: Identificación */}
       <Section title="Identificación">
         <FieldRow>
           <FieldText
@@ -231,7 +235,6 @@ export function ClaseFormCliente({ initial }: Props) {
         )}
       </Section>
 
-      {/* Sección 2: Fecha y horario */}
       <Section title="Fecha y horario">
         <div className="grid gap-4 sm:grid-cols-3">
           <FieldText
@@ -269,7 +272,6 @@ export function ClaseFormCliente({ initial }: Props) {
         />
       </Section>
 
-      {/* Sección 3: Categorías */}
       <Section title="Categorías">
         <div className="grid gap-4 sm:grid-cols-2">
           <FieldSelect
@@ -279,7 +281,6 @@ export function ClaseFormCliente({ initial }: Props) {
             options={[
               { value: "adultos", label: "Adultos" },
               { value: "ninos", label: "Niños" },
-              { value: "eventos", label: "Eventos" },
             ]}
             onChange={(v) =>
               updateField("categoryEvent", v as ClaseFormData["categoryEvent"])
@@ -298,7 +299,6 @@ export function ClaseFormCliente({ initial }: Props) {
         </div>
       </Section>
 
-      {/* Sección 4: Descripciones */}
       <Section title="Descripciones">
         <FieldText
           label="Descripción corta (calendario)"
@@ -317,7 +317,6 @@ export function ClaseFormCliente({ initial }: Props) {
         />
       </Section>
 
-      {/* Sección 5: Imagen */}
       <Section title="Imagen">
         <FieldText
           label="URL de la imagen"
@@ -337,7 +336,6 @@ export function ClaseFormCliente({ initial }: Props) {
         />
       </Section>
 
-      {/* Sección 6: Cupos y precio */}
       <Section title="Cupos y precio">
         <div className="grid gap-4 sm:grid-cols-2">
           <FieldText
@@ -366,9 +364,8 @@ export function ClaseFormCliente({ initial }: Props) {
         />
       </Section>
 
-      {/* Sección 7: Destacado */}
       <Section title="Visibilidad">
-        <label className="flex items-center gap-3 cursor-pointer">
+        <label className="flex cursor-pointer items-center gap-3">
           <input
             type="checkbox"
             checked={form.isHighlighted}
@@ -381,171 +378,12 @@ export function ClaseFormCliente({ initial }: Props) {
         </label>
       </Section>
 
-      {/* Footer con botones */}
-      <div className="flex flex-wrap items-center justify-end gap-3 pt-4 border-t border-carbon/10">
-        <button
-          type="button"
-          onClick={() => router.push("/admin/clases")}
-          disabled={loading}
-          className="px-4 py-2 font-sans text-[0.85rem] text-carbon/70 hover:text-carbon disabled:opacity-50"
-        >
-          Cancelar
-        </button>
-        <button
-          type="submit"
-          disabled={loading}
-          className="rounded bg-terracota px-6 py-2.5 font-sans text-[0.85rem] font-medium uppercase tracking-wide text-crema transition hover:bg-terracota-deep disabled:opacity-50"
-        >
-          {loading
-            ? "Guardando…"
-            : isEdit
-              ? "Guardar cambios"
-              : "Crear clase"}
-        </button>
-      </div>
+      <FormActions
+        loading={loading}
+        isEdit={isEdit}
+        entityLabel="clase"
+        onCancel={() => router.push("/admin/clases")}
+      />
     </form>
-  );
-}
-
-// ---------------------------------------------------------------------
-// Sub-componentes locales del formulario (sin tocar UI design system)
-// ---------------------------------------------------------------------
-
-function Section({
-  title,
-  children,
-}: {
-  title: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <section>
-      <h2 className="font-mono text-[0.7rem] font-medium uppercase tracking-eyebrow text-terracota">
-        {title}
-      </h2>
-      <div className="mt-4 space-y-4">{children}</div>
-    </section>
-  );
-}
-
-function FieldRow({ children }: { children: React.ReactNode }) {
-  return <div>{children}</div>;
-}
-
-function FieldText({
-  label,
-  hint,
-  value,
-  onChange,
-  type = "text",
-  required,
-  error,
-}: {
-  label: string;
-  hint?: string;
-  value: string;
-  onChange: (v: string) => void;
-  type?: string;
-  required?: boolean;
-  error?: string;
-}) {
-  return (
-    <div>
-      <label className="block font-sans text-[0.78rem] font-medium uppercase tracking-wide text-carbon/65">
-        {label}
-        {required ? " *" : ""}
-      </label>
-      <input
-        type={type}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className={[
-          "mt-1.5 w-full border bg-white px-3 py-2 font-sans text-[0.92rem] text-carbon outline-none transition focus:border-terracota",
-          error ? "border-red-400" : "border-carbon/20",
-        ].join(" ")}
-      />
-      {hint && !error && (
-        <p className="mt-1 text-[0.72rem] text-carbon/55">{hint}</p>
-      )}
-      {error && <p className="mt-1 text-[0.72rem] text-red-700">{error}</p>}
-    </div>
-  );
-}
-
-function FieldTextarea({
-  label,
-  value,
-  onChange,
-  required,
-  error,
-}: {
-  label: string;
-  value: string;
-  onChange: (v: string) => void;
-  required?: boolean;
-  error?: string;
-}) {
-  return (
-    <div>
-      <label className="block font-sans text-[0.78rem] font-medium uppercase tracking-wide text-carbon/65">
-        {label}
-        {required ? " *" : ""}
-      </label>
-      <textarea
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        rows={4}
-        className={[
-          "mt-1.5 w-full border bg-white px-3 py-2 font-sans text-[0.92rem] text-carbon outline-none transition focus:border-terracota",
-          error ? "border-red-400" : "border-carbon/20",
-        ].join(" ")}
-      />
-      {error && <p className="mt-1 text-[0.72rem] text-red-700">{error}</p>}
-    </div>
-  );
-}
-
-function FieldSelect({
-  label,
-  hint,
-  value,
-  options,
-  onChange,
-  required,
-  error,
-}: {
-  label: string;
-  hint?: string;
-  value: string;
-  options: { value: string; label: string }[];
-  onChange: (v: string) => void;
-  required?: boolean;
-  error?: string;
-}) {
-  return (
-    <div>
-      <label className="block font-sans text-[0.78rem] font-medium uppercase tracking-wide text-carbon/65">
-        {label}
-        {required ? " *" : ""}
-      </label>
-      <select
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className={[
-          "mt-1.5 w-full border bg-white px-3 py-2 font-sans text-[0.92rem] text-carbon outline-none transition focus:border-terracota",
-          error ? "border-red-400" : "border-carbon/20",
-        ].join(" ")}
-      >
-        {options.map((o) => (
-          <option key={o.value} value={o.value}>
-            {o.label}
-          </option>
-        ))}
-      </select>
-      {hint && !error && (
-        <p className="mt-1 text-[0.72rem] text-carbon/55">{hint}</p>
-      )}
-      {error && <p className="mt-1 text-[0.72rem] text-red-700">{error}</p>}
-    </div>
   );
 }

@@ -1,4 +1,4 @@
-export type InquiryType = "contact" | "espacio";
+export type InquiryType = "contact" | "espacio" | "eventos";
 
 export interface ContactInquiryPayload {
   mensaje: string;
@@ -10,4 +10,12 @@ export interface EspacioInquiryPayload {
   mensaje: string;
 }
 
-export type InquiryPayload = ContactInquiryPayload | EspacioInquiryPayload;
+export interface EventosInquiryPayload {
+  fecha: string;
+  mensaje: string;
+}
+
+export type InquiryPayload =
+  | ContactInquiryPayload
+  | EspacioInquiryPayload
+  | EventosInquiryPayload;

@@ -6,13 +6,21 @@ import {
   validateClaseForm,
   type ClaseFormData,
 } from "@/lib/admin/clases-validation";
+import {
+  eventoFormToDbRow,
+  validateEventoForm,
+  type EventoFormData,
+} from "@/lib/admin/eventos-validation";
 
 export const runtime = "nodejs";
 
+function isEventoKind(body: Record<string, unknown>): boolean {
+  return body.kind === "evento";
+}
+
 /**
  * POST /api/admin/classes
- * Body: ClaseFormData
- * Crea una clase nueva.
+ * Body: { kind: "clase", ...ClaseFormData } | { kind: "evento", ...EventoFormData }
  */
 export async function POST(req: Request) {
   const email = await getCurrentUserEmail();
@@ -26,8 +34,45 @@ export async function POST(req: Request) {
   } catch {
     return NextResponse.json({ error: "invalid_json" }, { status: 400 });
   }
-  const data = body as Partial<ClaseFormData>;
 
+  const payload = body as Record<string, unknown>;
+  const supabase = getSupabaseAdmin();
+
+  if (isEventoKind(payload)) {
+    const data = payload as Partial<EventoFormData>;
+    const { ok, errors } = validateEventoForm(data);
+    if (!ok) {
+      return NextResponse.json(
+        { error: "validation_failed", fieldErrors: errors },
+        { status: 400 },
+      );
+    }
+
+    const { data: inserted, error } = await supabase
+      .from("classes")
+      .insert(eventoFormToDbRow(data as EventoFormData))
+      .select("id")
+      .maybeSingle();
+
+    if (error) {
+      if (error.code === "23505") {
+        return NextResponse.json(
+          { error: "duplicate_slug_date" },
+          { status: 409 },
+        );
+      }
+      console.error("[POST /api/admin/classes evento]", error);
+      return NextResponse.json({ error: "server_error" }, { status: 500 });
+    }
+
+    if (!inserted) {
+      return NextResponse.json({ error: "server_error" }, { status: 500 });
+    }
+
+    return NextResponse.json({ ok: true, id: inserted.id });
+  }
+
+  const data = payload as Partial<ClaseFormData>;
   const { ok, errors } = validateClaseForm(data);
   if (!ok) {
     return NextResponse.json(
@@ -37,8 +82,6 @@ export async function POST(req: Request) {
   }
 
   const v = data as ClaseFormData;
-  const supabase = getSupabaseAdmin();
-
   const { data: inserted, error } = await supabase
     .from("classes")
     .insert({

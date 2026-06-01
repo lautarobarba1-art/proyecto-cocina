@@ -2,25 +2,38 @@ import { NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
 import { getCurrentUserEmail } from "@/lib/supabase/auth-server";
 import { isAdminEmail } from "@/lib/admin/config";
+import { sendEmailReservaCancelada } from "@/lib/resend/send";
 
 export const runtime = "nodejs";
 
 /**
+ * Forma en que la RPC `cancel_class_atomic` retorna los datos de los clientes
+ * afectados (una fila por reserva cancelada).
+ */
+interface AffectedReservation {
+  customer_name: string;
+  customer_email: string;
+  class_title: string;
+  class_date: string;
+  class_start_time: string;
+}
+
+/**
  * POST /api/admin/classes/[id]/cancel
  *
- * Cancela una clase. Comportamiento:
- *  1. Marca classes.is_cancelled = true.
- *  2. Cancela TODAS las reservas asociadas (pending + confirmed) →
- *     status = 'cancelled', cancelled_at = now().
- *
- * El cupo no necesita "liberarse" explícitamente porque la vista
- * classes_with_availability ya excluye las canceladas.
+ * Cancela una clase de forma ATÓMICA:
+ *   1. Llama a la RPC `cancel_class_atomic` que, en una sola transacción:
+ *      a) Marca classes.is_cancelled = true.
+ *      b) Cancela todas las reservas pending/confirmed asociadas.
+ *      c) Retorna los datos de los clientes afectados.
+ *   2. Envía emails de notificación a cada cliente afectado (fuera de la TX).
+ *      Los fallos de email son best-effort: se loguean pero no revierten la DB.
  */
 export async function POST(
   req: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  // 1. Auth
+  // ── Auth ──────────────────────────────────────────────────────────────────
   const email = await getCurrentUserEmail();
   if (!email || !isAdminEmail(email)) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
@@ -31,56 +44,55 @@ export async function POST(
     return NextResponse.json({ error: "missing_id" }, { status: 400 });
   }
 
+  // ── Cancelación atómica vía RPC ───────────────────────────────────────────
   const supabase = getSupabaseAdmin();
 
-  // 2. Marcar la clase como cancelada
-  const { data: classData, error: classError } = await supabase
-    .from("classes")
-    .update({ is_cancelled: true })
-    .eq("id", id)
-    .eq("is_cancelled", false) // no re-cancelar
-    .select("id, slug, date")
-    .maybeSingle();
+  const { data, error } = await supabase.rpc("cancel_class_atomic", {
+    p_class_id: id,
+  });
 
-  if (classError) {
-    console.error("[admin/classes cancel - class]", classError);
+  if (error) {
+    if (error.message?.includes("not_found")) {
+      return NextResponse.json({ error: "not_found" }, { status: 404 });
+    }
+    if (error.message?.includes("already_cancelled")) {
+      return NextResponse.json(
+        { error: "already_cancelled_or_not_found" },
+        { status: 409 },
+      );
+    }
+    console.error("[admin/classes cancel]", error);
     return NextResponse.json({ error: "server_error" }, { status: 500 });
   }
-  if (!classData) {
-    return NextResponse.json(
-      { error: "already_cancelled_or_not_found" },
-      { status: 409 },
-    );
-  }
 
-  // 3. Cancelar todas las reservas activas asociadas
-  const nowIso = new Date().toISOString();
-  const { data: cancelledReservations, error: resError } = await supabase
-    .from("reservations")
-    .update({
-      status: "cancelled",
-      cancelled_at: nowIso,
-    })
-    .eq("class_id", id)
-    .in("status", ["pending", "confirmed"])
-    .select("id");
+  const affected = (data ?? []) as AffectedReservation[];
 
-  if (resError) {
-    // La clase ya quedó cancelada — esto es problemático pero no rompemos.
-    // Podríamos hacer rollback manual pero por simpleza solo logueamos.
-    console.error("[admin/classes cancel - reservations]", resError);
-    return NextResponse.json(
-      {
-        ok: true,
-        warning: "class_cancelled_but_reservations_failed",
-        cancelledReservations: 0,
-      },
-      { status: 200 },
+  // ── Notificación por email (best-effort, fuera de la TX) ─────────────────
+  // Promise.allSettled garantiza que todos los envíos se intentan aunque alguno falle.
+  const emailResults = await Promise.allSettled(
+    affected.map((r) =>
+      sendEmailReservaCancelada(r.customer_email, r.customer_name, r.class_title),
+    ),
+  );
+
+  const emailsSent = emailResults.filter(
+    (r) => r.status === "fulfilled" && r.value.success,
+  ).length;
+  const emailsFailed = affected.length - emailsSent;
+
+  if (emailsFailed > 0) {
+    console.error(
+      `[admin/classes cancel] ${emailsFailed} email(s) failed for class ${id}`,
+      emailResults
+        .filter((r) => r.status === "rejected" || (r.status === "fulfilled" && !r.value.success))
+        .map((r) => (r.status === "rejected" ? r.reason : (r as PromiseFulfilledResult<{ success: boolean; error?: string }>).value.error)),
     );
   }
 
   return NextResponse.json({
     ok: true,
-    cancelledReservations: cancelledReservations?.length ?? 0,
+    cancelledReservations: affected.length,
+    emailsSent,
+    emailsFailed,
   });
 }

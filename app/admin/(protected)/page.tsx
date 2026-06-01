@@ -11,10 +11,10 @@ export default function AdminHomePage() {
         Hola.
       </h1>
       <p className="mt-3 font-body text-[1rem] leading-relaxed text-carbon/70">
-        Desde acá vas a poder gestionar las reservas y las clases del sitio.
+        Gestioná reservas, clases, eventos privados y consultas del sitio.
       </p>
 
-      <div className="mt-10 grid gap-6 sm:grid-cols-2">
+      <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
         <Link
           href="/admin/reservas"
           className="block border border-carbon/10 bg-white p-6 transition hover:border-terracota"
@@ -34,20 +34,30 @@ export default function AdminHomePage() {
           className="block border border-carbon/10 bg-white p-6 transition hover:border-terracota"
         >
           <p className="font-mono text-[0.7rem] font-medium uppercase tracking-eyebrow text-terracota">
-            Clases
+            Calendario
           </p>
           <p className="mt-3 font-display text-xl text-carbon">
-            Crear y editar clases
+            Clases y eventos
           </p>
           <p className="mt-2 font-body text-[0.85rem] text-carbon/60">
-            Cargar nuevas fechas, cambiar cupos, cancelar.
+            Cargar fechas, cupos y eventos privados confirmados.
+          </p>
+        </Link>
+        <Link
+          href="/admin/inquiries"
+          className="block border border-carbon/10 bg-white p-6 transition hover:border-terracota"
+        >
+          <p className="font-mono text-[0.7rem] font-medium uppercase tracking-eyebrow text-terracota">
+            Consultas
+          </p>
+          <p className="mt-3 font-display text-xl text-carbon">
+            Mensajes recibidos
+          </p>
+          <p className="mt-2 font-body text-[0.85rem] text-carbon/60">
+            Contacto, eventos privados (solicitudes) y alquiler del espacio.
           </p>
         </Link>
       </div>
-
-      <p className="mt-12 font-body text-[0.8rem] text-carbon/40">
-        Las secciones se construyen en próximas etapas.
-      </p>
     </div>
   );
 }

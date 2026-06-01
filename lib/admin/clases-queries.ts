@@ -32,6 +32,8 @@ export interface ClaseAdmin {
 export interface GetClasesOptions {
   /** Si true, solo trae próximas (date >= hoy) y no canceladas. */
   onlyUpcoming?: boolean;
+  /** Filtra por categoría de calendario. */
+  categoryEvent?: "adultos" | "ninos" | "eventos";
   limit?: number;
 }
 
@@ -42,7 +44,7 @@ export interface GetClasesOptions {
 export async function getClasesForAdmin(
   options: GetClasesOptions = {},
 ): Promise<ClaseAdmin[]> {
-  const { onlyUpcoming = false, limit = 200 } = options;
+  const { onlyUpcoming = false, categoryEvent, limit = 200 } = options;
   const supabase = getSupabaseAdmin();
 
   // Query de classes con spots_left de la vista
@@ -56,6 +58,10 @@ export async function getClasesForAdmin(
   if (onlyUpcoming) {
     const today = new Date().toISOString().slice(0, 10);
     query = query.gte("date", today).eq("is_cancelled", false);
+  }
+
+  if (categoryEvent) {
+    query = query.eq("category_event", categoryEvent);
   }
 
   const { data: classesData, error: classesError } = await query;

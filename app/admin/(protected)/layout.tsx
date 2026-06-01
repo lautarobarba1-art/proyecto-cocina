@@ -39,7 +39,7 @@ export default async function AdminLayout({
                 href="/admin/clases"
                 className="font-sans text-[0.85rem] text-carbon/70 hover:text-carbon"
               >
-                Clases
+                Calendario
               </Link>
               <Link
                 href="/admin/inquiries"

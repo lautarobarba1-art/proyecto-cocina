@@ -55,6 +55,7 @@ export function ClassReservationForm({
   const [loading, setLoading] = React.useState(false);
   const [success, setSuccess] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
+  const successRef = React.useRef<HTMLDivElement>(null);
 
   // idempotency key generada al montar el form
   const idempotencyKeyRef = React.useRef<string>("");
@@ -90,6 +91,15 @@ export function ClassReservationForm({
         window.clearTimeout(notasScrollTimeoutRef.current);
     };
   }, []);
+
+  React.useEffect(() => {
+    if (!success || !successRef.current) return;
+    successRef.current.scrollIntoView({
+      behavior: "smooth",
+      block: "center",
+      inline: "nearest",
+    });
+  }, [success]);
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -141,14 +151,12 @@ export function ClassReservationForm({
 
       if (!res.ok) {
         const code = json?.error;
-        if (code === "no_spots") {
+        if (code === "not_available") {
           setError("Ya no quedan cupos para esta sesión.");
         } else if (code === "cancelled") {
           setError("Esta sesión fue cancelada.");
-        } else if (code === "invalid_email") {
-          setError("Correo inválido.");
-        } else if (code === "invalid_spots") {
-          setError("Cantidad de cupos inválida.");
+        } else if (code === "duplicate") {
+          setError("Ya tenés una reserva registrada para esta sesión.");
         } else {
           setError("No pudimos procesar tu reserva. Intentá de nuevo.");
         }
@@ -199,16 +207,16 @@ export function ClassReservationForm({
 
   if (success) {
     return (
-      <div className={cardClass}>
+      <div ref={successRef} className={cardClass}>
         <p className="font-mono text-[0.7rem] font-medium uppercase tracking-eyebrow text-terracota">
           Reserva
         </p>
         <h3 className="mt-4 font-display text-2xl font-normal tracking-tightish text-carbon">
-          Listo, recibimos tu pedido
+          Listo, tu reserva fue registrada
         </h3>
         <p className="mt-4 font-body text-[0.95rem] leading-relaxed text-carbon/75">
-          Te enviamos un correo a {email.trim()} con los próximos pasos y el
-          medio de pago.
+          Si no recibís un correo en los próximos minutos, escribinos por
+          WhatsApp y te enviamos los datos de pago.
         </p>
         <Button
           variant="ghost"

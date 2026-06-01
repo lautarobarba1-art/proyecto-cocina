@@ -1,7 +1,6 @@
 import Link from "next/link";
 
 import { Logotype } from "@/components/brand/Logotype";
-import { Tagline } from "@/components/brand/Tagline";
 import { Container } from "@/components/layout/Container";
 import { mailtoHref, siteContact, whatsappHref } from "@/lib/site/contact";
 
@@ -11,6 +10,15 @@ export interface FooterProps {
 
 /** Tipografía de los títulos de columna (DS): 11px / 700 / tracking 0.22em / uppercase / terracota */
 const COL_TITLE = "font-sans text-[11px] font-bold uppercase tracking-eyebrow text-terracota";
+
+const NAV_LINKS = [
+  { label: "Clases", href: "/clases" },
+  { label: "Calendario", href: "/calendario" },
+  { label: "Eventos", href: "/contacto?tipo=eventos" },
+  { label: "Espacio", href: "/espacio" },
+  { label: "Nosotros", href: "/nosotros" },
+  { label: "Contacto", href: "/contacto" },
+] as const;
 
 function SocialLink({
   href,
@@ -51,20 +59,17 @@ export function Footer({ className }: FooterProps) {
   return (
     <footer
       className={[
-        "footer-surface-deep relative overflow-hidden border-t border-crema/10 bg-carbon py-20 text-crema lg:py-28",
+        "footer-surface-deep relative overflow-hidden border-t border-crema/10 bg-carbon py-12 text-crema sm:py-14 lg:py-16",
         className ?? "",
       ].join(" ")}
     >
       <Container as="div" className="relative z-10">
-        <div className="grid min-w-0 gap-10 sm:grid-cols-2 sm:gap-x-10 sm:gap-y-12 md:gap-14 lg:grid-cols-[2fr_1fr_1fr_1fr] lg:gap-x-16 lg:gap-y-0 xl:gap-20">
-          <div className="flex flex-col gap-4">
-            <Logotype variant="onDark" size="md" />
-            <Tagline className="text-crema/70 text-[12px] tracking-[0.2em]" />
-            <p className="mt-2 font-sans text-[13px] font-medium leading-[1.7] text-crema/55">
-              {address.footerLines[0]}
-              <br />
-              {address.footerLines[1]}
-              <br />
+        <div className="grid min-w-0 gap-8 sm:grid-cols-2 sm:gap-x-10 sm:gap-y-8 lg:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)_minmax(0,0.85fr)] lg:gap-x-12 lg:gap-y-0">
+          <div className="flex flex-col gap-3 sm:col-span-2 lg:col-span-1">
+            <Logotype variant="onDark" size="sm" />
+            <p className="max-w-[28ch] font-sans text-[12px] font-medium leading-[1.6] text-crema/55">
+              {address.line}
+              {" · "}
               <a href={mailtoHref()} className="transition-colors hover:text-crema/80">
                 {email}
               </a>
@@ -72,77 +77,37 @@ export function Footer({ className }: FooterProps) {
           </div>
 
           <div>
-            <p className={COL_TITLE}>Visitar</p>
-            <ul className="mt-6 grid gap-4 md:gap-3">
-              <li>
-                <Link className="footer-link" href="/clases">
-                  Clases
-                </Link>
-              </li>
-              <li>
-                <Link className="footer-link" href="/calendario">
-                  Calendario
-                </Link>
-              </li>
-              <li>
-                <Link className="footer-link" href="/espacio">
-                  Nuestro espacio
-                </Link>
-              </li>
-              <li>
-                <Link className="footer-link" href="/nosotros">
-                  Nosotros
-                </Link>
-              </li>
-            </ul>
-          </div>
-
-          <div>
-            <p className={COL_TITLE}>Reservar</p>
-            <ul className="mt-6 grid gap-5 md:gap-3.5">
-              <li>
-                <Link className="footer-link" href="/clases">
-                  Clases adultos
-                </Link>
-              </li>
-              <li>
-                <Link className="footer-link" href="/clases?categoria=ninos">
-                  Clases niños
-                </Link>
-              </li>
-              <li>
-                <Link className="footer-link" href="/contacto?tipo=eventos">
-                  Eventos privados
-                </Link>
-              </li>
-              <li>
-                <Link className="footer-link" href="/espacio">
-                  Alquilar el espacio
-                </Link>
-              </li>
+            <p className={COL_TITLE}>Explorar</p>
+            <ul className="mt-3 grid gap-1 sm:grid-cols-2 sm:gap-x-4 lg:grid-cols-1 lg:gap-1">
+              {NAV_LINKS.map(({ label, href }) => (
+                <li key={href}>
+                  <Link className="footer-link" href={href}>
+                    {label}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
 
           <div>
             <p className={COL_TITLE}>Seguinos</p>
-            <ul className="mt-6 grid gap-5 md:gap-3.5">
+            <ul className="mt-3 grid gap-1">
               <li>
                 <SocialLink href={social.instagram} label="Instagram" pending={!social.instagram} />
               </li>
               <li>
                 <SocialLink href={social.whatsapp ?? whatsappHref()} label="WhatsApp" />
               </li>
-              
             </ul>
           </div>
         </div>
 
-        <div className="mt-16 flex flex-wrap items-center justify-between gap-3 border-t border-crema/15 pt-8">
-          <p className="font-sans text-[11px] font-medium uppercase tracking-meta text-crema/40">
-            © 2026 Menesteres · Todos los derechos reservados
+        <div className="mt-8 flex flex-wrap items-center justify-between gap-x-4 gap-y-2 border-t border-crema/15 pt-5 sm:mt-10 sm:pt-6">
+          <p className="font-sans text-[10px] font-medium uppercase tracking-meta text-crema/40">
+            © 2026 Menesteres
           </p>
-          <p className="font-sans text-[11px] font-medium uppercase tracking-meta text-crema/40">
-            Hecho en Rafaela, Santa Fe
+          <p className="font-sans text-[10px] font-medium uppercase tracking-meta text-crema/40">
+            Rafaela, Santa Fe
           </p>
         </div>
       </Container>

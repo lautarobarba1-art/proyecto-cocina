@@ -8,7 +8,7 @@ import { Link2, MessageCircle, Share2 } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import type { ClassEvent } from "@/lib/calendar/types";
-import { formatPreviewDateLabel } from "@/lib/calendar/helpers";
+import { formatPreviewDateLabel, isPastClassDate } from "@/lib/calendar/helpers";
 
 function formatArs(value: number): string {
   if (value <= 0) return "Consultar";
@@ -18,6 +18,10 @@ function formatArs(value: number): string {
 type StatusInfo = { label: string; variant: import("@/components/ui/Badge").BadgeVariant };
 
 function statusBlock(event: ClassEvent): StatusInfo {
+  if (event.category === "eventos") {
+    if (event.status === "cancelled") return { label: "Cancelado", variant: "cream" };
+    return { label: "Espacio reservado", variant: "cream" };
+  }
   if (event.status === "cancelled") return { label: "Cancelada", variant: "cream" };
   if (event.status === "full") return { label: "Lleno", variant: "cream" };
   if (event.status === "few-spots") return { label: "Pocos lugares", variant: "orange-light" };
@@ -54,6 +58,7 @@ export function ClassPreview({ event, onClose }: ClassPreviewProps) {
   const pathname = usePathname();
   const [shareUrl, setShareUrl] = React.useState("");
   const status = statusBlock(event);
+  const past = isPastClassDate(event.date);
   const reserveHref = `/clases/${event.slug}?fecha=${encodeURIComponent(event.date)}`;
   const shareText = `${event.title} · ${event.date}`;
 
@@ -77,7 +82,7 @@ export function ClassPreview({ event, onClose }: ClassPreviewProps) {
     <motion.div
       role="region"
       aria-live="polite"
-      aria-label="Detalle de la clase"
+      aria-label={event.category === "eventos" ? "Detalle del evento privado" : "Detalle de la clase"}
       initial={reduced ? undefined : { opacity: 0, y: -16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
@@ -100,6 +105,7 @@ export function ClassPreview({ event, onClose }: ClassPreviewProps) {
           <h2 className="mt-4 font-display text-[clamp(2rem,3.5vw,2.75rem)] font-normal leading-[1.05] text-crema">{titleWithAccent(event.title)}</h2>
           <p className="mt-6 max-w-[540px] font-display text-[1.05rem] font-normal leading-[1.7] text-crema/85">{event.shortDesc}</p>
 
+          {event.category !== "eventos" ? (
           <div className="mt-10 grid gap-10 sm:grid-cols-2">
             <div>
               <p className="font-mono text-[10px] font-medium uppercase tracking-meta text-crema/55">Qué traer</p>
@@ -130,12 +136,15 @@ export function ClassPreview({ event, onClose }: ClassPreviewProps) {
               </ul>
             </div>
           </div>
+          ) : null}
         </div>
 
         <div className="flex flex-col gap-6 border-t border-crema/10 pt-8 md:border-t-0 md:border-l md:pl-10 md:pt-0">
           <div>
             <Badge variant={status.variant}>{status.label}</Badge>
           </div>
+          {event.category !== "eventos" ? (
+          <>
           <p className="font-display text-[2rem] font-normal italic text-terracota-soft">{formatArs(event.price)}</p>
           <div>
             <p className="font-mono text-[10px] font-medium uppercase tracking-meta text-crema/55">Incluye también</p>
@@ -145,13 +154,26 @@ export function ClassPreview({ event, onClose }: ClassPreviewProps) {
               <li>Agua saborizada</li>
             </ul>
           </div>
-          {event.status !== "cancelled" && event.status !== "full" ? (
+          {past ? (
+            <p className="font-display text-[1rem] italic text-crema/70">
+              Esta fecha ya pasó.{" "}
+              <a href="/calendario" className="text-terracota-soft underline underline-offset-2">
+                Ver próximas fechas
+              </a>
+            </p>
+          ) : event.status !== "cancelled" && event.status !== "full" ? (
             <Button href={reserveHref} variant="primary" className="w-full">
               Reservar mi lugar
             </Button>
           ) : event.status === "cancelled" ? (
             <p className="font-display text-[1rem] italic text-crema/70">Esta fecha fue cancelada. Mirá el calendario para nuevas fechas.</p>
           ) : null}
+          </>
+          ) : (
+            <p className="font-display text-[1rem] leading-relaxed text-crema/75">
+              El espacio está reservado para un encuentro privado ese día.
+            </p>
+          )}
 
           <div className="mt-2 flex flex-wrap items-center gap-4 border-t border-crema/10 pt-6 font-mono text-[10px] uppercase tracking-meta text-crema/55">
             <span className="flex items-center gap-1.5">

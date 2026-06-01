@@ -10,12 +10,17 @@ import {
   chunkWeeks,
   eventsOnDate,
   getMonthCalendarDays,
+  isPastClassDate,
   isSameMonth,
   isPastDay,
   isToday,
 } from "@/lib/calendar/helpers";
-
-// ─── Types ───────────────────────────────────────────────────────────────────
+import { formatDayHeader } from "@/lib/calendar/day-format";
+import {
+  calendarEventHref,
+  calendarEventStatusPill,
+  isPrivateCalendarEvent,
+} from "@/lib/calendar/event-ui";
 
 export interface MobileCalendarViewProps {
   year: number;
@@ -23,55 +28,31 @@ export interface MobileCalendarViewProps {
   events: ClassEvent[];
   focusDate: string | null;
   onDayFocus: (dateKey: string) => void;
+  onSelectPrivateEvent?: (event: ClassEvent) => void;
 }
-
-// ─── Helpers ─────────────────────────────────────────────────────────────────
 
 function dateKey(d: Date): string {
   return format(d, "yyyy-MM-dd");
 }
 
-function formatDayHeader(dateStr: string): string {
-  const [y, m, d] = dateStr.split("-").map(Number);
-  const date = new Date(y!, m! - 1, d!);
-  const str = date.toLocaleDateString("es-AR", {
-    weekday: "long",
-    day: "numeric",
-    month: "long",
-  });
-  return str.charAt(0).toUpperCase() + str.slice(1);
-}
-
-/**
- * Highest-priority dot color for a day with multiple events.
- * available/few-spots → terracota, full → muted, cancelled-only → none
- */
 function dotColor(dayEvents: ClassEvent[]): "terracota" | "muted" | "none" {
   if (dayEvents.length === 0) return "none";
   const hasActive = dayEvents.some(
-    (e) => e.status === "available" || e.status === "few-spots",
+    (e) =>
+      !isPrivateCalendarEvent(e) &&
+      (e.status === "available" || e.status === "few-spots"),
   );
   if (hasActive) return "terracota";
-  const hasFull = dayEvents.some((e) => e.status === "full");
+  const hasFull = dayEvents.some(
+    (e) => e.status === "full" || isPrivateCalendarEvent(e),
+  );
   if (hasFull) return "muted";
-  return "none"; // all cancelled
-}
-
-function statusPill(event: ClassEvent): { label: string; className: string } {
-  if (event.status === "full")
-    return { label: "Lleno", className: "border border-carbon/40 text-carbon/60" };
-  if (event.status === "cancelled")
-    return { label: "Cancelada", className: "border border-carbon/20 text-carbon/45" };
-  if (event.status === "few-spots")
-    return { label: "Pocos lugares", className: "bg-terracota text-crema" };
-  if (event.spotsLeft != null)
-    return { label: `${event.spotsLeft} cupos`, className: "bg-carbon text-crema" };
-  return { label: "Cupos", className: "bg-carbon text-crema" };
+  return "none";
 }
 
 const WEEKDAYS = ["LUN", "MAR", "MIE", "JUE", "VIE", "SAB", "DOM"] as const;
-
-// ─── Component ───────────────────────────────────────────────────────────────
+const rowClassName =
+  "block w-full py-4 text-left transition-[padding-left] duration-200 ease-snap hover:pl-2";
 
 export function MobileCalendarView({
   year,
@@ -79,6 +60,7 @@ export function MobileCalendarView({
   events,
   focusDate,
   onDayFocus,
+  onSelectPrivateEvent,
 }: MobileCalendarViewProps) {
   const days = React.useMemo(() => getMonthCalendarDays(year, month), [year, month]);
   const weeks = React.useMemo(() => chunkWeeks(days), [days]);
@@ -90,7 +72,6 @@ export function MobileCalendarView({
 
   return (
     <div>
-      {/* ── Compact month grid ── */}
       <table
         className="w-full border-collapse"
         role="grid"
@@ -127,7 +108,7 @@ export function MobileCalendarView({
                     <button
                       type="button"
                       aria-pressed={focused}
-                      aria-label={`${format(day, "d 'de' MMMM", { locale: es })}${hasEvents ? `, ${dayEvents.length} clase${dayEvents.length > 1 ? "s" : ""}` : ""}`}
+                      aria-label={`${format(day, "d 'de' MMMM", { locale: es })}${hasEvents ? `, ${dayEvents.length} actividad${dayEvents.length > 1 ? "es" : ""}` : ""}`}
                       disabled={!hasEvents}
                       onClick={() => hasEvents && onDayFocus(key)}
                       className={[
@@ -171,7 +152,6 @@ export function MobileCalendarView({
         </tbody>
       </table>
 
-      {/* ── Day events list ── */}
       {focusDate ? (
         <div className="mt-6">
           <p className="mb-4 font-mono text-[0.65rem] font-medium tracking-eyebrow text-carbon/50">
@@ -180,38 +160,50 @@ export function MobileCalendarView({
 
           {focusDateEvents.length === 0 ? (
             <p className="py-4 font-body text-[0.9rem] text-carbon/50">
-              No hay clases este día.
+              No hay actividades este día.
             </p>
           ) : (
             <ol className="list-none p-0">
               {focusDateEvents.map((event) => {
-                const pill = statusPill(event);
-                const href = `/clases/${event.slug}?fecha=${encodeURIComponent(event.date)}`;
+                const pill = calendarEventStatusPill(event);
+                const inner = (
+                  <>
+                    <div className="flex items-baseline justify-between gap-3">
+                      <span className="font-mono text-[10px] font-medium uppercase tracking-meta text-carbon/55">
+                        {event.startTime} — {event.endTime}
+                      </span>
+                      <span
+                        className={`inline-block rounded-sm px-2 py-0.5 font-mono text-[9px] font-medium uppercase tracking-meta ${pill.className}`}
+                      >
+                        {pill.label}
+                      </span>
+                    </div>
+                    <p className="mt-1 font-display text-[1.1rem] font-normal leading-snug text-carbon">
+                      {event.title}
+                      {event.isHighlighted ? (
+                        <span className="ml-2 font-script text-sm text-terracota">
+                          — destacada
+                        </span>
+                      ) : null}
+                    </p>
+                  </>
+                );
+
                 return (
                   <li key={event.id} className="border-b border-dashed border-carbon/15">
-                    <Link
-                      href={href}
-                      className="block py-4 transition-[padding-left] duration-200 ease-snap hover:pl-2"
-                    >
-                      <div className="flex items-baseline justify-between gap-3">
-                        <span className="font-mono text-[10px] font-medium uppercase tracking-meta text-carbon/55">
-                          {event.startTime} — {event.endTime}
-                        </span>
-                        <span
-                          className={`inline-block rounded-sm px-2 py-0.5 font-mono text-[9px] font-medium uppercase tracking-meta ${pill.className}`}
-                        >
-                          {pill.label}
-                        </span>
-                      </div>
-                      <p className="mt-1 font-display text-[1.1rem] font-normal leading-snug text-carbon">
-                        {event.title}
-                        {event.isHighlighted ? (
-                          <span className="ml-2 font-script text-sm text-terracota">
-                            — destacada
-                          </span>
-                        ) : null}
-                      </p>
-                    </Link>
+                    {isPrivateCalendarEvent(event) ? (
+                      <button
+                        type="button"
+                        onClick={() => onSelectPrivateEvent?.(event)}
+                        className={rowClassName}
+                      >
+                        {inner}
+                      </button>
+                    ) : (
+                      <Link href={calendarEventHref(event)} className={rowClassName}>
+                        {inner}
+                      </Link>
+                    )}
                   </li>
                 );
               })}
@@ -220,7 +212,7 @@ export function MobileCalendarView({
         </div>
       ) : (
         <p className="mt-8 text-center font-body text-[0.85rem] text-carbon/40">
-          Seleccioná un día para ver las clases.
+          Seleccioná un día para ver las actividades.
         </p>
       )}
     </div>

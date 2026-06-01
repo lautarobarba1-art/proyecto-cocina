@@ -1,16 +1,21 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { ClassReservationForm } from "@/components/clases/ClassReservationForm";
+import { PastSessionCard } from "@/components/clases/PastSessionCard";
 import { Container } from "@/components/layout/Container";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { SectionLabel } from "@/components/ui/SectionLabel";
+import { encodeClaseParam } from "@/lib/calendar/helpers";
+import { isPastClassDate } from "@/lib/calendar/helpers";
+import { classRowToClassEvent } from "@/lib/calendar/adapters";
 import { getClassBySlug } from "@/lib/classes-mock";
 import {
   getClassBySlugAndDate,
+  getClassBySlugAndDateIncludingPast,
+  getClassSessionRow,
   getSessionsForClass,
 } from "@/lib/clases/queries";
-
 export const dynamic = "force-dynamic";
 
 export interface ClaseDetallePageProps {
@@ -46,16 +51,25 @@ export default async function ClaseDetallePage({
   const { slug } = await params;
   const { fecha } = await searchParams;
 
-  // Si llega ?fecha=, intentamos obtener esa sesión específica
-  // Si no, fallback a la próxima sesión futura (o más reciente)
-  const clase = fecha
-    ? (await getClassBySlugAndDate(slug, fecha)) ?? (await getClassBySlug(slug))
-    : await getClassBySlug(slug);
+  const sessionRow = await getClassSessionRow(slug, fecha);
+  if (sessionRow?.category_event === "eventos") {
+    const [y, m] = sessionRow.date.split("-");
+    const event = classRowToClassEvent(sessionRow);
+    redirect(
+      `/calendario?mes=${y}-${m}&clase=${encodeClaseParam(event)}&categoria=eventos`,
+    );
+  }
+
+  const pastSession = Boolean(fecha && isPastClassDate(fecha));
+  const clase = pastSession
+    ? await getClassBySlugAndDateIncludingPast(slug, fecha!)
+    : fecha
+      ? (await getClassBySlugAndDate(slug, fecha)) ?? (await getClassBySlug(slug))
+      : await getClassBySlug(slug);
 
   if (!clase) notFound();
 
-  // Sesiones disponibles para el <select> del form
-  const sessions = await getSessionsForClass(slug);
+  const sessions = pastSession ? [] : await getSessionsForClass(slug);
 
   // Pre-seleccionar la sesión que coincida con ?fecha=
   const initialSessionId =
@@ -63,8 +77,9 @@ export default async function ClaseDetallePage({
       ? sessions.find((s) => s.date === fecha)?.id ?? sessions[0]?.id
       : sessions[0]?.id;
 
-  const lastSpots = clase.status === "últimos cupos";
-  const soldOut = clase.status === "agotado";
+  const lastSpots = !pastSession && clase.status === "últimos cupos";
+  const soldOut = !pastSession && clase.status === "agotado";
+  const showPastCard = pastSession;
 
   return (
     <main className="flex-1 pb-20 lg:pb-28">
@@ -89,6 +104,7 @@ export default async function ClaseDetallePage({
             <SectionLabel>{clase.category}</SectionLabel>
             {lastSpots && <Badge variant="orange-light">Últimos cupos</Badge>}
             {soldOut && <Badge variant="black">Agotado</Badge>}
+            {pastSession && <Badge variant="black">Finalizada</Badge>}
           </div>
         </div>
       </div>
@@ -141,17 +157,23 @@ export default async function ClaseDetallePage({
             </p>
           </div>
           <div className="min-w-0 lg:sticky lg:top-28">
-            <ClassReservationForm
-              classItem={clase}
-              sessions={sessions}
-              initialSessionId={initialSessionId}
-            />
-            {!soldOut && (
-              <p className="mt-4 font-body text-[0.78rem] leading-relaxed text-carbon/45">
-                Si la clase tiene seña, recibirás el link de pago junto al
-                correo de confirmación. Sin seña, tu lugar queda reservado al
-                enviar el formulario.
-              </p>
+            {showPastCard && !soldOut ? (
+              <PastSessionCard />
+            ) : (
+              <>
+                <ClassReservationForm
+                  classItem={clase}
+                  sessions={sessions}
+                  initialSessionId={initialSessionId}
+                />
+                {!soldOut && (
+                  <p className="mt-4 font-body text-[0.78rem] leading-relaxed text-carbon/45">
+                    Si la clase tiene seña, recibirás el link de pago junto al
+                    correo de confirmación. Sin seña, tu lugar queda reservado al
+                    enviar el formulario.
+                  </p>
+                )}
+              </>
             )}
           </div>
         </div>

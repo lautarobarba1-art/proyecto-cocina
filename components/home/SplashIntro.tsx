@@ -49,7 +49,7 @@ export function SplashIntro({ onComplete }: SplashIntroProps) {
 
   return (
     <motion.div
-      className="fixed inset-0 z-200 flex items-center justify-center bg-terracota"
+      className="fixed inset-0 z-200 flex items-center justify-center bg-terracota overflow-hidden"
       aria-hidden="true"
       initial={{ y: 0 }}
       animate={{ y: "-100%" }}
@@ -59,8 +59,23 @@ export function SplashIntro({ onComplete }: SplashIntroProps) {
         ease: EASE.soft,
       }}
     >
+      {/* Patrón de branding — full bleed sobre terracota */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 select-none opacity-[0.42]"
+        style={{
+          backgroundImage: "url('/Mesa%20de%20trabajo%2012.png')",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat",
+          transform: "scale(1.1)",
+          transformOrigin: "center",
+        }}
+      />
+
+      {/* Logo — encima del patrón */}
       <motion.div
-        className="flex justify-center px-6"
+        className="relative z-10 flex justify-center px-6"
         initial={{ opacity: 0, scale: 0.92 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{

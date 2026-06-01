@@ -3,28 +3,44 @@ import Link from "next/link";
 
 import { ContactMap } from "@/components/contacto/ContactMap";
 import { ContactoForm } from "@/components/contacto/ContactoForm";
+import { EventosPrivadosForm } from "@/components/contacto/EventosPrivadosForm";
 import { Container } from "@/components/layout/Container";
 import { mailtoHref, siteContact, whatsappHref } from "@/lib/site/contact";
 
 export const metadata: Metadata = {
   title: "Contacto · Menesteres",
-  description: "Contactanos para consultas, eventos privados o colaboraciones. Escuela de cocina en Rafaela, Santa Fe.",
+  description:
+    "Contactanos para consultas, eventos privados o colaboraciones. Escuela de cocina en Rafaela, Santa Fe.",
 };
 
-export default function ContactoPage() {
+interface PageProps {
+  searchParams: Promise<{ tipo?: string }>;
+}
+
+export default async function ContactoPage({ searchParams }: PageProps) {
+  const { tipo } = await searchParams;
+  const isEventos = tipo === "eventos";
   const { email, address, phone, hours } = siteContact;
 
   return (
     <main className="flex-1 pb-20 lg:pb-28">
       <Container as="div" className="py-20 lg:py-28">
         <p className="font-mono text-[0.65rem] font-medium uppercase tracking-eyebrow text-terracota">
-          Contacto
+          {isEventos ? "Eventos privados" : "Contacto"}
         </p>
 
         <div className="mt-12 grid gap-16 lg:grid-cols-[3fr_2fr] lg:items-start lg:gap-x-16 xl:gap-x-24">
           <div className="min-w-0">
             <h1 className="max-w-[14ch] font-display text-[clamp(2.25rem,5.5vw,3.75rem)] font-normal leading-[1.05] tracking-tightish text-carbon">
-              Hablemos y <em className="italic text-terracota">cocinemos.</em>
+              {isEventos ? (
+                <>
+                  Tu mesa, <em className="italic text-terracota">a medida.</em>
+                </>
+              ) : (
+                <>
+                  Hablemos y <em className="italic text-terracota">cocinemos.</em>
+                </>
+              )}
             </h1>
 
             <div className="mt-14 space-y-8">
@@ -71,20 +87,38 @@ export default function ContactoPage() {
             </div>
 
             <p className="mt-16 max-w-[46ch] font-body text-[0.9rem] leading-[1.65] text-carbon/55">
-              Las reservas de clases van por el{" "}
-              <Link
-                href="/clases"
-                className="text-carbon/75 underline decoration-carbon/25 underline-offset-2 transition-colors hover:text-terracota hover:decoration-terracota/40"
-              >
-                catálogo
-              </Link>
-              ; eventos privados y alquiler del espacio tienen su propio recorrido en el sitio. Este mensaje es
-              para lo demás: dudas, prensa, colaboraciones o cualquier cosa que quieras contarnos con calma.
+              {isEventos ? (
+                <>
+                  Cenas, cumpleaños y encuentros íntimos en nuestra cocina. Contanos fecha tentativa,
+                  invitados y la idea; te respondemos con menú y disponibilidad. Las clases abiertas se
+                  reservan por el{" "}
+                  <Link
+                    href="/clases"
+                    className="text-carbon/75 underline decoration-carbon/25 underline-offset-2 transition-colors hover:text-terracota hover:decoration-terracota/40"
+                  >
+                    catálogo
+                  </Link>
+                  .
+                </>
+              ) : (
+                <>
+                  Las reservas de clases van por el{" "}
+                  <Link
+                    href="/clases"
+                    className="text-carbon/75 underline decoration-carbon/25 underline-offset-2 transition-colors hover:text-terracota hover:decoration-terracota/40"
+                  >
+                    catálogo
+                  </Link>
+                  ; eventos privados y alquiler del espacio tienen su propio recorrido en el sitio. Este
+                  mensaje es para lo demás: dudas, prensa, colaboraciones o cualquier cosa que quieras
+                  contarnos con calma.
+                </>
+              )}
             </p>
           </div>
 
           <div className="min-w-0 lg:pt-2">
-            <ContactoForm />
+            {isEventos ? <EventosPrivadosForm /> : <ContactoForm />}
           </div>
         </div>
       </Container>

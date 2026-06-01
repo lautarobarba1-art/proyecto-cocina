@@ -24,5 +24,22 @@ export const HERO_AFTER_SPLASH_DELAYS = [0.08, 0.28, 0.48] as const;
 export const EASE = {
   soft: [0.4, 0, 0.2, 1],
   snap: [0.25, 0.46, 0.45, 0.94],
+  reveal: [0.22, 1, 0.36, 1],
 } as const;
+
+/** Micro-animaciones al entrar en viewport (scroll reveal). */
+export const REVEAL = {
+  duration: 0.55,
+  durationImage: 0.7,
+  stagger: 0.09,
+  delayChildren: 0.04,
+  y: 18,
+  x: 16,
+} as const;
+
+export const revealTransition = (delay = 0, duration: number = REVEAL.duration) => ({
+  duration,
+  delay,
+  ease: EASE.reveal as [number, number, number, number],
+});
 

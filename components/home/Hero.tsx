@@ -7,6 +7,7 @@ import { Logotype } from "@/components/brand/Logotype";
 import { Button } from "@/components/ui/Button";
 import { HERO_AFTER_SPLASH_DELAYS, HERO_ENTRY } from "@/lib/motion";
 import { IMAGES } from "@/lib/images";
+import { siteContact } from "@/lib/site/contact";
 import { useReducedMotion } from "@/lib/useReducedMotion";
 
 export interface HeroProps {
@@ -24,8 +25,17 @@ export function Hero({ className, introReveal = true, staggerProfile = "default"
 
   const ready = reduced || introReveal;
   const delays = staggerProfile === "afterSplash" ? HERO_AFTER_SPLASH_DELAYS : HERO_ENTRY.delays;
-  const ctaDelay = delays[2] + 0.08;
-  const scrollDelay = ctaDelay + 0.12;
+  const actionDelay = delays[2] + 0.06;
+  const scrollDelay = actionDelay + 0.14;
+
+  const entry = (delay: number) =>
+    reduced
+      ? undefined
+      : {
+          duration: HERO_ENTRY.duration,
+          ease: HERO_ENTRY.ease,
+          delay: ready ? delay : 0,
+        };
 
   return (
     <section
@@ -40,12 +50,7 @@ export function Hero({ className, introReveal = true, staggerProfile = "default"
       >
         <div className="hero-mn__bg absolute inset-0 overflow-hidden">
           <KenBurns className="hero-mn__kenburns absolute inset-0">
-            <div
-              className={[
-                "hero-mn__media absolute inset-0",
-                "hero-mn__media--video",
-              ].join(" ")}
-            >
+            <div className="hero-mn__media hero-mn__media--video absolute inset-0">
               <video
                 className="absolute inset-0 z-1 h-full w-full object-cover"
                 autoPlay
@@ -62,98 +67,34 @@ export function Hero({ className, introReveal = true, staggerProfile = "default"
         </div>
         <div className="hero-mn__overlay pointer-events-none absolute inset-0" />
       </motion.div>
-
-      <motion.div
-        className="hero-mn__meta-top pointer-events-none absolute left-0 right-0 top-6 z-20 flex justify-between px-8"
-        initial={reduced ? { opacity: 1, y: 0 } : { opacity: 0, y: 12 }}
-        animate={ready ? { opacity: 1, y: 0 } : { opacity: 0, y: 12 }}
-        transition={
-          reduced
-            ? undefined
-            : {
-                duration: HERO_ENTRY.duration,
-                ease: HERO_ENTRY.ease,
-                delay: ready ? delays[0] : 0,
-              }
-        }
-      >
-        <span>EST · 2019</span>
-        <span>RAFAELA · SF · AR</span>
-      </motion.div>
-
-      <div className="hero-mn__content absolute inset-0 z-20 flex flex-col items-center justify-center px-8 text-center">
-        <motion.p
-          className="hero-mn__eyebrow"
-          initial={reduced ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-          animate={ready ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-          transition={
-            reduced
-              ? undefined
-              : {
-                  duration: HERO_ENTRY.duration,
-                  ease: HERO_ENTRY.ease,
-                  delay: ready ? delays[0] : 0,
-                }
-          }
-        >
-          CLASES DE COCINA
-        </motion.p>
-
+    
+      <div className="hero-mn__content absolute inset-0 z-20 flex flex-col px-8 pb-25 pt-50 sm:px-8 sm:pb-10 sm:pt-16 lg:px-12 lg:pb-14">
         <motion.div
+          className="hero-mn__brand max-w-[min(100%,28rem)] text-left"
           initial={reduced ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
           animate={ready ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-          transition={
-            reduced
-              ? undefined
-              : {
-                  duration: HERO_ENTRY.duration,
-                  ease: HERO_ENTRY.ease,
-                  delay: ready ? delays[1] : 0,
-                }
-          }
+          transition={entry(delays[0])}
         >
-          <h1 className="hero-mn__title">
+          
+          <h1 className="hero-mn__title mt-5">
             <Logotype variant="onDark" size="xl" priority />
           </h1>
+          
         </motion.div>
 
-        <motion.p
-          className="hero-mn__tagline"
-          initial={reduced ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-          animate={ready ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-          transition={
-            reduced
-              ? undefined
-              : {
-                  duration: HERO_ENTRY.duration,
-                  ease: HERO_ENTRY.ease,
-                  delay: ready ? delays[2] : 0,
-                }
-          }
-        >
-          Sabores que nos encuentran
-        </motion.p>
-
         <motion.div
-          className="mt-8 flex flex-wrap items-center justify-center gap-3"
-          initial={reduced ? { opacity: 1, y: 0 } : { opacity: 0, y: 16 }}
-          animate={ready ? { opacity: 1, y: 0 } : { opacity: 0, y: 16 }}
-          transition={
-            reduced
-              ? undefined
-              : {
-                  duration: HERO_ENTRY.duration,
-                  ease: HERO_ENTRY.ease,
-                  delay: ready ? ctaDelay : 0,
-                }
-          }
+          className="hero-mn__action mt-auto ml-auto w-full max-w-[min(100%,22rem)] text-right"
+          initial={reduced ? { opacity: 1, y: 0 } : { opacity: 0, y: 18 }}
+          animate={ready ? { opacity: 1, y: 0 } : { opacity: 0, y: 18 }}
+          transition={entry(actionDelay)}
         >
-          <Button href="/clases" variant="primary" size="lg">
-            Reservar clase
-          </Button>
-          <Button href="/espacio" variant="outline-cream" size="lg">
-            Conocer el espacio
-          </Button>
+          <div className="flex flex-col items-end gap-3 sm:gap-4">
+            <Button href="/clases" variant="sketch-on-dark" size="lg">
+              Reservar clase
+            </Button>
+            
+          </div>
+
         </motion.div>
       </div>
 
@@ -161,17 +102,8 @@ export function Hero({ className, introReveal = true, staggerProfile = "default"
         className="hero-mn__scroll pointer-events-none absolute bottom-6 left-1/2 z-20 flex -translate-x-1/2 flex-col items-center gap-2"
         initial={reduced ? { opacity: 1, y: 0 } : { opacity: 0, y: 10 }}
         animate={ready ? { opacity: 1, y: 0 } : { opacity: 0, y: 10 }}
-        transition={
-          reduced
-            ? undefined
-            : {
-                duration: HERO_ENTRY.duration,
-                ease: HERO_ENTRY.ease,
-                delay: ready ? scrollDelay : 0,
-              }
-        }
+        transition={entry(scrollDelay)}
       >
-        <span>SCROLL</span>
         <div className="hero-mn__scroll-line" />
       </motion.div>
     </section>

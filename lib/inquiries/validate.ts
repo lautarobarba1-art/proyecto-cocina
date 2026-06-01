@@ -32,7 +32,10 @@ export function validateInquiryBody(
     return { ok: true, data: { type: "contact", name: "", email: "", payload: {} } };
   }
 
-  const type = b.type === "contact" || b.type === "espacio" ? b.type : null;
+  const type =
+    b.type === "contact" || b.type === "espacio" || b.type === "eventos"
+      ? b.type
+      : null;
   if (!type) return { ok: false, error: "invalid_type" };
 
   const name = typeof b.name === "string" ? b.name.trim() : "";
@@ -51,6 +54,19 @@ export function validateInquiryBody(
     return {
       ok: true,
       data: { type, name, email, payload: { mensaje } },
+    };
+  }
+
+  if (type === "eventos") {
+    const fecha = typeof b.fecha === "string" ? b.fecha.trim() : "";
+    const mensaje = typeof b.mensaje === "string" ? b.mensaje.trim() : "";
+    if (!fecha || !mensaje) return { ok: false, error: "missing_fields" };
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(fecha)) return { ok: false, error: "invalid_fecha" };
+    if (mensaje.length < 8) return { ok: false, error: "invalid_mensaje" };
+    if (mensaje.length > 5000) return { ok: false, error: "fields_too_long" };
+    return {
+      ok: true,
+      data: { type, name, email, payload: { fecha, mensaje } },
     };
   }
 

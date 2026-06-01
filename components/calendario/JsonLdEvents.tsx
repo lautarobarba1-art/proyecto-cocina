@@ -20,7 +20,7 @@ function availabilityUrl(status: ClassStatus): string {
 }
 
 function eventToJsonLd(event: ClassEvent): Record<string, unknown> | null {
-  if (event.status === "cancelled") return null;
+  if (event.status === "cancelled" || event.category === "eventos") return null;
 
   const startDate = toIso(event.date, event.startTime);
   const endDate = toIso(event.date, event.endTime);

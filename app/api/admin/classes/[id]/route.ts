@@ -6,19 +6,26 @@ import {
   validateClaseForm,
   type ClaseFormData,
 } from "@/lib/admin/clases-validation";
+import {
+  eventoFormToDbRow,
+  validateEventoForm,
+  type EventoFormData,
+} from "@/lib/admin/eventos-validation";
 
 export const runtime = "nodejs";
 
+function isEventoKind(body: Record<string, unknown>): boolean {
+  return body.kind === "evento";
+}
+
 /**
  * PATCH /api/admin/classes/[id]
- * Body: ClaseFormData (todos los campos)
- * Actualiza una clase existente.
+ * Body: { kind: "clase", ...ClaseFormData } | { kind: "evento", ...EventoFormData }
  */
 export async function PATCH(
   req: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  // 1. Auth
   const email = await getCurrentUserEmail();
   if (!email || !isAdminEmail(email)) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
@@ -35,8 +42,46 @@ export async function PATCH(
   } catch {
     return NextResponse.json({ error: "invalid_json" }, { status: 400 });
   }
-  const data = body as Partial<ClaseFormData>;
 
+  const payload = body as Record<string, unknown>;
+  const supabase = getSupabaseAdmin();
+
+  if (isEventoKind(payload)) {
+    const data = payload as Partial<EventoFormData>;
+    const { ok, errors } = validateEventoForm(data);
+    if (!ok) {
+      return NextResponse.json(
+        { error: "validation_failed", fieldErrors: errors },
+        { status: 400 },
+      );
+    }
+
+    const { data: updated, error } = await supabase
+      .from("classes")
+      .update(eventoFormToDbRow(data as EventoFormData))
+      .eq("id", id)
+      .select("id")
+      .maybeSingle();
+
+    if (error) {
+      if (error.code === "23505") {
+        return NextResponse.json(
+          { error: "duplicate_slug_date" },
+          { status: 409 },
+        );
+      }
+      console.error("[PATCH /api/admin/classes evento]", error);
+      return NextResponse.json({ error: "server_error" }, { status: 500 });
+    }
+
+    if (!updated) {
+      return NextResponse.json({ error: "not_found" }, { status: 404 });
+    }
+
+    return NextResponse.json({ ok: true });
+  }
+
+  const data = payload as Partial<ClaseFormData>;
   const { ok, errors } = validateClaseForm(data);
   if (!ok) {
     return NextResponse.json(
@@ -46,8 +91,6 @@ export async function PATCH(
   }
 
   const v = data as ClaseFormData;
-  const supabase = getSupabaseAdmin();
-
   const { data: updated, error } = await supabase
     .from("classes")
     .update({

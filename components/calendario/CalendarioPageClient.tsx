@@ -2,11 +2,11 @@
 
 import * as React from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { addMonths } from "date-fns";
+import { addMonths, format } from "date-fns";
 
+import { CalendarDayLinks } from "@/components/calendario/CalendarDayLinks";
 import { CalendarHeader } from "@/components/calendario/CalendarHeader";
 import { CalendarLegend } from "@/components/calendario/CalendarLegend";
-import { ClassPreview } from "@/components/calendario/ClassPreview";
 import type { CalendarFilter } from "@/components/calendario/FilterBar";
 import { FilterBar } from "@/components/calendario/FilterBar";
 import { MonthGrid } from "@/components/calendario/MonthGrid";
@@ -15,8 +15,9 @@ import { MobileCalendarView } from "@/components/calendario/MobileCalendarView";
 import type { CalendarView } from "@/components/calendario/ViewToggle";
 import { ViewToggle } from "@/components/calendario/ViewToggle";
 import { EmptyMonth } from "@/components/calendario/EmptyMonth";
-import { WaitlistBlock } from "@/components/calendario/WaitlistBlock";
+import { ClassPreview } from "@/components/calendario/ClassPreview";
 import { encodeClaseParam } from "@/lib/calendar/helpers";
+import { isPrivateCalendarEvent } from "@/lib/calendar/event-ui";
 import type { ClassEvent, MonthData } from "@/lib/calendar/types";
 
 async function fetchMonthEventsClient(year: number, month: number): Promise<MonthData> {
@@ -56,15 +57,20 @@ function buildQueryString(input: {
   month: number;
   view: CalendarView;
   filter: CalendarFilter;
-  selectedClassId: string | null;
+  selectedDateKey: string | null;
+  selectedEvent: ClassEvent | null;
   events: ClassEvent[];
 }): string {
   const p = new URLSearchParams();
   p.set("mes", `${input.year}-${String(input.month).padStart(2, "0")}`);
   p.set("vista", input.view === "list" ? "lista" : "grilla");
   if (input.filter !== "all") p.set("categoria", input.filter);
-  const ev = input.selectedClassId ? input.events.find((e) => e.id === input.selectedClassId) : undefined;
-  if (ev) p.set("clase", encodeClaseParam(ev));
+  if (input.selectedEvent) {
+    p.set("clase", encodeClaseParam(input.selectedEvent));
+  } else if (input.selectedDateKey) {
+    const ev = input.events.find((e) => e.date === input.selectedDateKey);
+    if (ev) p.set("clase", encodeClaseParam(ev));
+  }
   return p.toString();
 }
 
@@ -89,11 +95,30 @@ export function CalendarioPageClient({
   const pathname = usePathname();
   const isNarrow = useNarrowCalendar();
 
+  const initialSelectedDate = React.useMemo(() => {
+    if (!initialSelectedClassId) return null;
+    return (
+      initialMonthData.events.find((e) => e.id === initialSelectedClassId)?.date ??
+      null
+    );
+  }, [initialSelectedClassId, initialMonthData.events]);
+
+  const initialPreviewEvent = React.useMemo(() => {
+    if (!initialSelectedClassId) return null;
+    const ev = initialMonthData.events.find((e) => e.id === initialSelectedClassId);
+    return ev && isPrivateCalendarEvent(ev) ? ev : null;
+  }, [initialSelectedClassId, initialMonthData.events]);
+
   const [year, setYear] = React.useState(initialYear);
   const [month, setMonth] = React.useState(initialMonth);
   const [view, setView] = React.useState<CalendarView>(initialView);
   const [filter, setFilter] = React.useState<CalendarFilter>(initialFilter);
-  const [selectedClassId, setSelectedClassId] = React.useState<string | null>(initialSelectedClassId);
+  const [selectedDateKey, setSelectedDateKey] = React.useState<string | null>(
+    initialSelectedDate,
+  );
+  const [selectedEvent, setSelectedEvent] = React.useState<ClassEvent | null>(
+    initialPreviewEvent,
+  );
   const [mobileFocusDate, setMobileFocusDate] = React.useState<string | null>(null);
   const [monthData, setMonthData] = React.useState<MonthData>(initialMonthData);
 
@@ -103,7 +128,8 @@ export function CalendarioPageClient({
 
   React.useEffect(() => {
     setMobileFocusDate(null);
-    setSelectedClassId(null);
+    setSelectedDateKey(null);
+    setSelectedEvent(null);
     let cancelled = false;
     void fetchMonthEventsClient(year, month).then((d) => {
       if (!cancelled) setMonthData(d);
@@ -112,12 +138,6 @@ export function CalendarioPageClient({
       cancelled = true;
     };
   }, [year, month]);
-
-  React.useEffect(() => {
-    if (!selectedClassId) return;
-    const still = monthData.events.some((e) => e.id === selectedClassId);
-    if (!still) setSelectedClassId(null);
-  }, [monthData.events, selectedClassId]);
 
   const counts = React.useMemo(() => {
     const ev = monthData.events;
@@ -135,16 +155,22 @@ export function CalendarioPageClient({
   }, [monthData.events, filter]);
 
   React.useEffect(() => {
-    if (!selectedClassId) return;
-    if (!filtered.some((e) => e.id === selectedClassId)) setSelectedClassId(null);
-  }, [filtered, selectedClassId]);
+    if (!selectedEvent) return;
+    if (!filtered.some((e) => e.id === selectedEvent.id)) setSelectedEvent(null);
+  }, [filtered, selectedEvent]);
 
-  const selectedEvent = React.useMemo(
-    () => (selectedClassId ? monthData.events.find((e) => e.id === selectedClassId) ?? null : null),
-    [monthData.events, selectedClassId],
+  React.useEffect(() => {
+    if (!selectedDateKey) return;
+    if (!filtered.some((e) => e.date === selectedDateKey)) setSelectedDateKey(null);
+  }, [filtered, selectedDateKey]);
+
+  const selectedDayEvents = React.useMemo(
+    () =>
+      selectedDateKey
+        ? filtered.filter((e) => e.date === selectedDateKey)
+        : [],
+    [filtered, selectedDateKey],
   );
-
-  const selectedDateKey = selectedEvent?.date ?? null;
 
   const today = new Date();
   const anchorIdx = monthIndex(today.getFullYear(), today.getMonth() + 1);
@@ -164,17 +190,46 @@ export function CalendarioPageClient({
     setMonth(d.getMonth() + 1);
   }, [year, month]);
 
-  const onSelectDay = React.useCallback((_date: Date, dayEvents: ClassEvent[]) => {
-    const sorted = [...dayEvents].sort((a, b) => a.startTime.localeCompare(b.startTime));
-    const chosen = sorted[0];
-    if (chosen) setSelectedClassId(chosen.id);
+  const onSelectPrivateEvent = React.useCallback((event: ClassEvent) => {
+    setSelectedEvent(event);
+    setSelectedDateKey(event.date);
+    setMobileFocusDate(event.date);
+    window.scrollTo({ top: 0, behavior: "smooth" });
   }, []);
 
-  const onSelectClass = React.useCallback((id: string) => {
-    setSelectedClassId((prev) => (prev === id ? null : id));
+  const onClosePreview = React.useCallback(() => {
+    setSelectedEvent(null);
   }, []);
 
-  const onClosePanel = React.useCallback(() => setSelectedClassId(null), []);
+  const onSelectDay = React.useCallback(
+    (date: Date, dayEvents: ClassEvent[]) => {
+      const sorted = [...dayEvents].sort((a, b) =>
+        a.startTime.localeCompare(b.startTime),
+      );
+
+      if (sorted.length === 1) {
+        const e = sorted[0]!;
+        if (isPrivateCalendarEvent(e)) {
+          onSelectPrivateEvent(e);
+          return;
+        }
+        router.push(
+          `/clases/${e.slug}?fecha=${encodeURIComponent(e.date)}`,
+        );
+        return;
+      }
+
+      const key = format(date, "yyyy-MM-dd");
+      setSelectedEvent(null);
+      setSelectedDateKey((prev) => (prev === key ? null : key));
+    },
+    [router, onSelectPrivateEvent],
+  );
+
+  const onCloseDayPanel = React.useCallback(() => {
+    setSelectedDateKey(null);
+    setSelectedEvent(null);
+  }, []);
 
   const lastQs = React.useRef<string | null>(null);
   const effectiveView: CalendarView = isNarrow ? "list" : view;
@@ -185,23 +240,41 @@ export function CalendarioPageClient({
       month,
       view: effectiveView,
       filter,
-      selectedClassId,
+      selectedDateKey,
+      selectedEvent,
       events: monthData.events,
     });
     if (lastQs.current === qs) return;
     lastQs.current = qs;
     router.replace(`${pathname}?${qs}`, { scroll: false });
-  }, [year, month, effectiveView, filter, selectedClassId, monthData.events, pathname, router]);
+  }, [
+    year,
+    month,
+    effectiveView,
+    filter,
+    selectedDateKey,
+    selectedEvent,
+    monthData.events,
+    pathname,
+    router,
+  ]);
 
   const gridBlock = (
     <>
-      <MonthGrid year={year} month={month} events={filtered} selectedDateKey={selectedDateKey} onSelectDay={onSelectDay} />
-      {selectedEvent ? (
-        selectedEvent.status === "full" ? (
-          <WaitlistBlock event={selectedEvent} onClose={onClosePanel} />
-        ) : (
-          <ClassPreview event={selectedEvent} onClose={onClosePanel} />
-        )
+      <MonthGrid
+        year={year}
+        month={month}
+        events={filtered}
+        selectedDateKey={selectedDateKey}
+        onSelectDay={onSelectDay}
+      />
+      {selectedDateKey && selectedDayEvents.length > 0 ? (
+        <CalendarDayLinks
+          dateKey={selectedDateKey}
+          events={selectedDayEvents}
+          onClose={onCloseDayPanel}
+          onSelectPrivateEvent={onSelectPrivateEvent}
+        />
       ) : null}
       <CalendarLegend />
     </>
@@ -219,6 +292,10 @@ export function CalendarioPageClient({
       />
 
       <div className="mx-auto max-w-[1280px] px-8 pb-12 pt-4 lg:px-10">
+        {selectedEvent ? (
+          <ClassPreview event={selectedEvent} onClose={onClosePreview} />
+        ) : null}
+
         <FilterBar value={filter} onChange={setFilter} counts={counts} />
         <div className="hidden min-[700px]:block">
           <ViewToggle value={view} onChange={setView} />
@@ -244,9 +321,13 @@ export function CalendarioPageClient({
               events={filtered}
               focusDate={mobileFocusDate}
               onDayFocus={(dateKey) => setMobileFocusDate(dateKey)}
+              onSelectPrivateEvent={onSelectPrivateEvent}
             />
           ) : view === "list" ? (
-            <MonthList events={filtered} selectedClassId={selectedClassId} onSelectClass={onSelectClass} onClosePanel={onClosePanel} />
+            <MonthList
+              events={filtered}
+              onSelectPrivateEvent={onSelectPrivateEvent}
+            />
           ) : (
             gridBlock
           )}

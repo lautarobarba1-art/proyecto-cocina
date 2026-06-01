@@ -66,6 +66,13 @@ export function isPastDay(date: Date): boolean {
   return isBefore(startOfDay(date), startOfDay(new Date()));
 }
 
+/** ISO `YYYY-MM-DD` — true si la fecha de la clase ya pasó (antes de hoy). */
+export function isPastClassDate(isoDate: string): boolean {
+  const [y, m, d] = isoDate.split("-").map(Number);
+  if (!y || !m || !d) return false;
+  return isPastDay(new Date(y, m - 1, d));
+}
+
 export function eventsOnDate(events: ClassEvent[], date: Date): ClassEvent[] {
   const key = format(date, "yyyy-MM-dd");
   return events.filter((e) => e.date === key);

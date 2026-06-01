@@ -6,11 +6,8 @@ import {
   type EmailAdminNewReservaData,
 } from "./template";
 
-const ADMIN_EMAIL = "lautarobarba1@gmail.com"; // Cambiar por email real de la admin en producción
-
 /**
  * Email al cliente cuando hace una reserva.
- * En sandbox Resend: solo llega a lautarobarba1@gmail.com
  */
 export async function sendEmailReservaConfirmacion(
   data: EmailReservaConfirmacionData,
@@ -18,7 +15,7 @@ export async function sendEmailReservaConfirmacion(
   try {
     const html = templateReservaConfirmacion(data);
     const result = await resend.emails.send({
-      from: "aliciapalavecino02@gmail.com", // En sandbox, el 'from' se ignora (siempre viene de Resend)
+      from: process.env.FROM_EMAIL!,
       to: data.customerEmail,
       subject: `✓ Reserva confirmada: ${data.className}`,
       html,
@@ -38,7 +35,6 @@ export async function sendEmailReservaConfirmacion(
 
 /**
  * Email a la admin cuando recibe una reserva nueva.
- * En sandbox Resend: solo llega a lautarobarba1@gmail.com
  */
 export async function sendEmailAdminNewReserva(
   data: EmailAdminNewReservaData,
@@ -46,8 +42,8 @@ export async function sendEmailAdminNewReserva(
   try {
     const html = templateAdminNewReserva(data);
     const result = await resend.emails.send({
-      from: "aliciapalavecino02@gmail.com",
-      to: ADMIN_EMAIL,
+      from: process.env.FROM_EMAIL!,
+      to: process.env.ADMIN_EMAIL!,
       subject: `📬 Nueva reserva: ${data.customerName}`,
       html,
     });
@@ -92,7 +88,7 @@ export async function sendEmailReservaConfirmada(
     `;
 
     const result = await resend.emails.send({
-      from: "aliciapalavecino02@gmail.com",
+      from: process.env.FROM_EMAIL!,
       to: customerEmail,
       subject: `✓ Pago confirmado: ${className}`,
       html,
@@ -137,7 +133,7 @@ export async function sendEmailReservaCancelada(
     `;
 
     const result = await resend.emails.send({
-      from: "aliciapalavecino02@gmail.com",
+      from: process.env.FROM_EMAIL!,
       to: customerEmail,
       subject: `Reserva cancelada: ${className}`,
       html,

@@ -20,9 +20,9 @@ function galeriaItemClass(index: number): string {
   switch (index % 4) {
     case 0:
     case 3:
-      return "col-span-2 aspect-video";
+      return "col-span-2 aspect-video lg:aspect-[21/9]";
     default:
-      return "col-span-1 aspect-[2/3]";
+      return "col-span-1 aspect-[2/3] lg:aspect-[4/5]";
   }
 }
 
@@ -57,7 +57,7 @@ function GaleriaMedia({ item, booted, playing }: { item: GaleriaItem; booted: bo
       src={item.src}
       alt={item.alt}
       fill
-      sizes="(max-width: 768px) 50vw, 33vw"
+      sizes="(max-width: 768px) 50vw, 33vw, 400px"
       className="object-cover transition-transform duration-500 ease-snap group-hover:scale-[1.04]"
       style={{ objectPosition: item.objectPosition ?? "center" }}
     />
@@ -96,7 +96,7 @@ export function GaleriaGrid({ items }: GaleriaGridProps) {
 
   return (
     <>
-      <div ref={sectionRef} data-inview={inView ? "true" : "false"} className="relative left-1/2 w-screen max-w-[100vw] -translate-x-1/2 border-y border-carbon/10">
+      <div ref={sectionRef} data-inview={inView ? "true" : "false"} className="border-y border-carbon/10">
         <div className="grid grid-cols-3 gap-0">
           {items.map((item, index) => (
             <button

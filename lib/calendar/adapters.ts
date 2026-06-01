@@ -90,6 +90,25 @@ export function deriveMockStatus(
 export function classRowToClassEvent(row: ClassRow): ClassEvent {
   const totalSpots = row.total_spots;
   const spotsLeft = row.spots_left;
+
+  if (row.category_event === "eventos") {
+    return {
+      id: row.id,
+      slug: row.slug,
+      title: row.title,
+      date: row.date,
+      startTime: trimSeconds(row.start_time),
+      endTime: trimSeconds(row.end_time),
+      category: row.category_event,
+      status: row.is_cancelled ? "cancelled" : "full",
+      spotsLeft: null,
+      totalSpots: 0,
+      price: 0,
+      shortDesc: row.short_desc,
+      isHighlighted: row.is_highlighted || undefined,
+    };
+  }
+
   const status = deriveEventStatus(totalSpots, spotsLeft, row.is_cancelled);
 
   return {
@@ -124,6 +143,20 @@ function formatPriceArs(price: number): string {
  * Convierte una fila de DB en un ClassMock para la ficha de detalle.
  */
 export function classRowToClassMock(row: ClassRow): ClassMock {
+  if (row.category_event === "eventos") {
+    return {
+      id: row.id,
+      slug: row.slug,
+      title: row.title,
+      category: row.category_label,
+      price: "",
+      duration: "",
+      description: row.short_desc,
+      image: { src: "", alt: "" },
+      status: "agotado",
+    };
+  }
+
   const totalSpots = row.total_spots;
   const spotsLeft = row.spots_left;
   const status = deriveMockStatus(totalSpots, spotsLeft);

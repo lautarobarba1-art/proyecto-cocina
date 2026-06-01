@@ -4,6 +4,7 @@ import {
   formatSessionLabel,
   type ClassRow,
 } from "@/lib/calendar/adapters";
+import { isPastClassDate } from "@/lib/calendar/helpers";
 import type { ClassMock } from "@/lib/classes-mock";
 
 /**
@@ -14,6 +15,26 @@ export async function getClassBySlugAndDate(
   slug: string,
   date: string,
 ): Promise<ClassMock | null> {
+  const row = await fetchClassRowBySlugAndDate(slug, date);
+  if (!row) return null;
+  if (isPastClassDate(row.date)) return null;
+  return classRowToClassMock(row);
+}
+
+/** Solo para mostrar ficha de una sesión pasada (sin reserva). */
+export async function getClassBySlugAndDateIncludingPast(
+  slug: string,
+  date: string,
+): Promise<ClassMock | null> {
+  const row = await fetchClassRowBySlugAndDate(slug, date);
+  if (!row) return null;
+  return classRowToClassMock(row);
+}
+
+async function fetchClassRowBySlugAndDate(
+  slug: string,
+  date: string,
+): Promise<ClassRow | null> {
   const supabase = getSupabaseAdmin();
   const { data, error } = await supabase
     .from("classes_with_availability")
@@ -23,11 +44,44 @@ export async function getClassBySlugAndDate(
     .maybeSingle();
 
   if (error) {
-    console.error("[getClassBySlugAndDate]", error);
+    console.error("[fetchClassRowBySlugAndDate]", error);
     return null;
   }
   if (!data) return null;
-  return classRowToClassMock(data as ClassRow);
+  return data as ClassRow;
+}
+
+/** Fila de sesión por slug (+ fecha opcional). Para redirects y checks de tipo. */
+export async function getClassSessionRow(
+  slug: string,
+  date?: string,
+): Promise<ClassRow | null> {
+  if (date) return fetchClassRowBySlugAndDate(slug, date);
+
+  const supabase = getSupabaseAdmin();
+  const today = new Date().toISOString().slice(0, 10);
+
+  const { data: future } = await supabase
+    .from("classes_with_availability")
+    .select("*")
+    .eq("slug", slug)
+    .eq("is_cancelled", false)
+    .gte("date", today)
+    .order("date", { ascending: true })
+    .limit(1)
+    .maybeSingle();
+
+  if (future) return future as ClassRow;
+
+  const { data: anySession } = await supabase
+    .from("classes_with_availability")
+    .select("*")
+    .eq("slug", slug)
+    .order("date", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  return anySession ? (anySession as ClassRow) : null;
 }
 
 /**
@@ -54,17 +108,7 @@ export async function getDefaultClassBySlug(
 
   if (future) return classRowToClassMock(future as ClassRow);
 
-  // Fallback: cualquier sesión, por fecha más reciente
-  const { data: any } = await supabase
-    .from("classes_with_availability")
-    .select("*")
-    .eq("slug", slug)
-    .order("date", { ascending: false })
-    .limit(1)
-    .maybeSingle();
-
-  if (!any) return null;
-  return classRowToClassMock(any as ClassRow);
+  return null;
 }
 
 /**
@@ -116,6 +160,7 @@ export async function getAllClassesForCatalog(): Promise<ClassMock[]> {
     .from("classes_with_availability")
     .select("*")
     .gte("date", today)
+    .neq("category_event", "eventos")
     .order("date", { ascending: true });
 
   if (error) {
