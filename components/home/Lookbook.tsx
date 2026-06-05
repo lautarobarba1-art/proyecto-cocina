@@ -59,7 +59,8 @@ function LookbookCell({ item, booted, playing, className, index }: LookbookCellP
           muted
           loop
           playsInline
-          preload="metadata"
+          preload="auto"
+          poster={item.posterSrc}
           src={booted ? item.src : undefined}
           aria-label={item.description}
         />

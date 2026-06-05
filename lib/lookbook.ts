@@ -12,7 +12,7 @@ export const LOOKBOOK_ITEMS: readonly LookbookItem[] = [
     id: "clases",
     title: "Clases",
     description: "Talleres y prácticas en grupo, manos a la obra.",
-    src: "/lookbook/video1.1_compressed.mp4",
+    src: "https://xy2d0bcoexo5mdxi.public.blob.vercel-storage.com/video1.1_compressed.mp4",
     type: "video",
   },
   {
@@ -33,14 +33,14 @@ export const LOOKBOOK_ITEMS: readonly LookbookItem[] = [
     id: "mesa",
     title: "La mesa",
     description: "Compartir antes de servir.",
-    src: "/lookbook/video4_compressed.mp4",
+    src: "https://xy2d0bcoexo5mdxi.public.blob.vercel-storage.com/video4_compressed.mp4",
     type: "video",
   },
   {
     id: "detalles",
     title: "Detalles",
     description: "Gestos chicos que definen el tono.",
-    src: "/lookbook/video5_compressed.mp4",
+    src: "https://xy2d0bcoexo5mdxi.public.blob.vercel-storage.com/video5_compressed.mp4",
     type: "video",
   },
 ] as const;
