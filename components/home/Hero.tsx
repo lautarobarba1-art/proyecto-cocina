@@ -11,72 +11,7 @@ import { IMAGES } from "@/lib/images";
 import { siteContact } from "@/lib/site/contact";
 import { useReducedMotion } from "@/lib/useReducedMotion";
 
-/**
- * Acentos alrededor del hero (solo mobile) — ~4 arriba / 3 medio / 6 abajo.
- */
-const HERO_BRAND_DECORATIONS = [
-  /* Arriba */
-  {
-    src: "hoja-laurel-menesteres",
-    className: "top-[18%] left-6 h-14 w-20 -rotate-12 sm:top-[16%] sm:left-12 sm:h-16 sm:w-24",
-  },
-  {
-    src: "batidor-menesteres",
-    className:
-      "top-[22%] right-6 h-14 w-10 rotate-[-24deg] sm:top-[20%] sm:right-12 sm:h-16 sm:w-12",
-  },
-  {
-    src: "limon-menesteres",
-    className: "top-[14%] right-[20%] h-12 w-12 rotate-12 sm:top-[12%] sm:right-[24%] sm:h-14 sm:w-14",
-  },
-  {
-    src: "pan-menesteres",
-    className: "top-[16%] left-[32%] h-12 w-16 -rotate-8 sm:top-[14%] sm:left-[36%] sm:h-14 sm:w-20",
-  },
-  /* Mitad — flancos (altura del logo) */
-  {
-    src: "tabla-cocina-menesteres",
-    className: "left-4 top-[50%] h-20 w-28 -rotate-6 sm:left-8 sm:top-[48%] sm:h-24 sm:w-32",
-  },
-  {
-    src: "plato-menesteres",
-    className: "right-4 top-[48%] h-16 w-16 rotate-6 sm:right-10 sm:top-[46%] sm:h-20 sm:w-20",
-  },
-  {
-    src: "copa-brindis-menesteres",
-    className: "top-[38%] right-[14%] h-16 w-12 rotate-8 sm:right-[18%] sm:h-16 sm:w-14",
-  },
-  /* Abajo — esquinas, banda inferior e ingredientes */
-  {
-    src: "sarten-menesteres",
-    className:
-      "bottom-6 right-2 h-16 w-16 rotate-12 sm:bottom-8 sm:right-3 sm:h-20 sm:w-20 lg:bottom-10 lg:right-4",
-  },
-  {
-    src: "cuchillo-chef-menesteres",
-    className:
-      "bottom-8 left-3 h-20 w-20 rotate-18 sm:bottom-10 sm:left-4 sm:h-28 sm:w-28 lg:bottom-12 lg:left-6",
-  },
-  {
-    src: "olla-menesteres",
-    className:
-      "bottom-32 right-12 h-24 w-24 rotate-18 sm:bottom-36 sm:right-18 sm:h-28 sm:w-28 lg:bottom-40 lg:right-22",
-  },
-  {
-    src: "cuchara-menesteres",
-    className:
-      "bottom-52 left-14 h-16 w-24 -rotate-12 sm:bottom-56 sm:left-20 sm:h-20 sm:w-28 lg:bottom-60 lg:left-24",
-  },
-  {
-    src: "tomate-menesteres",
-    className: "bottom-28 left-8 h-14 w-14 -rotate-12 sm:bottom-32 sm:left-12 sm:h-16 sm:w-16",
-  },
-  {
-    src: "ajo-menesteres",
-    className:
-      "bottom-64 right-12 h-11 w-11 rotate-6 sm:bottom-68 sm:right-18 sm:h-12 sm:w-12 lg:bottom-72 lg:right-22",
-  },
-] as const;
+
 
 export interface HeroProps {
   className?: string;
@@ -150,35 +85,15 @@ export function Hero({ className, introReveal = true, staggerProfile = "default"
         }}
       />
 
-      {/* Acentos gastronómicos — solo mobile (marco alrededor del logo) */}
-      <div className="pointer-events-none absolute inset-0 z-15 md:hidden" aria-hidden>
-        {HERO_BRAND_DECORATIONS.map(({ src, className }) => (
-          <Image
-            key={src}
-            src={`/brand-elements/menesteres-elements/${src}.svg`}
-            alt=""
-            aria-hidden
-            width={240}
-            height={240}
-            className={`hero-mn__deco absolute select-none ${className}`}
-          />
-        ))}
-      </div>
+      
       {/* Contenido del hero */}
       <div className="hero-mn__content absolute inset-0 z-20 flex flex-col px-5 pb-10 pt-8 md:px-10 md:pb-14 md:pt-12 lg:px-12 lg:pb-16 lg:pt-14">
 
         {/* Marca centrada + slogan — solo mobile */}
-        <motion.div className="hero-mn__brand absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 md:hidden">
+        <motion.div className="hero-mn__brand absolute left-3 translate-x-0 top-1/2 -translate-y-1/2 md:hidden">
           <div className="relative mx-auto w-fit">
-            <Image
-              src="/brand-elements/menesteres-elements/espatula-menesteres.svg"
-              alt=""
-              aria-hidden="true"
-              width={120}
-              height={120}
-              className="hero-mn__deco hero-mn__deco--logo pointer-events-none absolute bottom-[calc(100%+0.5rem)] left-0 z-10 h-12 w-12 translate-x-[-55%] -rotate-12 select-none sm:bottom-[calc(100%+0.75rem)] sm:h-14 sm:w-14 sm:translate-x-[-60%]"
-            />
-            <div className="w-[min(100%,320px)]">
+            
+            <div className="w-[min(200%,420px)]">
               <Logotype
                 variant="onDark"
                 size="lg"

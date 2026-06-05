@@ -1,7 +1,7 @@
 export const IMAGES = {
   hero: {
     /** Fondo en video (home hero). */
-    videoSrc: "/mane-hero-muted.mp4",
+    videoSrc: "https://xy2d0bcoexo5mdxi.public.blob.vercel-storage.com/video3.3_compressed.mp4",
   },
   services: {
     /** Foto editorial — sección Clases en home. */

@@ -26,7 +26,7 @@ export const LOOKBOOK_ITEMS: readonly LookbookItem[] = [
     id: "equipo",
     title: "Equipo",
     description: "Quienes hacen posible cada encuentro.",
-    src: "https://xy2d0bcoexo5mdxi.public.blob.vercel-storage.com/video2.2_compressed.mp4",
+    src: "https://xy2d0bcoexo5mdxi.public.blob.vercel-storage.com/video6_compressed.mp4",
     type: "video",
   },
   {

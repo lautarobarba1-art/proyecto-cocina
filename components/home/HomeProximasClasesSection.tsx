@@ -52,7 +52,7 @@ export function HomeProximasClasesSection() {
         </div>
 
         {/* Columna derecha: lista de clases */}
-        <Reveal variant="fadeUp" delay={0.14} className="order-4 lg:order-none lg:col-start-2 lg:row-start-1">
+        <Reveal variant="fadeUp" delay={0.14} className="order-4 lg:order-0 lg:col-start-2 lg:row-start-1">
           <div className="relative overflow-hidden rounded-sm border border-carbon/8 bg-crema-deep px-6 py-7 sm:px-8 sm:py-9">
             {/* Patrón sutil en esquina */}
             <div
