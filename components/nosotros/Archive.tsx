@@ -3,6 +3,7 @@
 import * as React from "react";
 import { motion, useInView } from "framer-motion";
 
+import { BrandIllustration } from "@/components/ui/BrandIllustration";
 import { Counter } from "@/components/nosotros/Counter";
 import { NosotrosDashLabel } from "@/components/nosotros/NosotrosDashLabel";
 import { stats, timeline } from "@/lib/content/nosotros";
@@ -15,9 +16,17 @@ export function Archive() {
 
   return (
     <section
-      className="bg-carbon px-8 py-20 text-crema lg:px-10 lg:py-24"
+      className="relative overflow-hidden bg-carbon px-8 py-20 text-crema lg:px-10 lg:py-24"
       aria-labelledby="archive-dash-label"
     >
+      <BrandIllustration
+        src="/brand-elements/menesteres-elements/olla-menesteres.svg"
+        size={150}
+        opacity={0.06}
+        rotate={-5}
+        hideOnMobile
+        className="absolute -bottom-6 right-8 lg:right-20"
+      />
       <div className="mx-auto max-w-[920px]">
         <NosotrosDashLabel id="archive-dash-label" variant="dark">
           04 — ARCHIVO

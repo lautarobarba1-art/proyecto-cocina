@@ -66,7 +66,7 @@ export function Footer({ className }: FooterProps) {
       <Container as="div" className="relative z-10">
         <div className="grid min-w-0 gap-8 sm:grid-cols-2 sm:gap-x-10 sm:gap-y-8 lg:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)_minmax(0,0.85fr)] lg:gap-x-12 lg:gap-y-0">
           <div className="flex flex-col gap-3 sm:col-span-2 lg:col-span-1">
-            <Logotype variant="onDark" size="sm" />
+            <Logotype asset="brand" variant="default" size="sm" />
             <p className="max-w-[28ch] font-sans text-[12px] font-medium leading-[1.6] text-crema/55">
               {address.line}
               {" · "}

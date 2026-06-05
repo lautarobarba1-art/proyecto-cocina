@@ -30,7 +30,7 @@ const cinzel = Cinzel({
 
 export const metadata: Metadata = {
   title: "Menesteres",
-  description: "Escuela de cocina en Rafaela, Santa Fe.",
+  description: "Escuela de cocina en Rafaela, Santa Fe."
 };
 
 export default function RootLayout({

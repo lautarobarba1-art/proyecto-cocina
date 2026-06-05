@@ -1,0 +1,15 @@
+<svg width="240" height="240" viewBox="0 0 240 240" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Batidor Menesteres</title>
+  <desc id="desc">Ilustración lineal artesanal de un batidor de cocina.</desc>
+  <g stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M126 133 C101 104 92 71 108 48 C120 30 143 43 144 70 C145 96 135 119 126 133Z"/>
+    <path d="M126 133 C135 102 151 77 174 64 C194 53 207 70 194 91 C178 117 149 128 126 133Z"/>
+    <path d="M126 133 C112 104 111 75 126 54 C139 36 158 46 158 72 C158 100 143 122 126 133Z"/>
+    <path d="M126 133 L89 170"/>
+    <path d="M84 166 L52 198 C46 204 46 213 51 218 C57 224 66 224 72 218 L104 186"/>
+    <path d="M78 174 L96 192"/>
+    <path d="M61 201 L69 209"/>
+    <path d="M47 50 C42 55 40 62 42 69" opacity="0.65"/>
+    <path d="M190 142 C199 143 207 140 213 134" opacity="0.65"/>
+  </g>
+</svg>

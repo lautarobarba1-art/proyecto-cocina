@@ -1,0 +1,13 @@
+<svg width="240" height="240" viewBox="0 0 240 240" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Olla Menesteres</title>
+  <desc id="desc">Ilustración lineal artesanal de una olla de cocina.</desc>
+  <g stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M65 91 H177 C186 91 194 99 193 109 L187 176 C186 190 174 201 159 201 H82 C68 201 56 190 54 176 L48 109 C47 99 55 91 65 91Z"/>
+    <path d="M74 91 C83 73 99 62 121 62 C143 62 161 73 169 91"/>
+    <path d="M95 62 C95 50 105 42 121 42 C137 42 147 50 147 62"/>
+    <path d="M47 116 C34 116 27 123 29 134 C31 146 43 149 52 143"/>
+    <path d="M193 116 C206 116 213 123 211 134 C209 146 197 149 188 143"/>
+    <path d="M80 122 C101 130 139 129 163 121" opacity="0.6"/>
+    <path d="M84 175 H158" opacity="0.6"/>
+  </g>
+</svg>

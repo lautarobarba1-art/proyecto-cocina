@@ -1,0 +1,11 @@
+<svg width="420" height="80" viewBox="0 0 420 80" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Línea separadora Menesteres</title>
+  <desc id="desc">Separador lineal artesanal para secciones.</desc>
+  <g stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M22 42 C67 26 105 58 149 40 C185 26 218 24 251 41 C291 62 328 42 360 32 C379 26 393 30 401 38"/>
+    <path d="M191 40 C198 28 207 21 218 19 C217 32 208 40 191 40Z"/>
+    <path d="M189 41 C178 32 166 29 153 31 C160 41 172 45 189 41Z"/>
+    <path d="M56 55 C48 58 39 57 31 51" opacity="0.55"/>
+    <path d="M358 48 C368 51 378 50 386 44" opacity="0.55"/>
+  </g>
+</svg>

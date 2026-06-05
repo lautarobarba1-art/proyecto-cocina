@@ -4,6 +4,8 @@ import * as React from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { addMonths, format } from "date-fns";
 
+import { BrandIllustration } from "@/components/ui/BrandIllustration";
+import { BrandPatternBackground } from "@/components/ui/BrandPatternBackground";
 import { CalendarDayLinks } from "@/components/calendario/CalendarDayLinks";
 import { CalendarHeader } from "@/components/calendario/CalendarHeader";
 import { CalendarLegend } from "@/components/calendario/CalendarLegend";
@@ -281,7 +283,12 @@ export function CalendarioPageClient({
   );
 
   return (
-    <main className="flex-1 bg-crema pb-20 lg:pb-28">
+    <main className="relative flex-1 bg-crema pb-20 lg:pb-28">
+      <BrandPatternBackground
+        src="/patrones/carpeta-patrones/Mesa%20de%20trabajo%2011.png"
+        opacity={0.03}
+        tileSize={380}
+      />
       <CalendarHeader
         year={year}
         month={month}
@@ -291,12 +298,22 @@ export function CalendarioPageClient({
         nextDisabled={nextDisabled}
       />
 
-      <div className="mx-auto max-w-[1280px] px-8 pb-12 pt-4 lg:px-10">
+      <div className="relative mx-auto max-w-[1280px] px-8 pb-12 pt-4 lg:px-10">
         {selectedEvent ? (
           <ClassPreview event={selectedEvent} onClose={onClosePreview} />
         ) : null}
 
-        <FilterBar value={filter} onChange={setFilter} counts={counts} />
+        <div className="relative">
+          <BrandIllustration
+            src="/brand-elements/menesteres-elements/espatula-menesteres.svg"
+            size={56}
+            opacity={0.14}
+            rotate={10}
+            hideOnMobile
+            className="absolute right-0 -top-1"
+          />
+          <FilterBar value={filter} onChange={setFilter} counts={counts} />
+        </div>
         <div className="hidden min-[700px]:block">
           <ViewToggle value={view} onChange={setView} />
         </div>

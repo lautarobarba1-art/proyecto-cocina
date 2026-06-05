@@ -1,0 +1,11 @@
+<svg width="240" height="240" viewBox="0 0 240 240" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Limón Menesteres</title>
+  <desc id="desc">Ilustración lineal artesanal de un limón.</desc>
+  <g stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M48 130 C55 91 91 56 130 49 C151 45 174 49 192 60 C195 82 191 106 178 128 C156 166 111 192 72 185 C62 167 45 151 48 130Z"/>
+    <path d="M60 159 C99 154 144 126 170 82" opacity="0.65"/>
+    <path d="M82 89 C98 78 116 70 134 67" opacity="0.55"/>
+    <path d="M96 166 C115 160 134 149 150 134" opacity="0.55"/>
+    <path d="M44 75 C36 72 30 67 27 59" opacity="0.55"/>
+  </g>
+</svg>

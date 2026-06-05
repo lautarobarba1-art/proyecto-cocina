@@ -1,0 +1,11 @@
+<svg width="240" height="240" viewBox="0 0 240 240" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Tabla de cocina Menesteres</title>
+  <desc id="desc">Ilustración lineal artesanal de una tabla de cocina.</desc>
+  <g stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M91 38 H149 C161 38 171 48 171 60 V66 C171 75 177 82 186 85 C197 89 204 99 204 111 V187 C204 201 193 212 179 212 H61 C47 212 36 201 36 187 V111 C36 99 43 89 54 85 C63 82 69 75 69 66 V60 C69 48 79 38 91 38Z"/>
+    <path d="M103 61 C103 51 137 51 137 61 C137 72 103 72 103 61Z"/>
+    <path d="M69 110 C92 122 146 123 171 109" opacity="0.55"/>
+    <path d="M67 178 C99 188 140 188 174 177" opacity="0.55"/>
+    <path d="M92 145 H148" opacity="0.55"/>
+  </g>
+</svg>

@@ -20,13 +20,16 @@ export type ButtonVariant =
   | "ghost"
   | "sketch"
   | "sketch-on-dark"
-  | "sketch-ghost";
+  | "sketch-on-terracota-deep"
+  | "sketch-ghost"
+  | "sketch-on-crema";
 
 export type ButtonSize = "sm" | "default" | "lg";
 
 const SKETCH_VARIANTS = new Set<ButtonVariant>([
   "sketch",
   "sketch-on-dark",
+  "sketch-on-terracota-deep",
   "sketch-ghost",
 ]);
 
@@ -60,12 +63,16 @@ const VARIANT: Record<ButtonVariant, string> = {
     "sketch-btn relative bg-transparent text-carbon shadow-none hover:text-terracota focus-visible:ring-terracota/35 focus-visible:ring-offset-crema-deep active:translate-y-0",
   "sketch-on-dark":
     "sketch-btn relative bg-transparent text-crema shadow-none hover:text-terracota-soft focus-visible:ring-crema/40 focus-visible:ring-offset-carbon active:translate-y-0",
+  "sketch-on-terracota-deep":
+    "sketch-btn relative bg-transparent text-terracota-deep shadow-none hover:text-terracota-soft focus-visible:ring-terracota-deep/40 focus-visible:ring-offset-carbon active:translate-y-0",
   "sketch-ghost":
     "sketch-btn bg-transparent px-0 py-2 text-carbon shadow-none tracking-[0.14em] hover:text-terracota focus-visible:ring-terracota/35 focus-visible:ring-offset-crema-deep active:translate-y-0",
+  "sketch-on-crema":
+    "sketch-btn relative bg-transparent text-crema shadow-none hover:text-terracota-soft focus-visible:ring-crema/40 focus-visible:ring-offset-carbon active:translate-y-0",
 };
 
 interface CommonProps {
-  variant?: ButtonVariant;
+  variant?: ButtonVariant ;
   size?: ButtonSize;
   className?: string;
   children: React.ReactNode;

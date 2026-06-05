@@ -161,6 +161,27 @@ body {
   pointer-events: auto;
 }
 
+/* Ilustraciones lineales del hero — trazo más legible sobre video oscuro */
+.hero-mn__deco {
+  opacity: 0.22;
+  filter:
+    brightness(0)
+    invert(1)
+    drop-shadow(0 0 0.5px rgba(250, 245, 235, 1))
+    drop-shadow(0 0 1.25px rgba(250, 245, 235, 0.85))
+    drop-shadow(0 0 2.5px rgba(250, 245, 235, 0.45));
+}
+
+@media (min-width: 768px) {
+  .hero-mn__deco {
+    opacity: 0.26;
+  }
+}
+
+.hero-mn__deco--logo {
+  opacity: 0.28;
+}
+
 .hero-mn__brand {
   text-shadow: 0 1px 24px rgba(20, 20, 20, 0.45);
 }

@@ -1,0 +1,11 @@
+<svg width="240" height="240" viewBox="0 0 240 240" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Cuchara Menesteres</title>
+  <desc id="desc">Ilustración lineal artesanal de una cuchara de madera.</desc>
+  <g stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M139 37 C159 54 160 84 143 104 C130 119 111 120 99 108 C87 96 87 77 99 60 C110 43 126 32 139 37Z"/>
+    <path d="M105 111 L48 199 C43 207 45 217 52 221 C60 226 69 223 74 215 L130 126"/>
+    <path d="M116 63 C108 75 107 88 113 97" opacity="0.65"/>
+    <path d="M61 195 L73 203" opacity="0.65"/>
+    <path d="M185 61 C194 56 202 47 205 38" opacity="0.55"/>
+  </g>
+</svg>

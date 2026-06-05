@@ -1,0 +1,17 @@
+<svg width="240" height="240" viewBox="0 0 240 240" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Tomate Menesteres</title>
+  <desc id="desc">Ilustración lineal artesanal de un tomate.</desc>
+  <g stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M121 83 C150 70 184 86 194 116 C207 154 177 194 132 199 C90 204 51 181 45 144 C38 105 82 74 121 83Z"/>
+    <path d="M116 84 C113 72 116 59 125 48"/>
+    <path d="M123 83 C112 69 98 64 82 65 C94 77 105 84 123 83Z"/>
+    <path d="M125 83 C133 66 145 56 163 52 C160 69 148 81 125 83Z"/>
+    <path d="M121 82 C129 72 131 60 128 44"/>
+    <path d="M119 84 C107 83 95 88 85 99"/>
+    <path d="M126 84 C139 84 151 90 160 101"/>
+    <path d="M73 128 C70 143 75 158 86 169" opacity="0.65"/>
+    <path d="M166 128 C172 143 170 159 159 173" opacity="0.65"/>
+    <path d="M60 82 C52 82 45 78 41 72" opacity="0.55"/>
+    <path d="M198 85 C206 82 213 76 216 68" opacity="0.55"/>
+  </g>
+</svg>

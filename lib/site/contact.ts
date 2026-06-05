@@ -3,6 +3,17 @@
  * Actualizar aquí cuando el cliente confirme dirección, teléfono y redes.
  */
 
+/** Búsqueda para mapa (embed y “Cómo llegar”). */
+const MAP_DESTINATION = "Malvinas Argentinas 1150, Rafaela, Santa Fe, Argentina";
+
+/**
+ * URL para iframe: debe ser embed (`output=embed`), no goo.gl ni /maps/place/ (X-Frame-Options).
+ */
+const MAP_EMBED_URL = `https://www.google.com/maps?q=${encodeURIComponent(MAP_DESTINATION)}&hl=es&z=16&output=embed`;
+
+/** Enlace externo para abrir rutas en Google Maps (pestaña nueva). */
+const MAP_DIRECTIONS_URL = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(MAP_DESTINATION)}`;
+
 export const siteContact = {
   email: "hola@menesteres.com",
   phone: {
@@ -26,14 +37,10 @@ export const siteContact = {
   },
   hours: "Martes a sábado · 10:00 – 20:00 (consultar por WhatsApp)",
   map: {
-    /** Enlace "Cómo llegar" en Google Maps */
-    directionsUrl:
-      "https://maps.app.goo.gl/pv6Q49pCwXhJpmvdA",
-    /**
-     * iframe embed por búsqueda de dirección. Reemplazar con Place ID cuando exista ubicación fija.
-     */
-    embedUrl:
-      "https://maps.app.goo.gl/pv6Q49pCwXhJpmvdA",
+    /** Enlace "Cómo llegar" — abre Google Maps (no usable en iframe). */
+    directionsUrl: MAP_DIRECTIONS_URL,
+    /** iframe en ContactMap — solo URLs con `output=embed` o Maps Embed API. */
+    embedUrl: MAP_EMBED_URL,
   },
   social: {
     /** null = enlace deshabilitado en footer hasta tener URL real */
@@ -41,7 +48,7 @@ export const siteContact = {
     whatsapp: "https://wa.me/3492694750",
   },
   /** Dominio canónico para schema.org (eventos, etc.) */
-  siteUrl: "https://menesteres.com",
+  siteUrl: "https://menesteres.ar",
 } as const;
 
 export function mailtoHref(): string {

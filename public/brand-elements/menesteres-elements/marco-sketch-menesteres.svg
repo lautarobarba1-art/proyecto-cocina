@@ -1,0 +1,11 @@
+<svg width="360" height="240" viewBox="0 0 360 240" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Marco sketch Menesteres</title>
+  <desc id="desc">Marco orgánico dibujado a mano para destacar imágenes o textos.</desc>
+  <g stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M33 31 C96 21 188 24 323 30 C338 31 346 40 346 55 C348 99 347 147 343 205 C342 219 333 226 318 225 C223 219 132 222 42 215 C27 214 19 205 20 190 C24 145 19 96 25 49 C27 39 24 34 33 31Z"/>
+    <path d="M42 39 C102 32 205 35 311 39 C326 40 336 48 337 63 C340 109 337 154 335 195" opacity="0.55"/>
+    <path d="M29 187 C31 201 41 207 57 208 C125 214 215 211 303 216" opacity="0.55"/>
+    <path d="M51 28 C47 20 44 13 45 7" opacity="0.45"/>
+    <path d="M315 229 C326 232 337 230 347 224" opacity="0.45"/>
+  </g>
+</svg>

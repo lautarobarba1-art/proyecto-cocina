@@ -36,6 +36,7 @@ export interface LogotypeProps {
   size?: LogotypeSize;
   /** Sólo para el primer LCP candidate (hero / splash). */
   priority?: boolean;
+  asset?: "wordmark" | "brand" | "brandvariant";
 }
 
 export function Logotype({
@@ -43,13 +44,18 @@ export function Logotype({
   variant = "default",
   size = "sm",
   priority,
+  asset = "wordmark",
 }: LogotypeProps) {
   const s = SIZE[size];
   const filterClass = variant === "onDark" ? "logotype--on-dark" : "";
-
+  const SRC = {
+    wordmark: "/imagenes/logotype.png",
+    brand: "/imagenes/logotype-variant.png",
+    brandvariant: "/imagenes/slogan.webp"
+  }
   return (
     <Image
-      src="/imagenes/1-Logo.webp"
+      src={SRC[asset ?? "wordmark"]}
       alt="Menesteres"
       width={s.width}
       height={s.height}

@@ -1,0 +1,11 @@
+<svg width="240" height="240" viewBox="0 0 240 240" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Plato Menesteres</title>
+  <desc id="desc">Ilustración lineal artesanal de un plato.</desc>
+  <g stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M39 122 C39 75 76 43 122 43 C168 43 202 77 202 122 C202 168 166 199 120 199 C74 199 39 168 39 122Z"/>
+    <path d="M74 121 C74 94 95 76 121 76 C148 76 168 96 168 122 C168 149 147 168 120 168 C94 168 74 148 74 121Z"/>
+    <path d="M96 104 C110 96 130 95 145 105" opacity="0.55"/>
+    <path d="M96 141 C112 151 134 150 148 139" opacity="0.55"/>
+    <path d="M32 68 C26 62 22 54 21 45" opacity="0.55"/>
+  </g>
+</svg>

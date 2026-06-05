@@ -16,8 +16,8 @@ const PHRASE = [
   "eventos privados",
   "alquiler del espacio",
   `desde 2019 · ${siteContact.address.locality.toLowerCase()}`,
-  "cocinar juntos",
-  "menesteres",
+  "Malvinas Argentinas 1150",
+  "Rafaela, Santa Fe, Argentina",
 ].join(" ✦ ");
 
 /** Marquee en loop — cierre de la home antes del footer. */
@@ -41,7 +41,7 @@ export function HomeMarquee({ className }: HomeMarqueeProps) {
         ].join(" ")}
         aria-hidden="true"
       >
-        sabores
+        menesteres
       </Reveal>
 
       <div className="marquee" aria-hidden={!reduced}>

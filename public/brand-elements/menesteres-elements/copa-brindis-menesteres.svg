@@ -1,0 +1,17 @@
+<svg width="240" height="240" viewBox="0 0 240 240" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Copas Menesteres</title>
+  <desc id="desc">Ilustración lineal artesanal de dos copas brindando.</desc>
+  <g stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M75 51 L126 65 L113 111 C108 128 91 138 74 133 C57 128 47 111 52 94 Z"/>
+    <path d="M167 50 L117 67 L133 112 C139 128 157 137 174 131 C190 125 199 107 193 91 Z"/>
+    <path d="M82 134 L70 181"/>
+    <path d="M162 133 L176 180"/>
+    <path d="M51 184 H88"/>
+    <path d="M158 184 H194"/>
+    <path d="M61 91 C78 98 96 102 117 101" opacity="0.65"/>
+    <path d="M130 101 C151 99 170 93 187 84" opacity="0.65"/>
+    <path d="M121 37 L121 23" opacity="0.55"/>
+    <path d="M99 41 L91 29" opacity="0.55"/>
+    <path d="M143 41 L152 29" opacity="0.55"/>
+  </g>
+</svg>

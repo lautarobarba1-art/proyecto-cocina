@@ -1,0 +1,12 @@
+<svg width="240" height="240" viewBox="0 0 240 240" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Pan Menesteres</title>
+  <desc id="desc">Ilustración lineal artesanal de un pan.</desc>
+  <g stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M42 139 C48 97 83 67 124 66 C166 65 197 93 202 134 C206 169 174 193 122 193 C70 193 37 170 42 139Z"/>
+    <path d="M76 126 C85 105 100 91 120 84" opacity="0.65"/>
+    <path d="M111 134 C119 111 136 95 158 88" opacity="0.65"/>
+    <path d="M145 141 C155 121 168 109 185 102" opacity="0.65"/>
+    <path d="M67 162 C98 174 149 174 179 160" opacity="0.55"/>
+    <path d="M42 75 C34 70 29 62 27 53" opacity="0.55"/>
+  </g>
+</svg>

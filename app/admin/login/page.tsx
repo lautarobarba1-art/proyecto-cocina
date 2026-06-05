@@ -7,7 +7,7 @@ export const metadata = {
 
 export default function AdminLoginPage() {
   return (
-    <main className="fixed inset-0 z-[9999] flex items-center justify-center overflow-y-auto bg-crema-light p-6">
+    <main className="fixed inset-0 z-9999 flex items-center justify-center overflow-y-auto bg-crema-light p-6">
       <div className="w-full max-w-md border border-carbon/10 bg-white p-8 lg:p-10 shadow-brand-lg">
         <p className="font-mono text-[0.7rem] font-medium uppercase tracking-eyebrow text-terracota">
           Panel admin

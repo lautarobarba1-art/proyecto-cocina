@@ -1,0 +1,11 @@
+<svg width="240" height="240" viewBox="0 0 240 240" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Cuchillo Chef Menesteres</title>
+  <desc id="desc">Ilustración lineal artesanal de un cuchillo de chef.</desc>
+  <g stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M197 47 C164 47 125 63 99 92 C86 107 79 124 78 139 C112 133 150 111 174 83 C186 69 195 56 197 47Z"/>
+    <path d="M82 137 L49 170 C41 178 41 190 49 198 C57 206 69 205 77 197 L110 164"/>
+    <path d="M96 125 L122 151"/>
+    <path d="M57 177 L70 190" opacity="0.65"/>
+    <path d="M124 91 C141 76 159 65 176 59" opacity="0.55"/>
+  </g>
+</svg>

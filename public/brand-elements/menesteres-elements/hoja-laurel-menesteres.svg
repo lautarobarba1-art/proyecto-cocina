@@ -1,0 +1,12 @@
+<svg width="240" height="240" viewBox="0 0 240 240" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Hoja de laurel Menesteres</title>
+  <desc id="desc">Ilustración lineal artesanal de una hoja de laurel.</desc>
+  <g stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M55 190 C79 138 122 70 188 43 C198 97 172 158 113 190 C91 202 70 201 55 190Z"/>
+    <path d="M61 186 C94 145 132 103 184 48"/>
+    <path d="M100 138 C91 127 86 112 87 96" opacity="0.6"/>
+    <path d="M124 112 C114 103 108 90 107 75" opacity="0.6"/>
+    <path d="M96 143 C112 146 129 143 143 134" opacity="0.6"/>
+    <path d="M122 116 C137 118 153 114 167 104" opacity="0.6"/>
+  </g>
+</svg>

@@ -3,6 +3,7 @@
 import * as React from "react";
 import { motion, useInView } from "framer-motion";
 
+import { BrandIllustration } from "@/components/ui/BrandIllustration";
 import { pullQuote } from "@/lib/content/nosotros";
 import { useReducedMotion } from "@/lib/useReducedMotion";
 
@@ -14,11 +15,19 @@ export function PullQuote() {
   return (
     <section
       ref={rootRef}
-      className="bg-carbon px-8 py-20 text-crema lg:px-10 lg:py-24"
+      className="relative overflow-hidden bg-carbon px-8 py-20 text-crema lg:px-10 lg:py-24"
       aria-labelledby="pullquote-label"
       data-pull-inview={inView ? "true" : "false"}
       data-pull-reduced={reduced ? "true" : "false"}
     >
+      <BrandIllustration
+        src="/brand-elements/menesteres-elements/copa-brindis-menesteres.svg"
+        size={160}
+        opacity={0.07}
+        rotate={-8}
+        hideOnMobile
+        className="absolute -bottom-4 right-8 lg:right-16"
+      />
       <p id="pullquote-label" className="sr-only">
         Cita destacada de la fundadora
       </p>
@@ -26,7 +35,7 @@ export function PullQuote() {
         initial={reduced ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
         animate={reduced || inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
         transition={{ duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] }}
-        className="mx-auto grid max-w-[920px] grid-cols-1 gap-6 md:grid-cols-[80px_1fr]"
+        className="relative mx-auto grid max-w-[920px] grid-cols-1 gap-6 md:grid-cols-[80px_1fr]"
       >
         <p className="font-mono text-[11px] font-medium uppercase tracking-eyebrow text-terracota-soft md:pt-1">
           02 <span aria-hidden="true">—</span>

@@ -1,0 +1,11 @@
+<svg width="240" height="240" viewBox="0 0 240 240" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Sartén Menesteres</title>
+  <desc id="desc">Ilustración lineal artesanal de una sartén.</desc>
+  <g stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M53 118 C62 84 104 65 144 77 C181 88 200 120 187 148 C173 180 124 194 83 177 C58 167 48 143 53 118Z"/>
+    <path d="M180 96 L212 73 C218 69 226 70 230 76 C234 82 233 90 227 94 L190 120"/>
+    <path d="M91 101 C111 91 141 93 160 106" opacity="0.65"/>
+    <path d="M75 141 C88 159 116 166 143 160" opacity="0.65"/>
+    <path d="M43 62 C37 55 33 47 33 38" opacity="0.55"/>
+  </g>
+</svg>

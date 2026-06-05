@@ -133,7 +133,7 @@ export function Navbar({ className }: NavbarProps) {
                 className="focus-visible:outline-none focus-visible:rounded-sm focus-visible:ring-2 focus-visible:ring-terracota/40"
                 aria-label="Ir al inicio"
               >
-                <Logotype variant="onDark" size="xs" />
+                <Logotype asset="brand"variant="default" size="xs" />
               </Link>
 
               {isMobile ? (
@@ -189,7 +189,7 @@ export function Navbar({ className }: NavbarProps) {
                   className="focus-visible:outline-none focus-visible:rounded-sm focus-visible:ring-2 focus-visible:ring-terracota/40"
                   aria-label="Ir al inicio"
                 >
-                  <Logotype variant="onDark" size="xs" />
+                  <Logotype asset="brand" variant="default" size="xs" />
                 </Link>
                 <button
                   type="button"
