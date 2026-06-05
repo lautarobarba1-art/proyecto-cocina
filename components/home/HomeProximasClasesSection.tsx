@@ -12,10 +12,10 @@ export function HomeProximasClasesSection() {
       className="home-pad-x overflow-x-clip border-b border-carbon/10 bg-crema py-20 sm:py-24 lg:py-28"
       aria-labelledby="home-proximas-heading"
     >
-      <div className="mx-auto grid max-w-7xl gap-14 lg:grid-cols-[1fr_1.15fr] lg:gap-16 lg:items-start">
+      <div className="mx-auto grid min-w-0 max-w-7xl gap-14 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)] lg:gap-16 lg:items-start">
 
         {/* Columna izquierda: texto editorial */}
-        <div className="relative order-1 lg:col-start-1 lg:row-start-1">
+        <div className="relative order-1 min-w-0 lg:col-start-1 lg:row-start-1">
           {/* Batidor — acento gastronómico flotante */}
           <Image
             src="/brand-elements/menesteres-elements/batidor-menesteres.svg"
@@ -52,8 +52,12 @@ export function HomeProximasClasesSection() {
         </div>
 
         {/* Columna derecha: lista de clases */}
-        <Reveal variant="fadeUp" delay={0.14} className="order-4 lg:order-0 lg:col-start-2 lg:row-start-1">
-          <div className="relative overflow-hidden rounded-sm border border-carbon/8 bg-crema-deep px-6 py-7 sm:px-8 sm:py-9">
+        <Reveal
+          variant="fadeUp"
+          delay={0.14}
+          className="order-4 min-w-0 lg:order-0 lg:col-start-2 lg:row-start-1"
+        >
+          <div className="relative min-w-0 overflow-hidden rounded-sm border border-carbon/8 bg-crema-deep px-6 py-7 sm:px-8 sm:py-9">
             {/* Patrón sutil en esquina */}
             <div
               aria-hidden="true"
@@ -74,11 +78,11 @@ export function HomeProximasClasesSection() {
         </Reveal>
 
         {/* Separador a ancho de página — debajo del bloque texto + card en desktop */}
-        <div className="order-2 col-span-full lg:row-start-2">
+        <div className="order-2 col-span-full min-w-0 overflow-hidden lg:row-start-2">
           <MenesteresLineSeparator className="mt-8 mb-2" />
         </div>
 
-        <div className="order-3 lg:col-start-1 lg:row-start-3">
+        <div className="order-3 min-w-0 lg:col-start-1 lg:row-start-3">
           <Link
             href="/clases"
             className="inline-block font-mono text-[0.68rem] font-medium uppercase tracking-eyebrow text-carbon/45 transition-colors hover:text-terracota"

@@ -59,20 +59,7 @@ export function SplashIntro({ onComplete }: SplashIntroProps) {
         ease: EASE.soft,
       }}
     >
-      {/* Patrón de branding — full bleed sobre terracota */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0 select-none opacity-[0.42]"
-        style={{
-          backgroundImage: "url('/Mesa%20de%20trabajo%2012.png')",
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          backgroundRepeat: "no-repeat",
-          transform: "scale(1.1)",
-          transformOrigin: "center",
-        }}
-      />
-
+      
       {/* Logo — encima del patrón */}
       <motion.div
         className="relative z-10 flex justify-center px-6"

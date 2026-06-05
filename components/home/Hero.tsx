@@ -90,19 +90,14 @@ export function Hero({ className, introReveal = true, staggerProfile = "default"
       <div className="hero-mn__content absolute inset-0 z-20 flex flex-col px-5 pb-10 pt-8 md:px-10 md:pb-14 md:pt-12 lg:px-12 lg:pb-16 lg:pt-14">
 
         {/* Marca centrada + slogan — solo mobile */}
-        <motion.div className="hero-mn__brand absolute left-3 translate-x-0 top-1/2 -translate-y-1/2 md:hidden">
-          <div className="relative mx-auto w-fit">
-            
-            <div className="w-[min(200%,420px)]">
-              <Logotype
-                variant="onDark"
-                size="lg"
-                asset="brandvariant"
-                className="w-full! max-w-none! h-auto"
-                priority
-              />
-            </div>
-          </div>
+        <motion.div className="hero-mn__brand absolute left-1/2 top-1/2 w-[min(calc(100vw-2.5rem),420px)] -translate-x-1/2 -translate-y-1/2 md:hidden">
+          <Logotype
+            variant="onDark"
+            size="lg"
+            asset="brandvariant"
+            className="w-full! max-w-none! h-auto"
+            priority
+          />
         </motion.div>
 
         {/* Editorial — título, subtítulo y acciones en la parte inferior */}

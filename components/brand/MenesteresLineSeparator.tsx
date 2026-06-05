@@ -1,27 +1,22 @@
-import Image from "next/image";
-
 export interface MenesteresLineSeparatorProps {
   className?: string;
 }
 
-/** Línea separadora de marca — ancho completo del viewport (mobile, tablet, desktop). */
+const LINE_SRC = "/brand-elements/menesteres-elements/linea-separadora-menesteres.svg";
+
+/** Línea separadora de marca — ancho completo del viewport, trazo completo (sin recorte). */
 export function MenesteresLineSeparator({ className }: MenesteresLineSeparatorProps) {
   return (
     <div
       aria-hidden="true"
-      className={[
-        "relative w-screen max-w-[100vw] ml-[calc(50%-50vw)] mr-[calc(50%-50vw)]",
-        className,
-      ]
-        .filter(Boolean)
-        .join(" ")}
+      className={["w-full overflow-hidden", className].filter(Boolean).join(" ")}
     >
-      <Image
-        src="/brand-elements/menesteres-elements/linea-separadora-menesteres.svg"
-        alt=""
-        width={420}
-        height={80}
-        className="pointer-events-none h-auto w-full select-none opacity-[0.22]"
+      <div
+        className="relative left-1/2 h-7 w-screen max-w-[100vw] -translate-x-1/2 bg-center bg-no-repeat opacity-[0.22] sm:h-8 md:h-9"
+        style={{
+          backgroundImage: `url('${LINE_SRC}')`,
+          backgroundSize: "100% 100%",
+        }}
       />
     </div>
   );
