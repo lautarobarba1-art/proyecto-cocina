@@ -26,8 +26,8 @@ export const LOOKBOOK_ITEMS: readonly LookbookItem[] = [
     id: "equipo",
     title: "Equipo",
     description: "Quienes hacen posible cada encuentro.",
-    src: "/lookbook/mane-food-b_w.webp",
-    type: "image",
+    src: "https://xy2d0bcoexo5mdxi.public.blob.vercel-storage.com/video2.2_compressed.mp4",
+    type: "video",
   },
   {
     id: "mesa",
