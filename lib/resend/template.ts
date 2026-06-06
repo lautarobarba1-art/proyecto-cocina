@@ -2,6 +2,16 @@
  * Templates HTML de emails. Simples pero funcionales.
  */
 
+function esc(text: string | null | undefined): string {
+  if (!text) return "";
+  return String(text)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
 export interface EmailReservaConfirmacionData {
     customerName: string;
     customerEmail: string;
@@ -56,31 +66,31 @@ export interface EmailReservaConfirmacionData {
           <!-- Body -->
           <div style="background-color: white; padding: 24px; border-radius: 8px; border: 1px solid #e5e7eb;">
             <p style="margin: 0 0 16px 0; font-size: 16px; color: #4b5563;">
-              Hola <strong>${data.customerName}</strong>,
+              Hola <strong>${esc(data.customerName)}</strong>,
             </p>
-  
+
             <p style="margin: 0 0 24px 0; font-size: 15px; color: #4b5563; line-height: 1.6;">
-              Recibimos tu reserva para la clase de <strong>${data.className}</strong>. 
+              Recibimos tu reserva para la clase de <strong>${esc(data.className)}</strong>.
               Aquí están los detalles:
             </p>
-  
+
             <!-- Detalles -->
             <div style="background-color: #f3f4f6; padding: 16px; border-radius: 4px; margin-bottom: 24px;">
               <div style="margin-bottom: 12px;">
                 <span style="font-weight: bold; color: #1f2937;">Clase:</span>
-                <span style="color: #4b5563;">${data.className}</span>
+                <span style="color: #4b5563;">${esc(data.className)}</span>
               </div>
               <div style="margin-bottom: 12px;">
                 <span style="font-weight: bold; color: #1f2937;">Fecha:</span>
-                <span style="color: #4b5563;">${data.classDate}</span>
+                <span style="color: #4b5563;">${esc(data.classDate)}</span>
               </div>
               <div style="margin-bottom: 12px;">
                 <span style="font-weight: bold; color: #1f2937;">Horario:</span>
-                <span style="color: #4b5563;">${data.classTime}</span>
+                <span style="color: #4b5563;">${esc(data.classTime)}</span>
               </div>
               <div>
                 <span style="font-weight: bold; color: #1f2937;">Cupos:</span>
-                <span style="color: #4b5563;">${data.cupos}</span>
+                <span style="color: #4b5563;">${esc(String(data.cupos))}</span>
               </div>
             </div>
   
@@ -140,16 +150,16 @@ export interface EmailReservaConfirmacionData {
             <div style="background-color: #f3f4f6; padding: 16px; border-radius: 4px; margin-bottom: 24px;">
               <div style="margin-bottom: 12px;">
                 <span style="font-weight: bold; color: #1f2937;">Nombre:</span>
-                <span style="color: #4b5563;">${data.customerName}</span>
+                <span style="color: #4b5563;">${esc(data.customerName)}</span>
               </div>
               <div style="margin-bottom: 12px;">
                 <span style="font-weight: bold; color: #1f2937;">Email:</span>
-                <span style="color: #4b5563;">${data.customerEmail}</span>
+                <span style="color: #4b5563;">${esc(data.customerEmail)}</span>
               </div>
               ${data.customerPhone ? `
               <div style="margin-bottom: 12px;">
                 <span style="font-weight: bold; color: #1f2937;">Teléfono:</span>
-                <span style="color: #4b5563;">${data.customerPhone}</span>
+                <span style="color: #4b5563;">${esc(data.customerPhone)}</span>
               </div>
               ` : ""}
             </div>
@@ -161,22 +171,22 @@ export interface EmailReservaConfirmacionData {
             <div style="background-color: #fef3c7; padding: 16px; border-radius: 4px; margin-bottom: 24px; border-left: 4px solid #d97706;">
               <div style="margin-bottom: 12px;">
                 <span style="font-weight: bold; color: #1f2937;">Clase:</span>
-                <span style="color: #4b5563;">${data.className}</span>
+                <span style="color: #4b5563;">${esc(data.className)}</span>
               </div>
               <div style="margin-bottom: 12px;">
                 <span style="font-weight: bold; color: #1f2937;">Fecha:</span>
-                <span style="color: #4b5563;">${data.classDate}</span>
+                <span style="color: #4b5563;">${esc(data.classDate)}</span>
               </div>
               <div>
                 <span style="font-weight: bold; color: #1f2937;">Cupos:</span>
-                <span style="color: #4b5563;">${data.cupos}</span>
+                <span style="color: #4b5563;">${esc(String(data.cupos))}</span>
               </div>
             </div>
-  
+
             ${data.notes ? `
             <div style="background-color: #f0f9ff; padding: 12px; border-radius: 4px; margin-bottom: 24px; border-left: 4px solid #0284c7;">
               <p style="margin: 0; font-size: 13px; color: #0c4a6e;">
-                <strong>Notas del cliente:</strong> "${data.notes}"
+                <strong>Notas del cliente:</strong> &quot;${esc(data.notes)}&quot;
               </p>
             </div>
             ` : ""}

@@ -10,7 +10,6 @@ import {
   chunkWeeks,
   eventsOnDate,
   getMonthCalendarDays,
-  isPastClassDate,
   isSameMonth,
   isPastDay,
   isToday,

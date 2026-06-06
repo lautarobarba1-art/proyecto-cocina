@@ -26,13 +26,14 @@ export async function POST(req: Request) {
   }
 
   // Validar campos requeridos
+  const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (
     !classId ||
     !spots ||
     spots < 1 ||
     !customerName ||
     !customerEmail ||
-    !customerEmail.includes("@")
+    !EMAIL_RE.test(customerEmail)
   ) {
     return NextResponse.json(
       { error: "missing_or_invalid_fields" },

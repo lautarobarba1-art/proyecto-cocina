@@ -1,6 +1,6 @@
 import Image from "next/image";
 
-import { Reveal, RevealItem, RevealStagger } from "@/components/motion/Reveal";
+import { RevealItem, RevealStagger } from "@/components/motion/Reveal";
 import { Button } from "@/components/ui/Button";
 
 export function HomeCTAFinal() {
