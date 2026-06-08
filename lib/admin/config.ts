@@ -8,7 +8,7 @@
  */
 export const ADMIN_ALLOWLIST: readonly string[] = [
     "lautarobarba1@gmail.com",
-    "lautarobarba7@gmail.com",
+    "menesterescocina@gmail.com"
     // Cuando tu clienta esté lista, sumá su email acá.
   ];
   
