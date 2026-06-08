@@ -9,11 +9,15 @@ import { useReducedMotion } from "@/lib/useReducedMotion";
 
 export interface SplashIntroProps {
   onComplete: () => void;
+  videoReady: boolean;
 }
 
-export function SplashIntro({ onComplete }: SplashIntroProps) {
+export function SplashIntro({ onComplete, videoReady }: SplashIntroProps) {
   const reduced = useReducedMotion();
   const finishedRef = React.useRef(false);
+  const curtainStartedRef = React.useRef(false);
+  // True once the minimum logo display time has elapsed
+  const [logoHeld, setLogoHeld] = React.useState(false);
 
   const finish = React.useCallback(() => {
     if (finishedRef.current) return;
@@ -36,12 +40,19 @@ export function SplashIntro({ onComplete }: SplashIntroProps) {
     };
   }, [reduced]);
 
+  // Minimum logo hold time — the curtain won't lift before this
   React.useEffect(() => {
     if (reduced) return;
-    const ms = (SPLASH_INTRO.curtainDelay + SPLASH_INTRO.curtainDuration) * 1000 + 120;
-    const id = window.setTimeout(finish, ms);
+    const id = window.setTimeout(() => setLogoHeld(true), SPLASH_INTRO.curtainDelay * 1000);
     return () => window.clearTimeout(id);
-  }, [reduced, finish]);
+  }, [reduced]);
+
+  // Curtain lifts only when logo has been shown long enough AND video is ready
+  const curtainGo = logoHeld && videoReady;
+
+  React.useEffect(() => {
+    if (curtainGo) curtainStartedRef.current = true;
+  }, [curtainGo]);
 
   if (reduced) {
     return null;
@@ -52,11 +63,14 @@ export function SplashIntro({ onComplete }: SplashIntroProps) {
       className="fixed inset-0 z-200 flex items-center justify-center bg-terracota overflow-hidden"
       aria-hidden="true"
       initial={{ y: 0 }}
-      animate={{ y: "-100%" }}
-      transition={{
-        delay: SPLASH_INTRO.curtainDelay,
-        duration: SPLASH_INTRO.curtainDuration,
-        ease: EASE.soft,
+      animate={curtainGo ? { y: "-100%" } : { y: 0 }}
+      transition={
+        curtainGo
+          ? { duration: SPLASH_INTRO.curtainDuration, ease: EASE.soft }
+          : { duration: 0 }
+      }
+      onAnimationComplete={() => {
+        if (curtainStartedRef.current) finish();
       }}
     >
       

@@ -16,9 +16,10 @@ export interface HeroProps {
   className?: string;
   introReveal?: boolean;
   staggerProfile?: "default" | "afterSplash";
+  onVideoReady?: () => void;
 }
 
-export function Hero({ className, introReveal = true, staggerProfile = "default" }: HeroProps) {
+export function Hero({ className, introReveal = true, staggerProfile = "default", onVideoReady }: HeroProps) {
   const reduced = useReducedMotion();
   const { scrollY } = useScroll();
   const y = useTransform(scrollY, (value) => (reduced ? 0 : value * 0.15));
@@ -60,6 +61,7 @@ export function Hero({ className, introReveal = true, staggerProfile = "default"
                 playsInline
                 preload="auto"
                 aria-hidden="true"
+                onCanPlay={onVideoReady}
               >
                 <source src={IMAGES.hero.videoSrc} type="video/mp4" />
               </video>

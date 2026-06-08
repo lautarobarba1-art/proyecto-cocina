@@ -65,5 +65,7 @@ export function JsonLdEvents({ events }: JsonLdEventsProps) {
           }),
         };
 
-  return <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(payload) }} />;
+  // Escape </script> sequences to prevent tag-breaking injection inside a <script> block
+  const json = JSON.stringify(payload).replace(/</g, "\\u003c");
+  return <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: json }} />;
 }
