@@ -20,15 +20,15 @@ export default async function AdminLayout({
   return (
     <div className="fixed inset-0 z-9999 overflow-y-auto bg-crema-light">
       <header className="border-b border-carbon/10 bg-white">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-          <div className="flex items-center gap-8">
+        <div className="mx-auto max-w-6xl px-4 sm:px-6">
+          <div className="flex flex-wrap items-center sm:flex-nowrap sm:gap-x-8">
             <Link
               href="/admin"
-              className="font-mono text-[0.7rem] font-medium uppercase tracking-eyebrow text-carbon"
+              className="py-3 font-mono text-[0.7rem] font-medium uppercase tracking-eyebrow text-carbon sm:py-4"
             >
               Menesteres · Admin
             </Link>
-            <nav className="flex gap-6">
+            <nav className="order-last flex w-full gap-4 border-t border-carbon/5 pb-2 pt-2 sm:order-none sm:w-auto sm:gap-6 sm:border-t-0 sm:pb-0 sm:pt-0">
               <Link
                 href="/admin/reservas"
                 className="font-sans text-[0.85rem] text-carbon/70 hover:text-carbon"
@@ -48,16 +48,16 @@ export default async function AdminLayout({
                 Consultas
               </Link>
             </nav>
-          </div>
-          <div className="flex items-center gap-4">
-            <span className="font-sans text-[0.8rem] text-carbon/50">
-              {email}
-            </span>
-            <LogoutButton />
+            <div className="ml-auto flex items-center gap-3 py-3 sm:py-4">
+              <span className="hidden sm:inline font-sans text-[0.8rem] text-carbon/50">
+                {email}
+              </span>
+              <LogoutButton />
+            </div>
           </div>
         </div>
       </header>
-      <main className="mx-auto max-w-6xl px-6 py-10">{children}</main>
+      <main className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-10">{children}</main>
     </div>
   );
 }

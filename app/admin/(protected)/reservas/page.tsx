@@ -126,7 +126,7 @@ export default async function ReservasAdminPage({ searchParams }: PageProps) {
           <p className="font-mono text-[0.65rem] uppercase tracking-eyebrow text-carbon/55 mb-1.5">
             Estado
           </p>
-          <div className="flex gap-1">
+          <div className="flex flex-wrap gap-1">
             {[
               { value: "", label: "Todos" },
               { value: "pending", label: "Pendientes" },
@@ -181,7 +181,7 @@ export default async function ReservasAdminPage({ searchParams }: PageProps) {
       ) : (
         <div className="mt-6 overflow-hidden border border-carbon/10 bg-white">
           <div className="overflow-x-auto">
-            <table className="w-full text-left font-sans text-[0.85rem]">
+            <table className="w-full min-w-[760px] text-left font-sans text-[0.85rem]">
               <thead className="border-b border-carbon/10 bg-crema-light/40">
                 <tr className="text-carbon/60">
                   <Th>Reservada</Th>

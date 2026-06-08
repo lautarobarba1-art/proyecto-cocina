@@ -231,7 +231,7 @@ export default async function ClasesAdminPage({ searchParams }: PageProps) {
       ) : (
         <div className="mt-6 overflow-hidden border border-carbon/10 bg-white">
           <div className="overflow-x-auto">
-            <table className="w-full text-left font-sans text-[0.85rem]">
+            <table className="w-full min-w-[800px] text-left font-sans text-[0.85rem]">
               <thead className="border-b border-carbon/10 bg-crema-light/40">
                 <tr className="text-carbon/60">
                   <Th>Fecha</Th>

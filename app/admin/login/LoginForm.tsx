@@ -15,10 +15,20 @@ export function LoginForm() {
   const searchParams = useSearchParams();
   const redirectTo = searchParams.get("redirect") ?? "/admin";
 
+  const AUTH_ERRORS: Record<string, string> = {
+    invalid_code: "El enlace ya fue usado o expiró. Pedí uno nuevo.",
+    missing_code: "Enlace inválido. Pedí uno nuevo.",
+    unauthorized: "Este correo no tiene acceso al panel.",
+  };
+
+  const urlError = searchParams.get("error");
+
   const [email, setEmail] = React.useState("");
   const [loading, setLoading] = React.useState(false);
   const [sent, setSent] = React.useState(false);
-  const [error, setError] = React.useState<string | null>(null);
+  const [error, setError] = React.useState<string | null>(
+    urlError ? (AUTH_ERRORS[urlError] ?? "Error de autenticación. Intentá de nuevo.") : null
+  );
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
