@@ -9,7 +9,7 @@ export function MenesteresLineSeparator({ className }: MenesteresLineSeparatorPr
   return (
     <div
       aria-hidden="true"
-      className={["w-full overflow-hidden", className].filter(Boolean).join(" ")}
+      className={["w-full", className].filter(Boolean).join(" ")}
     >
       <div
         className="relative left-1/2 h-7 w-screen max-w-[100vw] -translate-x-1/2 bg-center bg-no-repeat opacity-[0.22] sm:h-8 md:h-9"

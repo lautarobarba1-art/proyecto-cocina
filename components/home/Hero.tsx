@@ -128,9 +128,9 @@ export function Hero({ className, introReveal = true, staggerProfile = "default"
             animate={ready ? { opacity: 1, y: 0 } : { opacity: 0, y: 22 }}
             transition={entry(delays[1] + 0.04)}
           >
-            Cocinamos en grupo.{" "}
-            <em className="italic" style={{ color: "var(--m-orange-light)" }}>
-              Armamos encuentros.
+            <em className="font-medium italic">Cocinamos en grupo.</em>{" "}
+            <em className="font-bold italic" style={{ color: "var(--m-orange-light)" }}>
+              <strong>Armamos encuentros.</strong>
             </em>
           </motion.h1>
 
@@ -154,7 +154,7 @@ export function Hero({ className, introReveal = true, staggerProfile = "default"
             <Button href="/clases" variant="sketch-on-dark" size="lg">
               Ver próximas clases
             </Button>
-            <Button href="#sobre" variant="outline-cream" size="default">
+            <Button href="#sobre" variant="sketch-on-dark" size="lg">
               Conocer Menesteres
             </Button>
           </motion.div>

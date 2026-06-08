@@ -39,7 +39,7 @@ export function HouseRules() {
               </div>
               <div>
                 <p className="mb-1 font-display text-[22px] italic leading-[1.2] text-carbon">{rule.rule}</p>
-                <p className="font-display text-[14px] leading-[1.5] text-carbon/65">{rule.explanation}</p>
+                <p className="font-display text-[14px] leading-normal text-carbon/65">{rule.explanation}</p>
               </div>
             </motion.li>
           ))}

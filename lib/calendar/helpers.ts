@@ -19,19 +19,19 @@ const MONTH_KEYS = [
 ] as const;
 
 export const emptyMessages: Record<string, string> = {
-  january: "Enero descansamos.",
-  february: "Volvemos en marzo.",
-  march: "Marzo arranca despacio.",
-  april: "Abril con huecos — mirá el mes próximo.",
-  may: "Mayo aún sin fechas.",
-  june: "Junio en pausa editorial.",
-  july: "Julio: horno frío, cabeza fría.",
-  august: "Agosto afuera de la cocina.",
-  september: "Septiembre sin planilla.",
-  october: "Octubre libre de agenda.",
-  november: "Noviembre en silencio.",
-  december: "Diciembre: cerramos el año con calma.",
-  default: "Este mes no hay clases programadas.",
+  january: "Enero sin catálogo de clases y eventos aún.",
+  february: "Febrero sin catálogo de clases y eventos aún.",
+  march: "Marzo sin catálogo de clases y eventos aún.",
+  april: "Abril sin catálogo de clases y eventos aún.",
+  may: "Mayo sin catálogo de clases y eventos aún.",
+  june: "Junio sin catálogo de clases y eventos aún.",
+  july: "Julio sin catálogo de clases y eventos aún.",
+  august: "Agosto sin catálogo de clases y eventos aún.",
+  september: "Septiembre sin catálogo de clases y eventos aún.",
+  october: "Octubre sin catálogo de clases y eventos aún.",
+  november: "Noviembre sin catálogo de clases y eventos aún.",
+  december: "Diciembre sin catálogo de clases y eventos aún.",
+  default: "No hay catálogo de clases y eventos aún.",
 };
 
 export function monthNameEs(month: number): string {

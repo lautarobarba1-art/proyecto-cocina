@@ -1,7 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
 
-import { MenesteresLineSeparator } from "@/components/brand/MenesteresLineSeparator";
 import { ProximasClases } from "@/components/home/ProximasClases";
 import { Reveal, RevealItem, RevealStagger } from "@/components/motion/Reveal";
 import { Button } from "@/components/ui/Button";
@@ -77,12 +76,7 @@ export function HomeProximasClasesSection() {
           </div>
         </Reveal>
 
-        {/* Separador a ancho de página — debajo del bloque texto + card en desktop */}
-        <div className="order-2 col-span-full min-w-0 overflow-hidden lg:row-start-2">
-          <MenesteresLineSeparator className="mt-8 mb-2" />
-        </div>
-
-        <div className="order-3 min-w-0 lg:col-start-1 lg:row-start-3">
+        <div className="order-3 min-w-0 lg:col-start-1 lg:row-start-2">
           <Link
             href="/clases"
             className="inline-block font-mono text-[0.68rem] font-medium uppercase tracking-eyebrow text-carbon/45 transition-colors hover:text-terracota"

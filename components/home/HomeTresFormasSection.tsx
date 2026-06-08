@@ -3,7 +3,6 @@ import { type ReactNode } from "react";
 import Image from "next/image";
 import Link from "next/link";
 
-import { MenesteresLineSeparator } from "@/components/brand/MenesteresLineSeparator";
 import { Reveal, RevealItem, RevealStagger } from "@/components/motion/Reveal";
 import { BrandDivider } from "@/components/ui/BrandDivider";
 
@@ -64,7 +63,7 @@ function FormaBlock({ num, icon, title, text, href, cta, delay = 0, hasBorderRig
       </RevealItem>
 
       {/* CTA link */}
-      <RevealItem>
+      <RevealItem className="mt-auto">
         <Link
           href={href}
           className="mt-1 inline-flex items-center gap-2 font-mono text-[0.68rem] font-medium uppercase tracking-eyebrow text-terracota transition-all hover:gap-3 hover:text-terracota-deep"
@@ -118,8 +117,6 @@ export function HomeTresFormasSection() {
             <em className="italic text-terracota">compartir.</em>
           </RevealItem>
         </RevealStagger>
-
-        <MenesteresLineSeparator className="mt-8 mb-2" />
 
         {/* Grid de tres formas */}
         <Reveal variant="fadeIn" duration={0.1}>

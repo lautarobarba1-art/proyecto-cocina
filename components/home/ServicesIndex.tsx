@@ -15,11 +15,11 @@ export function ServicesIndex({ className }: ServicesIndexProps) {
   return (
     <div className={className ?? ""}>
       <HomeProximasClasesSection />
+      <HomeMarquee className="mb-8 mt-10" />
       <HomeIdentidadSection />
       <HomeTresFormasSection />
       <Lookbook />
       <HomeCTAFinal />
-      <HomeMarquee />
     </div>
   );
 }
