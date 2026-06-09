@@ -704,6 +704,29 @@ body {
 }
 
 /* ============================================================
+   Typewriter cursor
+   ============================================================ */
+@keyframes typewriter-blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+
+.typewriter-cursor {
+  display: inline-block;
+  margin-left: 0.06em;
+  font-style: normal;
+  font-weight: 300;
+  animation: typewriter-blink 0.75s step-start infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .typewriter-cursor {
+    animation: none;
+    opacity: 0;
+  }
+}
+
+/* ============================================================
    Footer links (tipografía editorial)
    ============================================================ */
 .footer-link {

@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { AnimatePresence, motion } from "framer-motion";
+import Link from "next/link";
 
 import { Button } from "@/components/ui/Button";
 import { HoneypotField } from "@/components/ui/HoneypotField";
@@ -142,6 +143,16 @@ export function ContactoForm({ className }: ContactoFormProps) {
                 <Button type="submit" variant="primary" disabled={loading}>
                   {loading ? "Enviando…" : "Enviar mensaje"}
                 </Button>
+                <p className="mt-3 font-sans text-[10px] leading-relaxed text-carbon/40">
+                  Al enviar aceptás el tratamiento de tus datos según nuestra{" "}
+                  <Link
+                    href="/politica-privacidad"
+                    className="underline decoration-carbon/20 underline-offset-2 transition-colors hover:text-carbon/65"
+                  >
+                    Política de Privacidad
+                  </Link>
+                  .
+                </p>
               </div>
             </FormGroup>
           </motion.form>

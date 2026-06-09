@@ -68,7 +68,7 @@ export function HomeIdentidadSection() {
             aria-hidden="true"
             width={240}
             height={240}
-            className="pointer-events-none select-none absolute bottom-8 right-6 w-16 h-16 rotate-[20deg] opacity-[0.09] lg:w-20 lg:h-20 lg:bottom-12 lg:right-10"
+            className="pointer-events-none select-none absolute bottom-8 right-6 w-16 h-16 rotate-20 opacity-[0.09] lg:w-20 lg:h-20 lg:bottom-12 lg:right-10"
             style={{ filter: "brightness(0) invert(1)" }}
           />
 

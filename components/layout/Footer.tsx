@@ -4,6 +4,12 @@ import { Logotype } from "@/components/brand/Logotype";
 import { Container } from "@/components/layout/Container";
 import { mailtoHref, siteContact, whatsappHref } from "@/lib/site/contact";
 
+const LEGAL_LINKS = [
+  { label: "Privacidad", href: "/politica-privacidad" },
+  { label: "Aviso Legal", href: "/aviso-legal" },
+  { label: "Cookies", href: "/politica-de-cookies" },
+] as const;
+
 export interface FooterProps {
   className?: string;
 }
@@ -104,11 +110,19 @@ export function Footer({ className }: FooterProps) {
 
         <div className="mt-8 flex flex-wrap items-center justify-between gap-x-4 gap-y-2 border-t border-crema/15 pt-5 sm:mt-10 sm:pt-6">
           <p className="font-sans text-[10px] font-medium uppercase tracking-meta text-crema/40">
-            © 2026 Menesteres
+            © 2026 Menesteres · Rafaela, Santa Fe
           </p>
-          <p className="font-sans text-[10px] font-medium uppercase tracking-meta text-crema/40">
-            Rafaela, Santa Fe
-          </p>
+          <nav aria-label="Legal" className="flex items-center gap-3">
+            {LEGAL_LINKS.map(({ label, href }) => (
+              <Link
+                key={href}
+                href={href}
+                className="font-sans text-[10px] font-medium uppercase tracking-meta text-crema/35 transition-colors hover:text-crema/65"
+              >
+                {label}
+              </Link>
+            ))}
+          </nav>
         </div>
       </Container>
     </footer>

@@ -9,6 +9,9 @@ import { HERO_AFTER_SPLASH_DELAYS, HERO_ENTRY } from "@/lib/motion";
 import { IMAGES } from "@/lib/images";
 import { siteContact } from "@/lib/site/contact";
 import { useReducedMotion } from "@/lib/useReducedMotion";
+import { useTypewriter } from "@/lib/useTypewriter";
+
+const HEADLINE = ["Cocinamos en grupo.", "Armamos encuentros."] as const;
 
 
 
@@ -28,6 +31,14 @@ export function Hero({ className, introReveal = true, staggerProfile = "default"
   const delays = staggerProfile === "afterSplash" ? HERO_AFTER_SPLASH_DELAYS : HERO_ENTRY.delays;
   const actionDelay = delays[2] + 0.06;
   const scrollDelay = actionDelay + 0.14;
+
+  const headlineDelay = (delays[1] + 0.04) * 1000;
+  const { texts: headlineTexts, done: headlineDone, active: headlineActive } = useTypewriter(
+    HEADLINE,
+    ready,
+    reduced,
+    { startDelay: headlineDelay, speed: 40, pauseBetween: 220 }
+  );
 
   const entry = (delay: number) =>
     reduced
@@ -121,17 +132,25 @@ export function Hero({ className, introReveal = true, staggerProfile = "default"
             MENE<em className="italic">STE</em>RES
           </motion.h1>
 
-          {/* H1 editorial */}
+          {/* H1 editorial — typewriter */}
           <motion.h1
             className="max-w-[14ch] font-display text-[clamp(2rem,6vw,4.75rem)] font-normal leading-[1.02] tracking-tightish text-crema"
-            initial={reduced ? { opacity: 1, y: 0 } : { opacity: 0, y: 22 }}
-            animate={ready ? { opacity: 1, y: 0 } : { opacity: 0, y: 22 }}
+            initial={reduced ? { opacity: 1, y: 0 } : { opacity: 1, y: 22 }}
+            animate={ready ? { opacity: 1, y: 0 } : { opacity: 1, y: 22 }}
             transition={entry(delays[1] + 0.04)}
           >
-            <em className="font-medium italic">Cocinamos en grupo.</em>{" "}
-            <em className="font-bold italic" style={{ color: "var(--m-orange-light)" }}>
-              <strong>Armamos encuentros.</strong>
-            </em>
+            <em className="font-medium italic">{headlineTexts[0]}</em>
+            {headlineTexts[1].length > 0 && (
+              <>
+                {" "}
+                <em className="font-bold italic" style={{ color: "var(--m-orange-light)" }}>
+                  <strong>{headlineTexts[1]}</strong>
+                </em>
+              </>
+            )}
+            {headlineActive && !headlineDone && (
+              <span className="typewriter-cursor text-crema/50">|</span>
+            )}
           </motion.h1>
 
           {/* Subtítulo */}
