@@ -113,6 +113,50 @@ export interface EmailReservaConfirmacionData {
     `;
   }
   
+  export function templateReservaConfirmada(
+    customerName: string,
+    className: string,
+  ): string {
+    return `
+      <!DOCTYPE html>
+      <html>
+      <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
+      <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; margin: 0; padding: 20px; background-color: #f9fafb;">
+        <div style="max-width: 600px; margin: 0 auto; background: white; padding: 24px; border-radius: 8px; border: 1px solid #e5e7eb;">
+          <h1 style="color: #1f2937; margin-top: 0;">✓ Pago recibido</h1>
+          <p style="color: #4b5563; line-height: 1.6;">
+            Hola <strong>${esc(customerName)}</strong>,<br>
+            Confirmamos que recibimos tu pago para <strong>${esc(className)}</strong>.<br>
+            ¡Te esperamos pronto!
+          </p>
+        </div>
+      </body>
+      </html>
+    `;
+  }
+
+  export function templateReservaCancelada(
+    customerName: string,
+    className: string,
+  ): string {
+    return `
+      <!DOCTYPE html>
+      <html>
+      <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
+      <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; margin: 0; padding: 20px; background-color: #f9fafb;">
+        <div style="max-width: 600px; margin: 0 auto; background: white; padding: 24px; border-radius: 8px; border: 1px solid #e5e7eb;">
+          <h1 style="color: #dc2626; margin-top: 0;">Reserva cancelada</h1>
+          <p style="color: #4b5563; line-height: 1.6;">
+            Hola <strong>${esc(customerName)}</strong>,<br>
+            Lamentablemente cancelamos tu reserva para <strong>${esc(className)}</strong>.<br>
+            Si tenés preguntas, contactanos.
+          </p>
+        </div>
+      </body>
+      </html>
+    `;
+  }
+
   export interface EmailAdminNewReservaData {
     customerName: string;
     customerEmail: string;

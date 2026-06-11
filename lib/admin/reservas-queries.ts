@@ -137,7 +137,9 @@ export function reservasToCSV(reservas: ReservaAdmin[]): string {
 
   const escape = (val: string | null | undefined): string => {
     if (!val) return "";
-    const str = String(val);
+    let str = String(val);
+    // Prevent formula injection in Excel/LibreOffice (CSV injection)
+    if (/^[=+\-@|]/.test(str)) str = `'${str}`;
     if (str.includes(",") || str.includes('"') || str.includes("\n")) {
       return `"${str.replace(/"/g, '""')}"`;
     }

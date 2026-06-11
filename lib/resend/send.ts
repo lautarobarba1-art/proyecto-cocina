@@ -1,7 +1,9 @@
-import { resend } from "./client";
+import { resend, FROM_EMAIL, ADMIN_EMAIL } from "./client";
 import {
   templateReservaConfirmacion,
   templateAdminNewReserva,
+  templateReservaConfirmada,
+  templateReservaCancelada,
   type EmailReservaConfirmacionData,
   type EmailAdminNewReservaData,
 } from "./template";
@@ -15,7 +17,7 @@ export async function sendEmailReservaConfirmacion(
   try {
     const html = templateReservaConfirmacion(data);
     const result = await resend.emails.send({
-      from: process.env.FROM_EMAIL!,
+      from: FROM_EMAIL,
       to: data.customerEmail,
       subject: `✓ Reserva confirmada: ${data.className}`,
       html,
@@ -42,8 +44,8 @@ export async function sendEmailAdminNewReserva(
   try {
     const html = templateAdminNewReserva(data);
     const result = await resend.emails.send({
-      from: process.env.FROM_EMAIL!,
-      to: process.env.ADMIN_EMAIL!,
+      from: FROM_EMAIL,
+      to: ADMIN_EMAIL,
       subject: `📬 Nueva reserva: ${data.customerName}`,
       html,
     });
@@ -70,25 +72,9 @@ export async function sendEmailReservaConfirmada(
   className: string,
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    const html = `
-      <!DOCTYPE html>
-      <html>
-      <head><meta charset="UTF-8"></head>
-      <body style="font-family: sans-serif; margin: 0; padding: 20px; background-color: #f9fafb;">
-        <div style="max-width: 600px; margin: 0 auto; background: white; padding: 24px; border-radius: 8px;">
-          <h1 style="color: #1f2937; margin-top: 0;">✓ Pago recibido</h1>
-          <p style="color: #4b5563; line-height: 1.6;">
-            Hola <strong>${customerName}</strong>,<br>
-            Confirmamos que recibimos tu pago para <strong>${className}</strong>.<br>
-            ¡Te esperamos pronto!
-          </p>
-        </div>
-      </body>
-      </html>
-    `;
-
+    const html = templateReservaConfirmada(customerName, className);
     const result = await resend.emails.send({
-      from: process.env.FROM_EMAIL!,
+      from: FROM_EMAIL,
       to: customerEmail,
       subject: `✓ Pago confirmado: ${className}`,
       html,
@@ -115,25 +101,9 @@ export async function sendEmailReservaCancelada(
   className: string,
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    const html = `
-      <!DOCTYPE html>
-      <html>
-      <head><meta charset="UTF-8"></head>
-      <body style="font-family: sans-serif; margin: 0; padding: 20px; background-color: #f9fafb;">
-        <div style="max-width: 600px; margin: 0 auto; background: white; padding: 24px; border-radius: 8px;">
-          <h1 style="color: #dc2626; margin-top: 0;">Reserva cancelada</h1>
-          <p style="color: #4b5563; line-height: 1.6;">
-            Hola <strong>${customerName}</strong>,<br>
-            Lamentablemente cancelamos tu reserva para <strong>${className}</strong>.<br>
-            Si tenés preguntas, contactanos.
-          </p>
-        </div>
-      </body>
-      </html>
-    `;
-
+    const html = templateReservaCancelada(customerName, className);
     const result = await resend.emails.send({
-      from: process.env.FROM_EMAIL!,
+      from: FROM_EMAIL,
       to: customerEmail,
       subject: `Reserva cancelada: ${className}`,
       html,

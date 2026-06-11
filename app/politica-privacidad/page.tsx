@@ -100,12 +100,35 @@ export default function PoliticaPrivacidadPage() {
 
           <section>
             <h2 className="font-display text-[1.1rem] font-semibold tracking-tightish text-carbon">
-              6. Cesión a terceros
+              6. Cesión a terceros y transferencia internacional
             </h2>
             <p className="mt-3 font-body text-[0.95rem] leading-[1.8] text-carbon/70">
               No cedemos ni comercializamos tus datos personales a terceros, salvo obligación legal
-              expresa. Nuestros proveedores de infraestructura procesan los datos como encargados del
-              tratamiento bajo acuerdos de confidencialidad.
+              expresa. Para operar el sitio utilizamos los siguientes proveedores de infraestructura,
+              que actúan como encargados del tratamiento y procesan datos en servidores ubicados fuera
+              de la República Argentina (art. 12, Ley 25.326):
+            </p>
+            <ul className="mt-3 list-inside list-disc space-y-1 font-body text-[0.95rem] leading-[1.8] text-carbon/70">
+              <li>
+                <strong className="font-semibold text-carbon/90">Supabase Inc.</strong> (Estados Unidos)
+                — base de datos y autenticación. Almacena nombre, correo electrónico y teléfono de
+                quienes realizan reservas o consultas.
+              </li>
+              <li>
+                <strong className="font-semibold text-carbon/90">Vercel Inc.</strong> (Estados Unidos)
+                — alojamiento web y entrega de contenido (CDN). Procesa los datos en tránsito al
+                responder cada solicitud al sitio.
+              </li>
+              <li>
+                <strong className="font-semibold text-carbon/90">Resend Inc.</strong> (Estados Unidos)
+                — envío de correos electrónicos de confirmación. Recibe nombre y dirección de correo
+                para entregar los mensajes transaccionales.
+              </li>
+            </ul>
+            <p className="mt-3 font-body text-[0.95rem] leading-[1.8] text-carbon/70">
+              Todos estos proveedores operan bajo acuerdos de confidencialidad y políticas de
+              privacidad propias. La transferencia se realiza en el marco del art. 12 de la Ley 25.326
+              y su decreto reglamentario.
             </p>
           </section>
 

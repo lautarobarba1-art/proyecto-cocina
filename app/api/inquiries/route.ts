@@ -6,6 +6,7 @@ import {
   type InquiryValidationError,
 } from "@/lib/inquiries/validate";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
+import { checkInquiriesLimit, getIp } from "@/lib/ratelimit";
 
 export const runtime = "nodejs";
 
@@ -33,6 +34,17 @@ const ERROR_STATUS: Record<InquiryValidationError, number> = {
  * }
  */
 export async function POST(req: Request) {
+  const rl = await checkInquiriesLimit(getIp(req));
+  if (!rl.allowed) {
+    return NextResponse.json(
+      { error: "too_many_requests" },
+      {
+        status: 429,
+        headers: { "Retry-After": String(rl.retryAfter) },
+      },
+    );
+  }
+
   let body: unknown;
   try {
     body = await req.json();

@@ -58,6 +58,10 @@ export function ReservaActions({ reservaId, status, customerName }: Props) {
 
   const onConfirm = () => {
     if (loading) return;
+    const ok = window.confirm(
+      `¿Confirmar el pago de ${customerName}?\n\nSe enviará un email de confirmación al cliente.`,
+    );
+    if (!ok) return;
     callAction("confirm");
   };
 

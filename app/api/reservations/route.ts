@@ -1,7 +1,19 @@
 import { NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
+import { checkReservationsLimit, getIp } from "@/lib/ratelimit";
 
 export async function POST(req: Request) {
+  const rl = await checkReservationsLimit(getIp(req));
+  if (!rl.allowed) {
+    return NextResponse.json(
+      { error: "too_many_requests" },
+      {
+        status: 429,
+        headers: { "Retry-After": String(rl.retryAfter) },
+      },
+    );
+  }
+
   let body: unknown;
   try {
     body = await req.json();
@@ -27,10 +39,13 @@ export async function POST(req: Request) {
 
   // Validar campos requeridos
   const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
   if (
     !classId ||
+    !UUID_RE.test(classId) ||
     !spots ||
     spots < 1 ||
+    spots > 10 ||
     !customerName ||
     !customerEmail ||
     !EMAIL_RE.test(customerEmail)
@@ -81,22 +96,17 @@ export async function POST(req: Request) {
     console.error("[POST /api/reservations] RPC error:", error);
 
     if (error.message.includes("cancelled")) {
-      return NextResponse.json(
-        { error: "cancelled" },
-        { status: 409 },
-      );
+      return NextResponse.json({ error: "cancelled" }, { status: 409 });
     }
     if (error.message.includes("not_available")) {
-      return NextResponse.json(
-        { error: "not_available" },
-        { status: 409 },
-      );
+      return NextResponse.json({ error: "not_available" }, { status: 409 });
     }
     if (error.message.includes("duplicate")) {
-      return NextResponse.json(
-        { error: "duplicate" },
-        { status: 409 },
-      );
+      return NextResponse.json({ error: "duplicate" }, { status: 409 });
+    }
+    // Unique constraint violation: race condition en idempotency key — la reserva ya existe
+    if ((error as { code?: string }).code === "23505") {
+      return NextResponse.json({ error: "duplicate" }, { status: 409 });
     }
 
     return NextResponse.json({ error: "server_error" }, { status: 500 });
@@ -112,22 +122,10 @@ export async function POST(req: Request) {
   const created = data[0];
   const reservationId = created.reservation_id;
 
-  // Traer los datos completos de la reserva que acabamos de crear
-  const { data: reservationData, error: reservaError } = await supabase
-    .from("reservations")
-    .select("*")
-    .eq("id", reservationId)
-    .maybeSingle();
-
-  if (reservaError || !reservationData) {
-    console.error("[POST /api/reservations] Error obteniendo datos de reserva:", reservaError);
-    return NextResponse.json({ ok: true, id: reservationId }, { status: 201 });
-  }
-
   // Obtener datos de la clase para el email
   const { data: cls } = await supabase
     .from("classes")
-    .select("*")
+    .select("title, date, start_time, end_time, payment_link")
     .eq("id", classId)
     .maybeSingle();
 
@@ -136,8 +134,15 @@ export async function POST(req: Request) {
   // Los emails son notificaciones: su fallo nunca revierte la reserva.
   // Cada envío tiene su propio try/catch para que uno fallido no cancele el otro.
   // ============================================
-  const { sendEmailReservaConfirmacion, sendEmailAdminNewReserva } =
-    await import("@/lib/resend/send");
+  let sendEmailReservaConfirmacion: typeof import("@/lib/resend/send").sendEmailReservaConfirmacion;
+  let sendEmailAdminNewReserva: typeof import("@/lib/resend/send").sendEmailAdminNewReserva;
+  try {
+    ({ sendEmailReservaConfirmacion, sendEmailAdminNewReserva } =
+      await import("@/lib/resend/send"));
+  } catch (importErr) {
+    console.error("[POST /api/reservations] Error cargando módulo de email:", importErr);
+    return NextResponse.json({ ok: true, id: reservationId }, { status: 201 });
+  }
 
   function formatDateLong(isoDate: string): string {
     if (!isoDate) return "—";

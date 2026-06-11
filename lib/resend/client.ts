@@ -1,9 +1,12 @@
 import { Resend } from "resend";
 
-const apiKey = process.env.RESEND_API_KEY;
-
-if (!apiKey) {
-  throw new Error("RESEND_API_KEY no está configurada en .env.local");
+function requireEnv(name: string): string {
+  const value = process.env[name];
+  if (!value) throw new Error(`[resend] Falta ${name} en variables de entorno`);
+  return value;
 }
 
-export const resend = new Resend(apiKey);
+export const FROM_EMAIL: string = requireEnv("FROM_EMAIL");
+export const ADMIN_EMAIL: string = requireEnv("ADMIN_EMAIL");
+
+export const resend = new Resend(requireEnv("RESEND_API_KEY"));

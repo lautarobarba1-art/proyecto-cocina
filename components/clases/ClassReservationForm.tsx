@@ -382,7 +382,15 @@ export function ClassReservationForm({
                 : "Solicitar reserva"}
           </Button>
           <p className="font-body text-[0.72rem] leading-relaxed text-carbon/45">
-            Recibirás un correo con los próximos pasos.
+            Recibirás un correo con los próximos pasos.{" "}
+            Al reservar aceptás el tratamiento de tus datos según nuestra{" "}
+            <a
+              href="/politica-privacidad"
+              className="underline decoration-carbon/25 underline-offset-2 hover:text-carbon/65"
+            >
+              Política de Privacidad
+            </a>
+            .
           </p>
         </FormGroup>
       </form>

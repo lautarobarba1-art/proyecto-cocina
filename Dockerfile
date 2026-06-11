@@ -27,4 +27,5 @@ COPY --from=builder /app/next.config.* ./
 
 EXPOSE 3000
 
+USER node
 CMD ["npm", "start"]

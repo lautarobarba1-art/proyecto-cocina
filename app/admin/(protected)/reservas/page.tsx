@@ -266,9 +266,12 @@ export default async function ReservasAdminPage({ searchParams }: PageProps) {
           ? ` · ${statusLabel(filter.status as ReservaAdmin["status"])}`
           : ""}
         {mes ? ` · ${meses.find((m) => m.value === mes)?.label ?? mes}` : ""}.
-        {" "}
-      
       </p>
+      {reservas.length >= 200 && (
+        <p className="mt-1 font-body text-[0.75rem] text-amber-700">
+          ⚠ Se muestran solo las últimas 200 reservas. Usá los filtros de estado o mes para ver resultados más específicos.
+        </p>
+      )}
     </div>
   );
 }
