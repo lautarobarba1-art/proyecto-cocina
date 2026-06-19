@@ -76,6 +76,19 @@ export function Hero({ className, introReveal = true, staggerProfile = "default"
               >
                 <source src={IMAGES.hero.videoSrc} type="video/mp4" />
               </video>
+
+              <video
+                className="absolute inset-0 z-1 h-full w-full object-cover hidden md:block"
+                autoPlay 
+                muted
+                loop 
+                playsInline
+                preload="auto"
+                aria-hidden="true"
+                onCanPlay={onVideoReady}
+                >
+                  <source src={IMAGES.hero.videoDesktopSrc} type="video/mp4"/> 
+              </video>
             </div>
           </KenBurns>
         </div>

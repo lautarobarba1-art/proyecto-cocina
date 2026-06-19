@@ -15,38 +15,33 @@ export const pullQuote = {
 
 export const interview = [
   {
-    q: '¿Por qué Menesteres y no "Escuela de Cocina X"?',
-    a: '"Menesteres" en castellano antiguo eran las cosas necesarias para vivir. Comer es la primera. No queríamos un nombre que sonara a institución. Queríamos uno que sonara a casa.',
+    q: '¿Cuál fue el incentivo principal para comenzar con las clases?',
+    a: 'Quería encontrar una manera más descontracturada, cercana y humana de enseñar y transmitir lo que sé.'
   },
   {
-    q: "¿Qué pasa en una clase que no pasa en un curso online?",
-    a: "El error. Cuando algo se quema, cuando una masa no levanta, cuando una salsa se corta. Eso no se puede transmitir por pantalla. Y es lo único que de verdad enseña.",
+    q: '¿Qué pasa en una clase que no pasa en un curso online?',
+    a: 'En una clase presencial aparecen momentos espontáneos: una corrección a tiempo, un tip, una duda compartida o una idea que surge mientras se cocina. Esas pequeñas situaciones son las que hacen que el aprendizaje se vuelva más real y memorable.',
   },
   {
-    q: "¿Hay algo que no enseñan?",
-    a: 'Atajos. Hay técnicas que requieren tiempo y no se pueden acortar sin perder lo que las hace valiosas. Si alguien viene buscando "cocina express en 30 minutos", esta no es la cocina.',
-  },
-  {
-    q: "¿Cómo imaginás a quien entra por primera vez?",
-    a: "Con ganas de tocar, oler y probar. No hace falta saber de antes: hace falta quedarse el tiempo que la receta pide.",
-  },
+    q: "¿Qué te gustaría que la gente sienta cuando piensa en 'Menesteres'?",
+    a: 'Me gustaría que lo sientan como una casa, no como una institución. Un lugar cálido, cercano y cotidiano, donde desde el primer momento puedan sentirse cómodos, aprender y compartir.',
+  }
 ] as const;
 
 /** Cifras orientativas — validar con el cliente antes de campañas. */
 export const stats = [
-  { value: "2019", label: "Primera clase", animate: false as const },
+  { value: "2018", label: "Primera clase", animate: false as const },
   { value: "500+", label: "Personas en mesa", animate: true as const },
   { value: "200+", label: "Encuentros en cocina", animate: true as const },
-  { value: "4", label: "Ciclos por año", animate: false as const },
 ] as const;
 
 const street = siteContact.address.street;
 
 export const timeline = [
-  { year: "2019", text: "Primera clase — pastas frescas, cuatro comensales, una mesa." },
+  { year: "2018", text: "Comienzo de 'Menesteres'" },
   { year: "2021", text: `Inauguración del espacio en ${street}.` },
   { year: "2023", text: 'Primer ciclo "Sabores de estación" — doce fechas, cupo completo.' },
-  { year: "2024", text: "Viaje de investigación: cocina coreana y japonesa." },
+  { year: "2025", text: `Inauguración del espacio en ${street}.`},
   { year: "2026", text: "Apertura del espacio para alquiler a creadores y producciones." },
 ] as const;
 
@@ -77,8 +72,9 @@ export const houseRules = [
 export const openLetter = {
   scriptOpen: "Si llegaste hasta acá,",
   body1:
-    "probablemente estás buscando algo más que aprender una receta. Está bien. Es lo mismo que buscamos nosotros cada vez que abrimos las puertas un sábado a la tarde.",
+  "probablemente estás buscando algo más que aprender una receta. Buscás un momento para cocinar, compartir y llevarte algo que después puedas repetir en tu casa.",
   body2:
-    "No prometemos transformarte en chef. Sí prometemos que después de pasar por nuestra cocina, vas a mirar la tuya un poco distinto.",
+  "No prometemos transformarte en chef. Sí prometemos que después de pasar por nuestra cocina, vas a mirar la tuya un poco distinto.",
   scriptClose: "Te esperamos.",
-} as const;
+  } as const;
+  
