@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/form";
 import type { ClassMock } from "@/lib/classes-mock";
 import { DEFAULT_CLASS_SESSIONS } from "@/lib/classes-mock";
-import { whatsappHref } from "@/lib/site/contact";
+import { mailtoHref } from "@/lib/site/contact";
 
 export interface SessionOption {
   id: string;
@@ -189,17 +189,17 @@ export function ClassReservationForm({
           Esta clase está agotada
         </h3>
         <p className="mt-4 font-body text-[0.95rem] leading-relaxed text-carbon/75">
-          Escribinos por WhatsApp y te avisamos si se libera un lugar o cuándo
+          Escribinos por email y te avisamos si se libera un lugar o cuándo
           abre la próxima fecha.
         </p>
         <Button
-          href={whatsappHref()}
+          href={mailtoHref()}
           variant="primary"
           size="default"
           className="mt-8 w-full"
           external
         >
-          Consultar por WhatsApp
+          Consultar por email
         </Button>
       </div>
     );
@@ -216,7 +216,7 @@ export function ClassReservationForm({
         </h3>
         <p className="mt-4 font-body text-[0.95rem] leading-relaxed text-carbon/75">
           Si no recibís un correo en los próximos minutos, escribinos por
-          WhatsApp y te enviamos los datos de pago.
+          email y te enviamos los datos de pago.
         </p>
         <Button
           variant="ghost"
