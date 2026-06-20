@@ -15,12 +15,7 @@ const MAP_EMBED_URL = `https://www.google.com/maps?q=${encodeURIComponent(MAP_DE
 const MAP_DIRECTIONS_URL = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(MAP_DESTINATION)}`;
 
 export const siteContact = {
-  email: "hola@menesteres.com",
-  phone: {
-    display: "+54 9 349 269-4750",
-    /** Número para wa.me: solo dígitos, con código país, sin + */
-    waMe: "3492694750",
-  },
+  email: "menesterescocina@gmail.com",
   address: {
     // TODO: confirmar dirección real con la clienta.
     // address.street = "Malvinas Argentinas 1150" pero map.directionsUrl apunta a "San Martín 1234".
@@ -35,7 +30,7 @@ export const siteContact = {
     /** Líneas para el footer */
     footerLines: ["Malvinas Argentinas 1150", "Rafaela, Santa Fe · AR"] as const,
   },
-  hours: "Martes a sábado · 10:00 – 20:00 (consultar por WhatsApp)",
+  hours: "Martes a sábado · 10:00 – 20:00",
   map: {
     /** Enlace "Cómo llegar" — abre Google Maps (no usable en iframe). */
     directionsUrl: MAP_DIRECTIONS_URL,
@@ -45,7 +40,6 @@ export const siteContact = {
   social: {
     /** null = enlace deshabilitado en footer hasta tener URL real */
     instagram: "https://www.instagram.com/menesteress",
-    whatsapp: "https://wa.me/3492694750",
   },
   /** Dominio canónico para schema.org (eventos, etc.) */
   siteUrl: "https://menesteres.ar",
@@ -53,10 +47,6 @@ export const siteContact = {
 
 export function mailtoHref(): string {
   return `mailto:${siteContact.email}`;
-}
-
-export function whatsappHref(): string {
-  return `https://wa.me/${siteContact.phone.waMe}`;
 }
 
 export function postalAddressSchema(): {

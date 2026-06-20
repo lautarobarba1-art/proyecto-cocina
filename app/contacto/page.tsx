@@ -7,7 +7,7 @@ import { EventosPrivadosForm } from "@/components/contacto/EventosPrivadosForm";
 import { Container } from "@/components/layout/Container";
 import { BrandIllustration } from "@/components/ui/BrandIllustration";
 import { BrandPatternBackground } from "@/components/ui/BrandPatternBackground";
-import { mailtoHref, siteContact, whatsappHref } from "@/lib/site/contact";
+import { mailtoHref, siteContact } from "@/lib/site/contact";
 
 export const metadata: Metadata = {
   title: "Contacto · Menesteres",
@@ -22,7 +22,7 @@ interface PageProps {
 export default async function ContactoPage({ searchParams }: PageProps) {
   const { tipo } = await searchParams;
   const isEventos = tipo === "eventos";
-  const { email, address, phone, hours } = siteContact;
+  const { email, address, hours } = siteContact;
 
   return (
     <main className="flex-1 pb-20 lg:pb-28">
@@ -79,19 +79,6 @@ export default async function ContactoPage({ searchParams }: PageProps) {
                   <p className="mt-2 max-w-[28ch] font-body text-[0.72rem] font-light uppercase leading-relaxed tracking-[0.18em] text-carbon/70">
                     {address.line}
                   </p>
-                </div>
-                <div>
-                  <p className="font-mono text-[0.58rem] font-medium uppercase tracking-[0.22em] text-carbon/40">
-                    WhatsApp
-                  </p>
-                  <a
-                    href={whatsappHref()}
-                    target="_blank"
-                    rel="noreferrer noopener"
-                    className="mt-2 inline-block font-body text-[0.72rem] font-light uppercase tracking-[0.18em] text-carbon/70 transition-colors hover:text-terracota"
-                  >
-                    {phone.display}
-                  </a>
                 </div>
                 <div>
                   <p className="font-mono text-[0.58rem] font-medium uppercase tracking-[0.22em] text-carbon/40">

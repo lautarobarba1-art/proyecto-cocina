@@ -2,7 +2,7 @@ import Link from "next/link";
 
 import { Logotype } from "@/components/brand/Logotype";
 import { Container } from "@/components/layout/Container";
-import { mailtoHref, siteContact, whatsappHref } from "@/lib/site/contact";
+import { mailtoHref, siteContact} from "@/lib/site/contact";
 
 const LEGAL_LINKS = [
   { label: "Privacidad", href: "/politica-privacidad" },
@@ -100,9 +100,6 @@ export function Footer({ className }: FooterProps) {
             <ul className="mt-3 grid gap-1">
               <li>
                 <SocialLink href={social.instagram} label="Instagram" pending={!social.instagram} />
-              </li>
-              <li>
-                <SocialLink href={social.whatsapp ?? whatsappHref()} label="WhatsApp" />
               </li>
             </ul>
           </div>

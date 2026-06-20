@@ -31,15 +31,14 @@ export const interview = [
 /** Cifras orientativas — validar con el cliente antes de campañas. */
 export const stats = [
   { value: "2018", label: "Primera clase", animate: false as const },
-  { value: "500+", label: "Personas en mesa", animate: true as const },
-  { value: "200+", label: "Encuentros en cocina", animate: true as const },
+  { value: "300", suffix:"+", label: "Personas en mesa", animate: true as const },
+  { value: "150", suffix:"+" ,label: "Encuentros en cocina", animate: true as const },
 ] as const;
 
 const street = siteContact.address.street;
 
 export const timeline = [
   { year: "2018", text: "Comienzo de 'Menesteres'" },
-  { year: "2021", text: `Inauguración del espacio en ${street}.` },
   { year: "2023", text: 'Primer ciclo "Sabores de estación" — doce fechas, cupo completo.' },
   { year: "2025", text: `Inauguración del espacio en ${street}.`},
   { year: "2026", text: "Apertura del espacio para alquiler a creadores y producciones." },
