@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 
+import { HomeProximasHeading } from "@/components/home/HomeProximasHeading";
 import { ProximasClases } from "@/components/home/ProximasClases";
 import { Reveal, RevealItem, RevealStagger } from "@/components/motion/Reveal";
 import { Button } from "@/components/ui/Button";
@@ -34,6 +35,7 @@ export function HomeProximasClasesSection() {
                 backgroundPosition: "right top",
               }}
             />
+            <HomeProximasHeading />
             <ProximasClases />
             <div className="mt-8 border-t border-carbon/10 pt-6">
               <Button href="/clases" variant="sketch" size="default">

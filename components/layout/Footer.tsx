@@ -109,6 +109,7 @@ export function Footer({ className }: FooterProps) {
           <p className="font-sans text-[10px] font-medium uppercase tracking-meta text-crema/40">
             © 2026 Menesteres · Rafaela, Santa Fe
           </p>
+          <p className="font-sans text-[10px] font-medium tracking-meta text-crema/40"><a href="https://tarodevxcx.com.ar">Desarrollado por <strong>TARO Estudio.</strong></a></p>
           <nav aria-label="Legal" className="flex items-center gap-3">
             {LEGAL_LINKS.map(({ label, href }) => (
               <Link

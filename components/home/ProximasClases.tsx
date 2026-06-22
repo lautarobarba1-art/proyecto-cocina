@@ -71,7 +71,7 @@ export function ProximasClases() {
     void loadClasses();
     return () => controller.abort();
   }, []);
-
+<h1>hola</h1>
   return (
     <div>
       <p className="mb-1 font-sans text-[0.6875rem] font-semibold uppercase tracking-[0.14em] text-mute">
