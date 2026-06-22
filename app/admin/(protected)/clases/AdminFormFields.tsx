@@ -1,3 +1,5 @@
+"use client";
+
 import * as React from "react";
 
 export function Section({
@@ -140,6 +142,114 @@ export function FieldSelect({
         <p className="mt-1 text-[0.72rem] text-carbon/55">{hint}</p>
       )}
       {error && <p className="mt-1 text-[0.72rem] text-red-700">{error}</p>}
+    </div>
+  );
+}
+
+export function FieldImageUpload({
+  label,
+  hint,
+  value,
+  onChange,
+  required,
+  error,
+}: {
+  label: string;
+  hint?: string;
+  value: string;
+  onChange: (url: string) => void;
+  required?: boolean;
+  error?: string;
+}) {
+  const [uploading, setUploading] = React.useState(false);
+  const [uploadError, setUploadError] = React.useState<string | null>(null);
+  const inputRef = React.useRef<HTMLInputElement>(null);
+
+  const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploadError(null);
+    setUploading(true);
+
+    const body = new FormData();
+    body.append("file", file);
+
+    try {
+      const res = await fetch("/api/admin/upload-image", { method: "POST", body });
+      const json = await res.json().catch(() => null);
+
+      if (!res.ok) {
+        const msg =
+          json?.error === "invalid_type"
+            ? "Solo se aceptan PNG, JPG y WebP."
+            : json?.error === "file_too_large"
+              ? "El archivo supera el límite de 5 MB."
+              : "No se pudo subir la imagen. Intentá de nuevo.";
+        setUploadError(msg);
+      } else {
+        onChange(json.url);
+      }
+    } catch {
+      setUploadError("Error de conexión al subir la imagen.");
+    } finally {
+      setUploading(false);
+      if (inputRef.current) inputRef.current.value = "";
+    }
+  };
+
+  const displayError = error ?? uploadError ?? undefined;
+
+  return (
+    <div>
+      <label className="block font-sans text-[0.78rem] font-medium uppercase tracking-wide text-carbon/65">
+        {label}
+        {required ? " *" : ""}
+      </label>
+
+      <div className="mt-1.5 space-y-3">
+        {value && (
+          <div className="relative h-44 w-full overflow-hidden border border-carbon/20 bg-carbon/5">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={value} alt="" className="h-full w-full object-cover" />
+          </div>
+        )}
+
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={() => inputRef.current?.click()}
+            disabled={uploading}
+            className="rounded border border-carbon/30 bg-white px-3 py-1.5 font-sans text-[0.78rem] uppercase tracking-wide text-carbon/70 transition hover:bg-carbon/5 disabled:opacity-50"
+          >
+            {uploading ? "Subiendo…" : value ? "Cambiar imagen" : "Elegir imagen"}
+          </button>
+          {value && !uploading && (
+            <button
+              type="button"
+              onClick={() => onChange("")}
+              className="font-sans text-[0.75rem] text-red-600 hover:underline"
+            >
+              Eliminar
+            </button>
+          )}
+        </div>
+
+        <input
+          ref={inputRef}
+          type="file"
+          accept="image/png,image/jpeg,image/webp"
+          className="sr-only"
+          onChange={handleFile}
+        />
+      </div>
+
+      {hint && !displayError && (
+        <p className="mt-1 text-[0.72rem] text-carbon/55">{hint}</p>
+      )}
+      {displayError && (
+        <p className="mt-1 text-[0.72rem] text-red-700">{displayError}</p>
+      )}
     </div>
   );
 }

@@ -21,7 +21,7 @@ const csp = [
   // next/font/google self-hosts fonts at build time — no external font CDN needed
   "font-src 'self'",
   // Images: Next.js image optimizer (blob:), placeholder shimmer (data:), and remote hosts
-  "img-src 'self' data: blob: https://images.unsplash.com https://unsplash.com https://i.imgur.com https://imgur.com https://ibb.co https://i.ibb.co",
+  "img-src 'self' data: blob: https://images.unsplash.com https://unsplash.com https://i.imgur.com https://imgur.com https://ibb.co https://i.ibb.co https://*.supabase.co",
   // Videos served from Vercel Blob Storage
   "media-src 'self' https://xy2d0bcoexo5mdxi.public.blob.vercel-storage.com",
   connectSrc,
@@ -77,6 +77,10 @@ const nextConfig: NextConfig = {
       {
         protocol: "https",
         hostname: "i.ibb.co",
+      },
+      {
+        protocol: "https",
+        hostname: "*.supabase.co",
       },
     ],
   },

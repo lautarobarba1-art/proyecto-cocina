@@ -7,6 +7,7 @@ import {
   type ClaseFormData,
 } from "@/lib/admin/clases-validation";
 import {
+  FieldImageUpload,
   FieldRow,
   FieldSelect,
   FieldText,
@@ -318,11 +319,11 @@ export function ClaseFormCliente({ initial }: Props) {
       </Section>
 
       <Section title="Imagen">
-        <FieldText
-          label="URL de la imagen"
-          hint="Pegá la URL pública (Unsplash, Imgur, etc.). Subir desde dispositivo se agrega más adelante."
+        <FieldImageUpload
+          label="Imagen de la clase"
+          hint="PNG, JPG o WebP · máx. 5 MB"
           value={form.imageSrc}
-          onChange={(v) => updateField("imageSrc", v)}
+          onChange={(url) => updateField("imageSrc", url)}
           error={fieldErrors.imageSrc}
           required
         />

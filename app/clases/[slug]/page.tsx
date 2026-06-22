@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import { notFound, redirect } from "next/navigation";
 import { ClassReservationForm } from "@/components/clases/ClassReservationForm";
 import { PastSessionCard } from "@/components/clases/PastSessionCard";
@@ -17,6 +18,15 @@ import {
   getSessionsForClass,
 } from "@/lib/clases/queries";
 export const dynamic = "force-dynamic";
+
+function isValidImageUrl(src: string): boolean {
+  try {
+    const url = new URL(src);
+    return (url.protocol === "https:" || url.protocol === "http:") && url.hostname.includes(".");
+  } catch {
+    return false;
+  }
+}
 
 export interface ClaseDetallePageProps {
   params: Promise<{ slug: string }>;
@@ -83,7 +93,7 @@ export default async function ClaseDetallePage({
 
   return (
     <main className="flex-1 pb-20 lg:pb-28">
-      {/* Header band — text-forward, sin imagen */}
+      {/* Header band */}
       <div className="relative left-1/2 w-screen max-w-none -translate-x-1/2 border-b border-line">
         <div
           className={[
@@ -91,13 +101,26 @@ export default async function ClaseDetallePage({
             soldOut ? "bg-crema-deep/60" : "bg-crema-deep",
           ].join(" ")}
         >
-          {/* Letra decorativa — misma lógica que ClaseCard */}
-          <span
-            aria-hidden="true"
-            className="pointer-events-none absolute right-8 top-1/2 -translate-y-1/2 select-none font-display text-[clamp(8rem,20vw,16rem)] font-normal italic leading-none text-terracota/8 lg:right-16"
-          >
-            {clase.title.charAt(0)}
-          </span>
+          {isValidImageUrl(clase.image.src) ? (
+            <>
+              <Image
+                src={clase.image.src}
+                alt={clase.image.alt || ""}
+                fill
+                priority
+                className="object-cover"
+                sizes="100vw"
+              />
+              <div className="absolute inset-0 bg-carbon/40" aria-hidden="true" />
+            </>
+          ) : (
+            <span
+              aria-hidden="true"
+              className="pointer-events-none absolute right-8 top-1/2 -translate-y-1/2 select-none font-display text-[clamp(8rem,20vw,16rem)] font-normal italic leading-none text-terracota/8 lg:right-16"
+            >
+              {clase.title.charAt(0)}
+            </span>
+          )}
 
           {/* Category + status badges */}
           <div className="relative z-10 flex flex-wrap items-center gap-3">

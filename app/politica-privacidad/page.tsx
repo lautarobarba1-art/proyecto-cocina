@@ -38,10 +38,10 @@ export default function PoliticaPrivacidadPage() {
               <br />
               Correo:{" "}
               <a
-                href="mailto:hola@menesteres.com"
+                href="mailto:menesterescocina@gmail.com"
                 className="underline decoration-carbon/25 underline-offset-2 transition-colors hover:text-terracota"
               >
-                hola@menesteres.com
+                menesterescocina@gmail.com
               </a>
             </p>
           </section>

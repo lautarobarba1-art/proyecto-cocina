@@ -19,7 +19,7 @@ interface FormaProps {
   hasBorderRight?: boolean;
 }
 
-function FormaBlock({ num, icon, title, text, href, cta, delay = 0, hasBorderRight = false }: FormaProps) {
+function FormaBlock({ num, title, text, href, cta, delay = 0, hasBorderRight = false }: FormaProps) {
   return (
     <RevealStagger
       delayChildren={delay}
@@ -30,10 +30,7 @@ function FormaBlock({ num, icon, title, text, href, cta, delay = 0, hasBorderRig
         .filter(Boolean)
         .join(" ")}
     >
-      {/* Ícono de marca */}
-      <RevealItem variant="fadeIn">
-        {icon}
-      </RevealItem>
+      
 
       {/* Número */}
       <RevealItem
@@ -124,61 +121,28 @@ export function HomeTresFormasSection() {
 
             <FormaBlock
               num="01"
-              icon={
-                <Image
-                  src="/brand-elements/menesteres-elements/batidor-menesteres.svg"
-                  alt=""
-                  aria-hidden="true"
-                  width={240}
-                  height={240}
-                  className="w-12 h-12 pointer-events-none select-none opacity-40"
-                />
-              }
               title="Clases de cocina"
               text="Talleres para adultos y niños. Grupos chicos, fechas que se renuevan cada mes y aprendizaje real."
               href="/clases"
               cta="Ver clases"
               delay={0}
-              hasBorderRight
-            />
-
-            {/* Separador horizontal en mobile */}
-            <div className="border-t border-carbon/8 lg:hidden" />
+              hasBorderRight icon={undefined}/>
 
             <FormaBlock
               num="02"
-              icon={
-                <Image
-                  src="/brand-elements/menesteres-elements/copa-brindis-menesteres.svg"
-                  alt=""
-                  aria-hidden="true"
-                  width={240}
-                  height={240}
-                  className="w-12 h-12 pointer-events-none select-none opacity-40"
-                />
-              }
               title="Eventos privados"
               text="Cenas, cumpleaños y encuentros a medida. Lo coordinamos con vos, respuesta en 24–48 hs."
               href="/contacto?tipo=evento"
               cta="Consultar"
               delay={0.06}
-              hasBorderRight
-            />
+              hasBorderRight icon={undefined}            />
 
-            {/* Separador horizontal en mobile */}
-            <div className="border-t border-carbon/8 lg:hidden" />
+            
 
             <FormaBlock
               num="03"
-              icon={
-                <Image
-                  src="/brand-elements/menesteres-elements/cuchillo-chef-menesteres.svg"
-                  alt=""
-                  aria-hidden="true"
-                  width={240}
-                  height={240}
-                  className="w-12 h-12 pointer-events-none select-none opacity-40"
-                />
+              hasBorderRight icon={
+                undefined
               }
               title="Alquiler del espacio"
               text="Para fotógrafos, talleristas y pequeñas producciones. Cocina equipada, luz natural, ambiente único."

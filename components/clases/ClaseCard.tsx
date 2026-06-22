@@ -1,8 +1,18 @@
+import Image from "next/image";
 import Link from "next/link";
 
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import type { ClassMock } from "@/lib/classes-mock";
+
+function isValidImageUrl(src: string): boolean {
+  try {
+    const url = new URL(src);
+    return (url.protocol === "https:" || url.protocol === "http:") && url.hostname.includes(".");
+  } catch {
+    return false;
+  }
+}
 
 export interface ClaseCardProps {
   item: ClassMock;
@@ -59,20 +69,34 @@ export function ClaseCard({ item, isFeatured, className }: ClaseCardProps) {
         />
       )}
 
-      {/* ── Header band — reemplaza la imagen ── */}
+      {/* ── Header band ── */}
       <div
         className={[
           "relative z-10 flex h-32 items-end overflow-hidden p-4",
           soldOut ? "bg-crema-deep/60" : "bg-crema-deep",
         ].join(" ")}
       >
-        {/* Letra decorativa — textura tipográfica sin foto */}
-        <span
-          aria-hidden="true"
-          className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 select-none font-display text-[7rem] font-normal italic leading-none text-terracota/10"
-        >
-          {item.title.charAt(0)}
-        </span>
+        {isValidImageUrl(item.image.src) ? (
+          <>
+            <Image
+              src={item.image.src}
+              alt={item.image.alt || ""}
+              fill
+              className="object-cover"
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+            />
+            {/* Overlay para legibilidad del badge */}
+            <div className="absolute inset-0 bg-carbon/35" aria-hidden="true" />
+          </>
+        ) : (
+          /* Fallback tipográfico cuando no hay imagen */
+          <span
+            aria-hidden="true"
+            className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 select-none font-display text-[7rem] font-normal italic leading-none text-terracota/10"
+          >
+            {item.title.charAt(0)}
+          </span>
+        )}
 
         {/* Tag categoría — bottom-left */}
         <div className="pointer-events-none relative z-10">

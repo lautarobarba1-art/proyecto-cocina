@@ -40,6 +40,11 @@ export function Hero({ className, introReveal = true, staggerProfile = "default"
     { startDelay: headlineDelay, speed: 40, pauseBetween: 220 }
   );
 
+  // Mobile scroll effects
+  const mobileLogoOpacity = useTransform(scrollY, [0, 180], [1, 0]);
+  const mobileSectionScale = useTransform(scrollY, [0, 260], [1, 0.96]);
+  const mobileSectionOpacity = useTransform(scrollY, [0, 260], [1, 0.5]);
+
   const entry = (delay: number) =>
     reduced
       ? undefined
@@ -52,12 +57,48 @@ export function Hero({ className, introReveal = true, staggerProfile = "default"
   return (
     <section
       id="hero"
-      className={["hero-mn relative h-svh min-h-[520px] overflow-hidden bg-carbon", className ?? ""].join(" ")}
+      className={["hero-mn bg-carbon pt-16 md:pt-0 md:relative md:h-svh md:min-h-[520px] md:overflow-hidden", className ?? ""].join(" ")}
       aria-label="Portada"
     >
-      {/* Video background with parallax */}
+      {/* ── MOBILE: video 16:9 con logotype centrado y efectos de scroll ── */}
       <motion.div
-        className="hero-mn__parallax absolute inset-0 z-0"
+        className="md:hidden relative aspect-video w-full overflow-hidden"
+        style={reduced ? undefined : { scale: mobileSectionScale, opacity: mobileSectionOpacity }}
+      >
+        <video
+          className="absolute inset-0 h-full w-full object-cover"
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="auto"
+          aria-hidden="true"
+          onCanPlay={onVideoReady}
+        >
+          <source src={IMAGES.hero.videoSrc} type="video/mp4" />
+        </video>
+
+        {/* Overlay sutil para legibilidad del logo */}
+        <div className="absolute inset-0 bg-black/25 pointer-events-none" aria-hidden="true" />
+
+        {/* Logotype centrado sobre el video */}
+        <motion.div
+          className="absolute inset-0 flex items-center justify-center px-8"
+          style={reduced ? undefined : { opacity: mobileLogoOpacity }}
+        >
+          <Logotype
+            variant="onDark"
+            size="lg"
+            asset="brandvariant"
+            className="w-full! max-w-[300px]! h-auto"
+            priority
+          />
+        </motion.div>
+      </motion.div>
+
+      {/* ── DESKTOP: video fullscreen con parallax y KenBurns ── */}
+      <motion.div
+        className="hero-mn__parallax hidden md:block absolute inset-0 z-0"
         style={reduced ? undefined : { y }}
         aria-hidden="true"
       >
@@ -74,20 +115,7 @@ export function Hero({ className, introReveal = true, staggerProfile = "default"
                 aria-hidden="true"
                 onCanPlay={onVideoReady}
               >
-                <source src={IMAGES.hero.videoSrc} type="video/mp4" />
-              </video>
-
-              <video
-                className="absolute inset-0 z-1 h-full w-full object-cover hidden md:block"
-                autoPlay 
-                muted
-                loop 
-                playsInline
-                preload="auto"
-                aria-hidden="true"
-                onCanPlay={onVideoReady}
-                >
-                  <source src={IMAGES.hero.videoDesktopSrc} type="video/mp4"/> 
+                <source src={IMAGES.hero.videoDesktopSrc} type="video/mp4" />
               </video>
             </div>
           </KenBurns>
@@ -95,10 +123,10 @@ export function Hero({ className, introReveal = true, staggerProfile = "default"
         <div className="hero-mn__overlay pointer-events-none absolute inset-0" />
       </motion.div>
 
-      {/* Guarda superior — patrón de marca, textura sutil */}
+      {/* Guarda superior — solo desktop */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 top-0 z-10 h-40 select-none"
+        className="hidden md:block pointer-events-none absolute inset-x-0 top-0 z-10 h-40 select-none"
         style={{
           backgroundImage: "url('/patrones/carpeta-patrones/Mesa%20de%20trabajo%2012.png')",
           backgroundSize: "180% auto",
@@ -110,26 +138,9 @@ export function Hero({ className, introReveal = true, staggerProfile = "default"
         }}
       />
 
-      
-      {/* Contenido del hero */}
-      <div className="hero-mn__content absolute inset-0 z-20 flex flex-col px-5 pb-10 pt-8 md:px-10 md:pb-14 md:pt-12 lg:px-12 lg:pb-16 lg:pt-14">
-
-        {/* Marca centrada + slogan — solo mobile */}
-        <motion.div className="hero-mn__brand absolute left-1/2 top-1/2 w-[min(calc(100vw-2.5rem),420px)] -translate-x-1/2 -translate-y-1/2 md:hidden">
-          <Logotype
-            variant="onDark"
-            size="lg"
-            asset="brandvariant"
-            className="w-full! max-w-none! h-auto"
-            priority
-          />
-        </motion.div>
-
-        {/* Editorial — título, subtítulo y acciones en la parte inferior */}
-        <div className="mt-auto ">
-
-        <div className="hidden md:block">
-
+      {/* ── DESKTOP: contenido editorial ── */}
+      <div className="hero-mn__content hidden md:flex absolute inset-0 z-20 flex-col px-5 pb-10 pt-8 md:px-10 md:pb-14 md:pt-12 lg:px-12 lg:pb-16 lg:pt-14">
+        <div className="mt-auto">
           {/* Eyebrow */}
           <motion.p className="hero-mn__eyebrow mb-5">
             {`— Espacio gastronómico · ${siteContact.address.locality}`}
@@ -145,7 +156,7 @@ export function Hero({ className, introReveal = true, staggerProfile = "default"
             MENE<em className="italic">STE</em>RES
           </motion.h1>
 
-          {/* H1 editorial — typewriter */}
+          {/* H1 — typewriter */}
           <motion.h1
             className="max-w-[14ch] font-display text-[clamp(2rem,6vw,4.75rem)] font-normal leading-[1.02] tracking-tightish text-crema"
             initial={reduced ? { opacity: 1, y: 0 } : { opacity: 1, y: 22 }}
@@ -193,12 +204,9 @@ export function Hero({ className, introReveal = true, staggerProfile = "default"
         </div>
       </div>
 
-          
-        </div>
-          
-      {/* Indicador de scroll */}
+      {/* Indicador de scroll — solo desktop */}
       <motion.div
-        className="hero-mn__scroll pointer-events-none absolute bottom-6 left-1/2 z-20 flex -translate-x-1/2 flex-col items-center gap-2"
+        className="hero-mn__scroll pointer-events-none hidden md:flex absolute bottom-6 left-1/2 z-20 -translate-x-1/2 flex-col items-center gap-2"
         initial={reduced ? { opacity: 1, y: 0 } : { opacity: 0, y: 10 }}
         animate={ready ? { opacity: 1, y: 0 } : { opacity: 0, y: 10 }}
         transition={entry(scrollDelay)}

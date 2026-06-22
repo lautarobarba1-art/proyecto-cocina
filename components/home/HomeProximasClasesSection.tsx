@@ -15,42 +15,9 @@ export function HomeProximasClasesSection() {
 
         {/* Columna izquierda: texto editorial */}
         <div className="relative order-1 min-w-0 lg:col-start-1 lg:row-start-1">
-          {/* Batidor — acento gastronómico flotante */}
-          <Image
-            src="/brand-elements/menesteres-elements/batidor-menesteres.svg"
-            alt=""
-            aria-hidden="true"
-            width={240}
-            height={240}
-            className="pointer-events-none select-none absolute -top-2 right-0 w-[72px] h-[72px] -rotate-12 opacity-[0.13] lg:w-20 lg:h-20"
-          />
 
           <RevealStagger>
-            <RevealItem
-              as="p"
-              className="font-mono text-[0.65rem] font-medium uppercase tracking-eyebrow text-terracota"
-            >
-              <span aria-hidden="true">— </span>Próximas clases
-            </RevealItem>
-
-            <RevealItem
-              as="h2"
-              id="home-proximas-heading"
-              className="mt-5 max-w-[12ch] font-display text-[clamp(1.85rem,4.5vw,3.25rem)] font-normal leading-[1.05] tracking-tightish text-carbon"
-            >
-              ¿Cuándo nos juntamos?
-            </RevealItem>
-
-            <RevealItem
-              as="p"
-              className="mt-5 max-w-[38ch] font-body text-[1rem] leading-[1.78] text-carbon/68"
-            >
-              Grupos chicos, ambiente cálido y fechas que se renuevan cada mes. Para adultos y niños.
-            </RevealItem>
-          </RevealStagger>
-        </div>
-
-        {/* Columna derecha: lista de clases */}
+            {/* Columna derecha: lista de clases */}
         <Reveal
           variant="fadeUp"
           delay={0.14}
@@ -75,6 +42,15 @@ export function HomeProximasClasesSection() {
             </div>
           </div>
         </Reveal>
+
+            <RevealItem
+              as="p"
+              className="mt-5 max-w-[38ch] font-body text-[1rem] leading-[1.78] text-carbon/68"
+            >
+              Grupos chicos, ambiente cálido y fechas que se renuevan cada mes. Para adultos y niños.
+            </RevealItem>
+          </RevealStagger>
+        </div>
 
         <div className="order-3 min-w-0 lg:col-start-1 lg:row-start-2">
           <Link
