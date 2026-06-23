@@ -16,6 +16,8 @@ export interface ClassEvent {
   totalSpots: number;
   /** ARS */
   price: number;
+  /** Monto de la seña en ARS, null si no aplica */
+  depositAmount: number | null;
   shortDesc: string;
   isHighlighted?: boolean;
 }

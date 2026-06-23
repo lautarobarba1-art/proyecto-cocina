@@ -17,6 +17,8 @@ export interface ClassMock {
   title: string;
   category: string;
   price: string;
+  /** Seña formateada, ej: "$ 15.000". Null si no aplica. */
+  depositAmount: string | null;
   duration: string;
   description: string;
   image: {

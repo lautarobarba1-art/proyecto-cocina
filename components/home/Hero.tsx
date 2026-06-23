@@ -138,7 +138,6 @@ export function Hero({ className, introReveal = true, staggerProfile = "default"
         }}
         
       />
-<h1>hola</h1>
       {/* ── DESKTOP: contenido editorial ── */}
       <div className="hero-mn__content hidden md:flex absolute inset-0 z-20 flex-col px-5 pb-10 pt-8 md:px-10 md:pb-14 md:pt-12 lg:px-12 lg:pb-16 lg:pt-14">
         <div className="mt-auto">

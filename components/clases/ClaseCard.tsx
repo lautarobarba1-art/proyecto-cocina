@@ -152,6 +152,11 @@ export function ClaseCard({ item, isFeatured, className }: ClaseCardProps) {
             <span className="font-sans text-[1.4rem] font-extrabold leading-none text-carbon">
               {item.price}
             </span>
+            {item.depositAmount && (
+              <span className="mt-[3px] block font-sans text-[11px] font-medium text-mute">
+                Seña: {item.depositAmount}
+              </span>
+            )}
           </div>
 
           {/*

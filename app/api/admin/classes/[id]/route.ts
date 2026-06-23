@@ -109,6 +109,7 @@ export async function PATCH(
       image_alt: v.imageAlt,
       total_spots: v.totalSpots,
       price: v.price,
+      deposit_amount: v.depositAmount,
       payment_link: v.paymentLink,
     })
     .eq("id", id)

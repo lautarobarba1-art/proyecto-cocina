@@ -125,7 +125,7 @@ export async function POST(req: Request) {
   // Obtener datos de la clase para el email
   const { data: cls } = await supabase
     .from("classes")
-    .select("title, date, start_time, end_time, payment_link")
+    .select("title, date, start_time, end_time, payment_link, deposit_amount")
     .eq("id", classId)
     .maybeSingle();
 
@@ -174,6 +174,9 @@ export async function POST(req: Request) {
         classDate: formatDateLong(cls?.date ?? ""),
         classTime: `${cls?.start_time?.slice(0, 5) ?? ""} - ${cls?.end_time?.slice(0, 5) ?? ""}`,
         paymentLink: cls?.payment_link,
+        depositAmount: cls?.deposit_amount != null
+          ? (typeof cls.deposit_amount === "string" ? parseFloat(cls.deposit_amount) : cls.deposit_amount)
+          : null,
         cupos: spots,
       }),
       5000,

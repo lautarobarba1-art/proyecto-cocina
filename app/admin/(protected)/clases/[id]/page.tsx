@@ -83,6 +83,9 @@ export default async function EditarClasePage({ params }: PageProps) {
                 typeof data.price === "string"
                   ? parseFloat(data.price)
                   : data.price,
+              depositAmount: data.deposit_amount != null
+                ? (typeof data.deposit_amount === "string" ? parseFloat(data.deposit_amount) : data.deposit_amount)
+                : null,
               paymentLink: data.payment_link,
             } satisfies ClaseFormData & { id: string }}
           />

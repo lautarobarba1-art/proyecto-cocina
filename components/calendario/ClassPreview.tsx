@@ -145,7 +145,14 @@ export function ClassPreview({ event, onClose }: ClassPreviewProps) {
           </div>
           {event.category !== "eventos" ? (
           <>
-          <p className="font-display text-[2rem] font-normal italic text-terracota-soft">{formatArs(event.price)}</p>
+          <div>
+            <p className="font-display text-[2rem] font-normal italic text-terracota-soft">{formatArs(event.price)}</p>
+            {event.depositAmount != null && event.depositAmount > 0 && (
+              <p className="mt-1 font-mono text-[11px] font-medium uppercase tracking-meta text-crema/60">
+                Seña: {formatArs(event.depositAmount)}
+              </p>
+            )}
+          </div>
           <div>
             <p className="font-mono text-[10px] font-medium uppercase tracking-meta text-crema/55">Incluye también</p>
             <ul className="mt-2 space-y-1 font-display text-[0.95rem] text-crema/80">

@@ -19,21 +19,26 @@ export interface EmailReservaConfirmacionData {
     classDate: string; // "Sábado 17 de mayo de 2026"
     classTime: string; // "18:00 - 21:00"
     paymentLink?: string | null;
+    depositAmount?: number | null;
     cupos: number;
   }
   
   export function templateReservaConfirmacion(
     data: EmailReservaConfirmacionData,
   ): string {
+    const depositLabel = data.depositAmount != null && data.depositAmount > 0
+      ? new Intl.NumberFormat("es-AR", { style: "currency", currency: "ARS", maximumFractionDigits: 0 }).format(data.depositAmount)
+      : null;
+
     const paymentSection = data.paymentLink
       ? `
       <div style="margin-top: 24px; padding: 16px; background-color: #fff8f3; border-left: 4px solid #d97706;">
-        <p style="margin: 0; font-weight: bold; color: #1f2937;">Falta pagar la seña</p>
+        <p style="margin: 0; font-weight: bold; color: #1f2937;">Falta abonar la seña${depositLabel ? ` de ${depositLabel}` : ""}</p>
         <p style="margin: 8px 0 0 0; font-size: 14px; color: #4b5563;">
           Hacé clic en el botón para completar el pago:
         </p>
         <a href="${data.paymentLink}" style="display: inline-block; margin-top: 12px; padding: 12px 24px; background-color: #d97706; color: white; text-decoration: none; border-radius: 4px; font-weight: bold;">
-          Pagar seña
+          Pagar seña${depositLabel ? ` · ${depositLabel}` : ""}
         </a>
       </div>
       `

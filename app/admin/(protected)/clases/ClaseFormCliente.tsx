@@ -37,6 +37,7 @@ const EMPTY_FORM: ClaseFormData = {
   imageAlt: "",
   totalSpots: 10,
   price: 0,
+  depositAmount: null,
   paymentLink: null,
 };
 
@@ -61,6 +62,7 @@ export function ClaseFormCliente({ initial }: Props) {
         imageAlt: initial.imageAlt,
         totalSpots: initial.totalSpots,
         price: initial.price,
+        depositAmount: initial.depositAmount,
         paymentLink: initial.paymentLink,
       }
     : EMPTY_FORM;
@@ -128,6 +130,7 @@ export function ClaseFormCliente({ initial }: Props) {
         imageSrc: tpl.imageSrc,
         imageAlt: tpl.imageAlt,
         price: tpl.price,
+        depositAmount: tpl.depositAmount,
         totalSpots: tpl.totalSpots,
       }));
       setLoading(false);
@@ -348,7 +351,7 @@ export function ClaseFormCliente({ initial }: Props) {
             required
           />
           <FieldText
-            label="Precio (ARS)"
+            label="Precio total (ARS)"
             type="number"
             value={String(form.price)}
             onChange={(v) => updateField("price", parseFloat(v) || 0)}
@@ -356,13 +359,26 @@ export function ClaseFormCliente({ initial }: Props) {
             required
           />
         </div>
-        <FieldText
-          label="Link de Mercado Pago (opcional)"
-          hint="URL del checkout de MP. Se manda al cliente después de reservar."
-          value={form.paymentLink ?? ""}
-          onChange={(v) => updateField("paymentLink", v.trim() === "" ? null : v)}
-          error={fieldErrors.paymentLink}
-        />
+        <div className="grid gap-4 sm:grid-cols-2">
+          <FieldText
+            label="Seña (ARS, opcional)"
+            hint="Monto que el cliente abona al reservar. Si no hay seña, dejalo vacío."
+            type="number"
+            value={form.depositAmount != null ? String(form.depositAmount) : ""}
+            onChange={(v) => {
+              const parsed = parseFloat(v);
+              updateField("depositAmount", v.trim() === "" || isNaN(parsed) ? null : parsed);
+            }}
+            error={fieldErrors.depositAmount}
+          />
+          <FieldText
+            label="Link de Mercado Pago (opcional)"
+            hint="URL del checkout de MP. Se manda al cliente después de reservar."
+            value={form.paymentLink ?? ""}
+            onChange={(v) => updateField("paymentLink", v.trim() === "" ? null : v)}
+            error={fieldErrors.paymentLink}
+          />
+        </div>
       </Section>
 
       <Section title="Visibilidad">

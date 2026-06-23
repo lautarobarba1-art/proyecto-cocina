@@ -17,6 +17,7 @@ export interface ClaseAdmin {
   totalSpots: number;
   spotsLeft: number;
   price: number;
+  depositAmount: number | null;
   paymentLink: string | null;
   isCancelled: boolean;
   isHighlighted: boolean;
@@ -107,6 +108,9 @@ export async function getClasesForAdmin(
     spotsLeft: c.spots_left ?? c.total_spots,
     price:
       typeof c.price === "string" ? parseFloat(c.price) : (c.price as number),
+    depositAmount: c.deposit_amount != null
+      ? (typeof c.deposit_amount === "string" ? parseFloat(c.deposit_amount) : (c.deposit_amount as number))
+      : null,
     paymentLink: c.payment_link,
     isCancelled: c.is_cancelled,
     isHighlighted: c.is_highlighted,

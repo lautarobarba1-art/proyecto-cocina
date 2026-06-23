@@ -25,6 +25,7 @@ export interface ClassRow {
 
   total_spots: number;
   price: number | string; // numeric viene como string en algunos drivers
+  deposit_amount: number | string | null;
   payment_link: string | null;
   is_cancelled: boolean;
 
@@ -104,6 +105,7 @@ export function classRowToClassEvent(row: ClassRow): ClassEvent {
       spotsLeft: null,
       totalSpots: 0,
       price: 0,
+      depositAmount: null,
       shortDesc: row.short_desc,
       isHighlighted: row.is_highlighted || undefined,
     };
@@ -123,6 +125,7 @@ export function classRowToClassEvent(row: ClassRow): ClassEvent {
     spotsLeft: status === "cancelled" || status === "full" ? null : spotsLeft,
     totalSpots,
     price: toNumber(row.price),
+    depositAmount: row.deposit_amount != null ? toNumber(row.deposit_amount) : null,
     shortDesc: row.short_desc,
     isHighlighted: row.is_highlighted || undefined,
   };
@@ -150,6 +153,7 @@ export function classRowToClassMock(row: ClassRow): ClassMock {
       title: row.title,
       category: row.category_label,
       price: "",
+      depositAmount: null,
       duration: "",
       description: row.short_desc,
       image: { src: "", alt: "" },
@@ -167,6 +171,7 @@ export function classRowToClassMock(row: ClassRow): ClassMock {
     title: row.title,
     category: row.category_label,
     price: formatPriceArs(toNumber(row.price)),
+    depositAmount: row.deposit_amount != null ? formatPriceArs(toNumber(row.deposit_amount)) : null,
     duration: row.duration_label,
     description: row.description_long,
     image: {

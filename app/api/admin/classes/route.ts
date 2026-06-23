@@ -100,6 +100,7 @@ export async function POST(req: Request) {
       image_alt: v.imageAlt,
       total_spots: v.totalSpots,
       price: v.price,
+      deposit_amount: v.depositAmount,
       payment_link: v.paymentLink,
       is_cancelled: false,
     })

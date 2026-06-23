@@ -45,6 +45,7 @@ export interface ClaseFormData {
   imageAlt: string;
   totalSpots: number;
   price: number;
+  depositAmount: number | null;
   paymentLink: string | null;
 }
 
@@ -114,6 +115,15 @@ export function validateClaseForm(data: Partial<ClaseFormData>): ValidationResul
   ) {
     errors.price = "Precio inválido (no puede ser negativo).";
   }
+  if (
+    data.depositAmount !== null &&
+    data.depositAmount !== undefined &&
+    (typeof data.depositAmount !== "number" ||
+      !Number.isFinite(data.depositAmount) ||
+      data.depositAmount < 0)
+  ) {
+    errors.depositAmount = "Seña inválida (no puede ser negativa).";
+  }
 
   return { ok: Object.keys(errors).length === 0, errors };
 }
@@ -132,13 +142,14 @@ export async function getTemplateBySlug(slug: string): Promise<{
   imageSrc: string;
   imageAlt: string;
   price: number;
+  depositAmount: number | null;
   totalSpots: number;
 } | null> {
   const supabase = getSupabaseAdmin();
   const { data, error } = await supabase
     .from("classes")
     .select(
-      "title, category_event, category_label, short_desc, description_long, duration_label, image_src, image_alt, price, total_spots",
+      "title, category_event, category_label, short_desc, description_long, duration_label, image_src, image_alt, price, deposit_amount, total_spots",
     )
     .eq("slug", slug)
     .order("date", { ascending: false })
@@ -157,6 +168,9 @@ export async function getTemplateBySlug(slug: string): Promise<{
     imageSrc: data.image_src,
     imageAlt: data.image_alt,
     price: typeof data.price === "string" ? parseFloat(data.price) : data.price,
+    depositAmount: data.deposit_amount != null
+      ? (typeof data.deposit_amount === "string" ? parseFloat(data.deposit_amount) : data.deposit_amount)
+      : null,
     totalSpots: data.total_spots,
   };
 }

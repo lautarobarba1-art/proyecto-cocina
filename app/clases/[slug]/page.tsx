@@ -147,6 +147,17 @@ export default async function ClaseDetallePage({
               por persona
             </span>
           </span>
+          {clase.depositAmount && (
+            <>
+              <span className="text-line">·</span>
+              <span>
+                Seña{" "}
+                <span className="font-normal normal-case tracking-normal text-carbon/70">
+                  {clase.depositAmount}
+                </span>
+              </span>
+            </>
+          )}
         </div>
         <div className="mt-14 grid gap-14 lg:mt-16 lg:grid-cols-[minmax(0,1fr)_min(380px,38%)] lg:items-start lg:gap-x-16 xl:gap-x-20">
           <div className="min-w-0 space-y-8">
