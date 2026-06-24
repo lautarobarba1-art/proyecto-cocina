@@ -18,11 +18,14 @@ export interface EmailReservaConfirmacionData {
     className: string;
     classDate: string; // "Sábado 17 de mayo de 2026"
     classTime: string; // "18:00 - 21:00"
-    paymentLink?: string | null;
     depositAmount?: number | null;
     cupos: number;
+    transferHolder?: string | null;
+    transferAlias?: string | null;
+    transferCvu?: string | null;
+    transferBank?: string | null;
   }
-  
+
   export function templateReservaConfirmacion(
     data: EmailReservaConfirmacionData,
   ): string {
@@ -30,16 +33,23 @@ export interface EmailReservaConfirmacionData {
       ? new Intl.NumberFormat("es-AR", { style: "currency", currency: "ARS", maximumFractionDigits: 0 }).format(data.depositAmount)
       : null;
 
-    const paymentSection = data.paymentLink
+    const paymentSection = depositLabel
       ? `
       <div style="margin-top: 24px; padding: 16px; background-color: #fff8f3; border-left: 4px solid #d97706;">
-        <p style="margin: 0; font-weight: bold; color: #1f2937;">Falta abonar la seña${depositLabel ? ` de ${depositLabel}` : ""}</p>
-        <p style="margin: 8px 0 0 0; font-size: 14px; color: #4b5563;">
-          Hacé clic en el botón para completar el pago:
+        <p style="margin: 0; font-weight: bold; color: #1f2937;">Datos para transferir la seña · ${depositLabel}</p>
+        <p style="margin: 8px 0 12px 0; font-size: 14px; color: #4b5563;">
+          Para confirmar tu lugar, realizá la transferencia a los siguientes datos:
         </p>
-        <a href="${data.paymentLink}" style="display: inline-block; margin-top: 12px; padding: 12px 24px; background-color: #d97706; color: white; text-decoration: none; border-radius: 4px; font-weight: bold;">
-          Pagar seña${depositLabel ? ` · ${depositLabel}` : ""}
-        </a>
+        <table style="font-size: 14px; color: #374151; border-collapse: collapse; width: 100%;">
+          <tr><td style="padding: 4px 12px 4px 0; font-weight: bold; white-space: nowrap;">Monto:</td><td style="padding: 4px 0;">${esc(depositLabel)}</td></tr>
+          ${data.transferHolder ? `<tr><td style="padding: 4px 12px 4px 0; font-weight: bold; white-space: nowrap;">Titular:</td><td style="padding: 4px 0;">${esc(data.transferHolder)}</td></tr>` : ""}
+          ${data.transferAlias ? `<tr><td style="padding: 4px 12px 4px 0; font-weight: bold; white-space: nowrap;">Alias:</td><td style="padding: 4px 0;">${esc(data.transferAlias)}</td></tr>` : ""}
+          ${data.transferCvu ? `<tr><td style="padding: 4px 12px 4px 0; font-weight: bold; white-space: nowrap;">CVU:</td><td style="padding: 4px 0;">${esc(data.transferCvu)}</td></tr>` : ""}
+          ${data.transferBank ? `<tr><td style="padding: 4px 12px 4px 0; font-weight: bold; white-space: nowrap;">Banco / Billetera:</td><td style="padding: 4px 0;">${esc(data.transferBank)}</td></tr>` : ""}
+        </table>
+        <p style="margin: 12px 0 0 0; font-size: 13px; color: #6b7280; font-style: italic;">
+          La reserva queda pendiente hasta que el pago sea realizado.
+        </p>
       </div>
       `
       : `

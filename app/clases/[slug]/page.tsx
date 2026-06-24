@@ -202,9 +202,9 @@ export default async function ClaseDetallePage({
                 />
                 {!soldOut && (
                   <p className="mt-4 font-body text-[0.78rem] leading-relaxed text-carbon/45">
-                    Si la clase tiene seña, recibirás el link de pago junto al
-                    correo de confirmación. Sin seña, tu lugar queda reservado al
-                    enviar el formulario.
+                    Si la clase tiene seña, recibirás por email los datos para
+                    realizar la transferencia. Sin seña, tu lugar queda
+                    reservado al enviar el formulario.
                   </p>
                 )}
               </>

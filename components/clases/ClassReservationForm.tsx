@@ -215,8 +215,9 @@ export function ClassReservationForm({
           Listo, tu reserva fue registrada
         </h3>
         <p className="mt-4 font-body text-[0.95rem] leading-relaxed text-carbon/75">
-          Si no recibís un correo en los próximos minutos, escribinos por
-          email y te enviamos los datos de pago.
+          Te enviamos por email los datos para realizar la transferencia y
+          confirmar tu reserva. Si no recibís el correo en los próximos
+          minutos, escribinos.
         </p>
         <Button
           variant="ghost"
