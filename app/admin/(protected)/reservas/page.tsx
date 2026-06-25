@@ -190,6 +190,7 @@ export default async function ReservasAdminPage({ searchParams }: PageProps) {
                   <Th>Fecha clase</Th>
                   <Th>Cupos</Th>
                   <Th>Estado</Th>
+                  <Th>Comprobante</Th>
                   <Th>Acciones</Th>
                 </tr>
               </thead>
@@ -244,6 +245,22 @@ export default async function ReservasAdminPage({ searchParams }: PageProps) {
                       >
                         {statusLabel(r.status)}
                       </span>
+                    </Td>
+                    <Td>
+                      {r.comprobanteUrl ? (
+                        <a
+                          href={`/api/admin/reservations/${r.id}/comprobante`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1.5 rounded border border-green-600 bg-green-50 px-2 py-1 text-[0.72rem] font-medium text-green-800 transition hover:bg-green-100"
+                        >
+                          ✓ Ver comprobante
+                        </a>
+                      ) : r.status === "pending" ? (
+                        <span className="text-[0.78rem] text-carbon/40">
+                          Sin comprobante
+                        </span>
+                      ) : null}
                     </Td>
                     <Td>
                       <ReservaActions

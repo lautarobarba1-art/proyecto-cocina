@@ -12,6 +12,10 @@ import { Redis } from "@upstash/redis";
  *   - inquiries:    3 requests por IP por hora (sliding window)
  */
 
+if (!process.env.UPSTASH_REDIS_REST_URL || !process.env.UPSTASH_REDIS_REST_TOKEN) {
+  console.warn("[ratelimit] Upstash no configurado — rate limiting deshabilitado. Setear UPSTASH_REDIS_REST_URL y UPSTASH_REDIS_REST_TOKEN.");
+}
+
 function makeRatelimiter(requests: number, window: Parameters<typeof Ratelimit.slidingWindow>[1]) {
   const url = process.env.UPSTASH_REDIS_REST_URL;
   const token = process.env.UPSTASH_REDIS_REST_TOKEN;
@@ -26,6 +30,7 @@ function makeRatelimiter(requests: number, window: Parameters<typeof Ratelimit.s
 
 const reservationsLimiter = makeRatelimiter(5, "10 m");
 const inquiriesLimiter    = makeRatelimiter(3, "1 h");
+const comprobanteLimiter  = makeRatelimiter(3, "10 m");
 
 export type RatelimitResult = { allowed: true } | { allowed: false; retryAfter: number };
 
@@ -59,4 +64,8 @@ export async function checkReservationsLimit(ip: string): Promise<RatelimitResul
 
 export async function checkInquiriesLimit(ip: string): Promise<RatelimitResult> {
   return check(inquiriesLimiter, ip, "inquiries");
+}
+
+export async function checkComprobanteLimit(ip: string): Promise<RatelimitResult> {
+  return check(comprobanteLimiter, ip, "comprobante");
 }

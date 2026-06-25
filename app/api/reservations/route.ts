@@ -56,6 +56,13 @@ export async function POST(req: Request) {
     );
   }
 
+  if (customerName.length > 120) {
+    return NextResponse.json({ error: "missing_or_invalid_fields" }, { status: 400 });
+  }
+  if (notes && notes.length > 1000) {
+    return NextResponse.json({ error: "missing_or_invalid_fields" }, { status: 400 });
+  }
+
   /**console.log("[POST /api/reservations] Iniciando RPC...", {
     classId,
     spots,
@@ -135,10 +142,8 @@ export async function POST(req: Request) {
   // Cada envío tiene su propio try/catch para que uno fallido no cancele el otro.
   // ============================================
   let sendEmailReservaConfirmacion: typeof import("@/lib/resend/send").sendEmailReservaConfirmacion;
-  let sendEmailAdminNewReserva: typeof import("@/lib/resend/send").sendEmailAdminNewReserva;
   try {
-    ({ sendEmailReservaConfirmacion, sendEmailAdminNewReserva } =
-      await import("@/lib/resend/send"));
+    ({ sendEmailReservaConfirmacion } = await import("@/lib/resend/send"));
   } catch (importErr) {
     console.error("[POST /api/reservations] Error cargando módulo de email:", importErr);
     return NextResponse.json({ ok: true, id: reservationId }, { status: 201 });
@@ -186,24 +191,6 @@ export async function POST(req: Request) {
     );
   } catch (emailErr) {
     console.error("[POST /api/reservations] Email cliente error:", emailErr);
-  }
-
-  // Email a la admin
-  try {
-    await withTimeout(
-      sendEmailAdminNewReserva({
-        customerName,
-        customerEmail,
-        customerPhone: customerPhone ?? null,
-        className: cls?.title ?? "(clase)",
-        classDate: formatDateLong(cls?.date ?? ""),
-        cupos: spots,
-        notes: notes ?? null,
-      }),
-      5000,
-    );
-  } catch (emailErr) {
-    console.error("[POST /api/reservations] Email admin error:", emailErr);
   }
 
   return NextResponse.json({ ok: true, id: reservationId }, { status: 201 });

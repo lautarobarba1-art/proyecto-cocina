@@ -41,6 +41,16 @@ const securityHeaders = [
   { key: "X-Content-Type-Options", value: "nosniff" },
   { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
   { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
+  // Fuerza HTTPS por 2 años, incluyendo subdominios. Solo efectivo en producción.
+  { key: "Strict-Transport-Security", value: "max-age=63072000; includeSubDomains; preload" },
+];
+
+const siteOrigin = isDev ? "http://localhost:3000" : "https://menesteres.ar";
+
+const corsHeaders = [
+  { key: "Access-Control-Allow-Origin", value: siteOrigin },
+  { key: "Access-Control-Allow-Methods", value: "POST, OPTIONS" },
+  { key: "Access-Control-Allow-Headers", value: "Content-Type" },
 ];
 
 const nextConfig: NextConfig = {
@@ -49,6 +59,14 @@ const nextConfig: NextConfig = {
       {
         source: "/(.*)",
         headers: securityHeaders,
+      },
+      {
+        source: "/api/reservations",
+        headers: corsHeaders,
+      },
+      {
+        source: "/api/reservations/:id/comprobante",
+        headers: corsHeaders,
       },
     ];
   },

@@ -7,6 +7,5 @@ function requireEnv(name: string): string {
 }
 
 export const FROM_EMAIL: string = requireEnv("FROM_EMAIL");
-export const ADMIN_EMAIL: string = requireEnv("ADMIN_EMAIL");
 
 export const resend = new Resend(requireEnv("RESEND_API_KEY"));

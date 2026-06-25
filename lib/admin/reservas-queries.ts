@@ -17,6 +17,8 @@ export interface ReservaAdmin {
   classDate: string;
   classStartTime: string;
   classIsCancelled: boolean;
+  comprobanteUrl: string | null;
+  comprobanteUploadedAt: string | null;
 }
 
 export interface ReservasFilter {
@@ -44,6 +46,8 @@ export async function getReservasForAdmin(
       confirmed_at,
       cancelled_at,
       class_id,
+      comprobante_url,
+      comprobante_uploaded_at,
       classes (
         slug,
         title,
@@ -109,6 +113,8 @@ export async function getReservasForAdmin(
         classDate: cls?.date ?? "",
         classStartTime: cls?.start_time?.slice(0, 5) ?? "",
         classIsCancelled: cls?.is_cancelled ?? false,
+        comprobanteUrl: row.comprobante_url ?? null,
+        comprobanteUploadedAt: row.comprobante_uploaded_at ?? null,
       };
     })
     .filter((r) => {

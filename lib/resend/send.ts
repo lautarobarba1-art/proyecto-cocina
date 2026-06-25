@@ -1,11 +1,9 @@
-import { resend, FROM_EMAIL, ADMIN_EMAIL } from "./client";
+import { resend, FROM_EMAIL } from "./client";
 import {
   templateReservaConfirmacion,
-  templateAdminNewReserva,
   templateReservaConfirmada,
   templateReservaCancelada,
   type EmailReservaConfirmacionData,
-  type EmailAdminNewReservaData,
 } from "./template";
 
 /**
@@ -36,35 +34,7 @@ export async function sendEmailReservaConfirmacion(
 }
 
 /**
- * Email a la admin cuando recibe una reserva nueva.
- */
-export async function sendEmailAdminNewReserva(
-  data: EmailAdminNewReservaData,
-): Promise<{ success: boolean; error?: string }> {
-  try {
-    const html = templateAdminNewReserva(data);
-    const result = await resend.emails.send({
-      from: FROM_EMAIL,
-      to: ADMIN_EMAIL,
-      subject: `📬 Nueva reserva: ${data.customerName}`,
-      html,
-    });
-
-    if (result.error) {
-      console.error("[sendEmailAdminNewReserva]", result.error);
-      return { success: false, error: result.error.message };
-    }
-
-    return { success: true };
-  } catch (err) {
-    console.error("[sendEmailAdminNewReserva exception]", err);
-    return { success: false, error: String(err) };
-  }
-}
-
-/**
- * Variante: email al cliente cuando admin marca pagada.
- * (Lo agregamos ahora pero no lo conectamos hasta que termines estos 2.)
+ * Email al cliente cuando admin marca pagada.
  */
 export async function sendEmailReservaConfirmada(
   customerEmail: string,
