@@ -57,7 +57,7 @@ export function OpeningStatement() {
 
   return (
     <section
-      className="relative overflow-hidden border-b border-carbon bg-crema px-8 py-24 lg:px-10 lg:py-32"
+      className="relative overflow-hidden border-b border-carbon bg-crema px-8 py-14 lg:px-10 lg:py-32"
       aria-labelledby="opening-statement-heading"
     >
       <BrandPatternBackground
@@ -65,7 +65,7 @@ export function OpeningStatement() {
         opacity={0.04}
         tileSize={360}
       />
-      <div className="relative mx-auto flex min-h-[70vh] max-w-[1280px] flex-col">
+      <div className="relative mx-auto flex min-h-[50vh] max-w-[1280px] flex-col lg:min-h-[70vh]">
         <p
           id="opening-statement-heading"
           className="mb-8 font-mono text-[10px] uppercase tracking-hero text-terracota"

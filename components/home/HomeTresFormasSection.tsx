@@ -24,7 +24,7 @@ function FormaBlock({ num, title, text, href, cta, delay = 0, hasBorderRight = f
     <RevealStagger
       delayChildren={delay}
       className={[
-        "group flex flex-col gap-5 px-0 py-10 sm:py-12 lg:px-10 lg:py-14",
+        "group flex flex-col gap-0 px-0 py-10 sm:py-12 lg:px-10 lg:py-14",
         hasBorderRight ? "lg:border-r lg:border-carbon/10" : "",
       ]
         .filter(Boolean)
@@ -35,7 +35,7 @@ function FormaBlock({ num, title, text, href, cta, delay = 0, hasBorderRight = f
       {/* Número */}
       <RevealItem
         as="p"
-        className="font-mono text-[0.62rem] font-medium uppercase tracking-eyebrow text-carbon/35"
+        className="font-mono text-[0.62rem] font-semibold uppercase tracking-eyebrow text-carbon/15"
       >
         {num}
       </RevealItem>
@@ -43,18 +43,18 @@ function FormaBlock({ num, title, text, href, cta, delay = 0, hasBorderRight = f
       {/* Título */}
       <RevealItem
         as="h3"
-        className="max-w-[14ch] font-display text-[1.45rem] font-normal leading-[1.1] tracking-tightish text-carbon sm:text-[1.6rem]"
+        className=" mt-2 max-w-[14ch] font-display text-[1.45rem] font-semibold leading-[1.1] tracking-tightish text-terracota sm:text-[1.6rem]"
       >
         {title}
       </RevealItem>
 
       {/* Separador artesanal */}
-      <BrandDivider variant="trama" className="w-[80px]" color="rgba(214,82,38,0.22)" />
+      <BrandDivider variant="trama" className="mt-5 w-[80px]" color="rgba(214,82,38,0.22)" />
 
       {/* Descripción */}
       <RevealItem
         as="p"
-        className="max-w-[38ch] font-body text-[0.95rem] leading-[1.78] text-carbon/65"
+        className="mt-3 max-w-[38ch] font-body text-[0.95rem] leading-[1.78] text-carbon"
       >
         {text}
       </RevealItem>

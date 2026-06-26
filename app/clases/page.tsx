@@ -19,17 +19,17 @@ export default async function ClasesPage() {
   const classes = await getAllClasses();
 
   return (
-    <main className="min-w-0 flex-1 py-20 lg:py-28">
+    <main className="min-w-0 flex-1 py-12 lg:py-28">
       <Container as="div">
         {/* Header editorial con textura sutil */}
-        <div className="relative overflow-hidden pb-16 lg:pb-20">
+        <div className="relative overflow-hidden pb-10 lg:pb-20">
           <BrandPatternBackground
             src="/patrones/carpeta-patrones/Mesa%20de%20trabajo%209.png"
             opacity={0.04}
             tileSize={320}
           />
           <SectionLabel>CLASES</SectionLabel>
-          <div className="relative mt-12 min-w-0 max-w-[min(100%,85ch)]">
+          <div className="relative mt-6 min-w-0 max-w-[min(100%,85ch)]">
             <BrandIllustration
               src="/brand-elements/menesteres-elements/cuchara-menesteres.svg"
               size={80}
@@ -41,7 +41,7 @@ export default async function ClasesPage() {
             <SectionTitle>
               Un catálogo para <em>encontrarnos</em>
             </SectionTitle>
-            <p className="mt-10 max-w-[62ch] text-[1.05rem] leading-[1.7] text-carbon/80">
+            <p className="mt-2 max-w-[62ch] text-[1.05rem] leading-[1.7] text-carbon/80">
               Elegí categoría y recorré propuestas pensadas para cocinar en serio — con tiempo, buena mesa y
               acompañamiento.
             </p>
@@ -50,7 +50,7 @@ export default async function ClasesPage() {
 
         <BrandDivider variant="trama" />
 
-        <ClassesCatalog classes={classes} className="mt-12 lg:mt-16" />
+        <ClassesCatalog classes={classes} className="mt-8 lg:mt-16" />
       </Container>
     </main>
   );
