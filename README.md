@@ -34,8 +34,6 @@ como pendiente):
 - Validación de CSV en exports
 - Manejo de fallos silenciosos en envío de emails
 
-[Esta sección sola hace más que cualquier otra cosa del README — mostrala]
-
 ## Demo
 
 <img src="/galeria/panel1.png" alt="imagen del panel1">
