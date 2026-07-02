@@ -439,7 +439,7 @@ export function ClassReservationForm({
                 value={cupos}
                 onChange={(e) => setCupos(e.target.value)}
               >
-                {[1, 2, 3, 4].map((n) => (
+                {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((n) => (
                   <option key={n} value={String(n)}>
                     {n} {n === 1 ? "persona" : "personas"}
                   </option>
