@@ -19,5 +19,7 @@ export function createSupabaseBrowserClient() {
     );
   }
 
-  return createBrowserClient(url, anonKey);
+  return createBrowserClient(url, anonKey, {
+    cookieOptions: { name: "sb-menesteres-admin-auth" },
+  });
 }

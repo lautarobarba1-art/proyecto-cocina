@@ -8,6 +8,7 @@ import { isAdminEmail } from "@/lib/admin/config";
 export function CallbackHandler() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const [errorMsg, setErrorMsg] = React.useState<string | null>(null);
 
   React.useEffect(() => {
     const code = searchParams.get("code");
@@ -15,7 +16,7 @@ export function CallbackHandler() {
     const next = rawNext.startsWith("/admin") ? rawNext : "/admin";
 
     if (!code) {
-      router.replace("/admin/login?error=missing_code");
+      setErrorMsg("No se recibió el código de acceso (missing_code).");
       return;
     }
 
@@ -23,8 +24,7 @@ export function CallbackHandler() {
 
     supabase.auth.exchangeCodeForSession(code).then(({ data, error }) => {
       if (error || !data.user) {
-        console.error("[auth callback]", error);
-        router.replace("/admin/login?error=invalid_code");
+        setErrorMsg(error?.message ?? "Error desconocido al verificar el enlace.");
         return;
       }
 
@@ -39,6 +39,25 @@ export function CallbackHandler() {
     });
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  if (errorMsg) {
+    return (
+      <div className="mt-8 space-y-3">
+        <p className="font-body text-[0.85rem] text-red-600">
+          Error al verificar el enlace:
+        </p>
+        <p className="font-mono text-[0.75rem] text-carbon/70 break-all">
+          {errorMsg}
+        </p>
+        <a
+          href="/admin/login"
+          className="block font-body text-[0.85rem] text-terracota underline"
+        >
+          Volver y pedir un nuevo enlace
+        </a>
+      </div>
+    );
+  }
 
   return (
     <p className="mt-8 font-body text-[0.85rem] text-carbon/50">

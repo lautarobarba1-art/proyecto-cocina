@@ -16,7 +16,7 @@ export default function AdminLoginPage() {
           Acceso a Menesteres
         </h1>
         <p className="mt-3 font-body text-[0.9rem] leading-relaxed text-carbon/65">
-          Ingresá tu correo y te enviaremos un enlace de acceso.
+          Ingresá tu correo y contraseña para acceder.
         </p>
 
         <Suspense

@@ -24,6 +24,7 @@ export async function createSupabaseServerClient() {
   }
 
   return createServerClient(url, anonKey, {
+    cookieOptions: { name: "sb-menesteres-admin-auth" },
     cookies: {
       getAll() {
         return cookieStore.getAll();

@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/Button";
 import {
   Field,
@@ -10,32 +10,25 @@ import {
   FormInput,
 } from "@/components/ui/form";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
+import { isAdminEmail } from "@/lib/admin/config";
 
 export function LoginForm() {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const redirectTo = searchParams.get("redirect") ?? "/admin";
-
-  const AUTH_ERRORS: Record<string, string> = {
-    invalid_code: "El enlace ya fue usado o expiró. Pedí uno nuevo.",
-    missing_code: "Enlace inválido. Pedí uno nuevo.",
-    unauthorized: "Este correo no tiene acceso al panel.",
-  };
-
-  const urlError = searchParams.get("error");
+  const safeRedirect = redirectTo.startsWith("/admin") ? redirectTo : "/admin";
 
   const [email, setEmail] = React.useState("");
+  const [password, setPassword] = React.useState("");
   const [loading, setLoading] = React.useState(false);
-  const [sent, setSent] = React.useState(false);
-  const [error, setError] = React.useState<string | null>(
-    urlError ? (AUTH_ERRORS[urlError] ?? "Error de autenticación. Intentá de nuevo.") : null
-  );
+  const [error, setError] = React.useState<string | null>(null);
 
-  const onSubmit = async (e: React.FormEvent) => {
+  const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError(null);
 
-    if (!email.trim()) {
-      setError("Ingresá tu correo.");
+    if (!email.trim() || !password) {
+      setError("Ingresá tu correo y contraseña.");
       return;
     }
 
@@ -43,42 +36,26 @@ export function LoginForm() {
 
     const supabase = createSupabaseBrowserClient();
 
-    // URL absoluta a la que Supabase redirige tras el click en el magic link
-    const callbackUrl = new URL("/admin/auth/callback", window.location.origin);
-    callbackUrl.searchParams.set("next", redirectTo);
-
-    const { error: authError } = await supabase.auth.signInWithOtp({
+    const { data, error: authError } = await supabase.auth.signInWithPassword({
       email: email.trim(),
-      options: {
-        emailRedirectTo: callbackUrl.toString(),
-        shouldCreateUser: false,
-      },
+      password,
     });
 
-    setLoading(false);
-
-    if (authError) {
-      console.error(authError);
-      setError("No pudimos enviar el enlace. Probá de nuevo.");
+    if (authError || !data.user) {
+      setLoading(false);
+      setError("Correo o contraseña incorrectos.");
       return;
     }
 
-    setSent(true);
-  };
+    if (!isAdminEmail(data.user.email)) {
+      await supabase.auth.signOut();
+      setLoading(false);
+      setError("Este correo no tiene acceso al panel.");
+      return;
+    }
 
-  if (sent) {
-    return (
-      <div className="mt-8">
-        <p className="font-body text-[0.95rem] leading-relaxed text-carbon/85">
-          Revisá tu casilla. Te enviamos un enlace a{" "}
-          <strong>{email.trim()}</strong> para acceder al panel.
-        </p>
-        <p className="mt-4 font-body text-[0.8rem] text-carbon/55">
-          El enlace expira en una hora. Si no lo encontrás, mirá en spam.
-        </p>
-      </div>
-    );
-  }
+    router.push(safeRedirect);
+  };
 
   return (
     <form onSubmit={onSubmit} className="mt-8">
@@ -93,6 +70,16 @@ export function LoginForm() {
             disabled={loading}
           />
         </Field>
+        <Field id="admin-password" label="Contraseña">
+          <FormInput
+            name="password"
+            type="password"
+            autoComplete="current-password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            disabled={loading}
+          />
+        </Field>
         {error ? <FormError>{error}</FormError> : null}
         <Button
           type="submit"
@@ -101,7 +88,7 @@ export function LoginForm() {
           disabled={loading}
           className="mt-2 w-full"
         >
-          {loading ? "Enviando…" : "Enviar enlace"}
+          {loading ? "Ingresando…" : "Ingresar"}
         </Button>
       </FormGroup>
     </form>
