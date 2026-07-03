@@ -179,7 +179,7 @@ export async function POST(req: Request) {
         classDate: formatDateLong(cls?.date ?? ""),
         classTime: `${cls?.start_time?.slice(0, 5) ?? ""} - ${cls?.end_time?.slice(0, 5) ?? ""}`,
         depositAmount: cls?.deposit_amount != null
-          ? (typeof cls.deposit_amount === "string" ? parseFloat(cls.deposit_amount) : cls.deposit_amount)
+          ? (typeof cls.deposit_amount === "string" ? parseFloat(cls.deposit_amount) : cls.deposit_amount) * spots
           : null,
         cupos: spots,
         transferHolder: process.env.TRANSFER_ACCOUNT_HOLDER ?? null,
