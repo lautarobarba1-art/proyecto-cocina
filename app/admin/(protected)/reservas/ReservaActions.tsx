@@ -13,12 +13,12 @@ interface Props {
 
 export function ReservaActions({ reservaId, status, customerName }: Props) {
   const router = useRouter();
-  const [loading, setLoading] = React.useState<null | "confirm" | "cancel">(
-    null,
-  );
+  const [loading, setLoading] = React.useState<
+    null | "confirm" | "cancel" | "delete"
+  >(null);
   const [error, setError] = React.useState<string | null>(null);
 
-  const callAction = async (action: "confirm" | "cancel") => {
+  const callAction = async (action: "confirm" | "cancel" | "delete") => {
     setError(null);
     setLoading(action);
 
@@ -39,6 +39,8 @@ export function ReservaActions({ reservaId, status, customerName }: Props) {
           setError("La reserva ya no está pendiente.");
         } else if (code === "already_cancelled_or_not_found") {
           setError("La reserva ya está cancelada.");
+        } else if (code === "not_found") {
+          setError("La reserva ya no existe.");
         } else {
           setError("No se pudo aplicar la acción.");
         }
@@ -68,16 +70,20 @@ export function ReservaActions({ reservaId, status, customerName }: Props) {
   const onCancel = () => {
     if (loading) return;
     const ok = window.confirm(
-      `¿Cancelar la reserva de ${customerName}?\n\nEl cupo se libera automáticamente.`,
+      `¿Cancelar la reserva de ${customerName}?\n\nEl cupo se libera automáticamente y se le enviará un email al cliente.`,
     );
     if (!ok) return;
     callAction("cancel");
   };
 
-  // Cancelada → sin acciones
-  if (status === "cancelled") {
-    return null;
-  }
+  const onDelete = () => {
+    if (loading) return;
+    const ok = window.confirm(
+      `¿Eliminar definitivamente la reserva de ${customerName}?\n\nEsta acción no se puede deshacer y NO se envía ningún email al cliente. Usala solo para reservas mal hechas (duplicados, pruebas, errores), no para cancelaciones legítimas.`,
+    );
+    if (!ok) return;
+    callAction("delete");
+  };
 
   return (
     <div className="flex flex-col gap-2">
@@ -91,13 +97,23 @@ export function ReservaActions({ reservaId, status, customerName }: Props) {
           {loading === "confirm" ? "Marcando…" : "Marcar pagada"}
         </button>
       )}
+      {status !== "cancelled" && (
+        <button
+          type="button"
+          onClick={onCancel}
+          disabled={loading !== null}
+          className="rounded border border-carbon/30 bg-white px-3 py-1.5 text-[0.75rem] font-medium uppercase tracking-wide text-carbon/70 transition hover:bg-red-50 hover:text-red-700 hover:border-red-300 disabled:opacity-50"
+        >
+          {loading === "cancel" ? "Cancelando…" : "Cancelar"}
+        </button>
+      )}
       <button
         type="button"
-        onClick={onCancel}
+        onClick={onDelete}
         disabled={loading !== null}
-        className="rounded border border-carbon/30 bg-white px-3 py-1.5 text-[0.75rem] font-medium uppercase tracking-wide text-carbon/70 transition hover:bg-red-50 hover:text-red-700 hover:border-red-300 disabled:opacity-50"
+        className="rounded border border-red-300 bg-white px-3 py-1.5 text-[0.75rem] font-medium uppercase tracking-wide text-red-700/70 transition hover:bg-red-700 hover:text-white disabled:opacity-50"
       >
-        {loading === "cancel" ? "Cancelando…" : "Cancelar"}
+        {loading === "delete" ? "Eliminando…" : "Eliminar"}
       </button>
       {error && (
         <p className="text-[0.72rem] text-red-700">{error}</p>

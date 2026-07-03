@@ -45,7 +45,7 @@ export async function POST(req: Request) {
     !UUID_RE.test(classId) ||
     !spots ||
     spots < 1 ||
-    spots > 10 ||
+    spots > 15 ||
     !customerName ||
     !customerEmail ||
     !EMAIL_RE.test(customerEmail)

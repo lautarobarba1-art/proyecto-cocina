@@ -24,7 +24,7 @@ export async function POST(
   }
 
   const action = (body as { action?: string })?.action;
-  if (action !== "confirm" && action !== "cancel") {
+  if (action !== "confirm" && action !== "cancel" && action !== "delete") {
     return NextResponse.json({ error: "invalid_action" }, { status: 400 });
   }
 
@@ -35,6 +35,42 @@ export async function POST(
   }
 
   const supabase = getSupabaseAdmin();
+
+  // ─── DELETE ─────────────────────────────────────────────────────────────────
+  // Borrado definitivo de reservas mal hechas (no envía email; para cancelaciones
+  // legítimas de clientes usar "cancel", que sí notifica).
+  if (action === "delete") {
+    const { data: existing } = await supabase
+      .from("reservations")
+      .select("id, comprobante_url")
+      .eq("id", id)
+      .maybeSingle();
+
+    if (!existing) {
+      return NextResponse.json({ error: "not_found" }, { status: 404 });
+    }
+
+    if (existing.comprobante_url) {
+      const { error: storageError } = await supabase.storage
+        .from("comprobantes")
+        .remove([existing.comprobante_url]);
+      if (storageError) {
+        console.error("[admin/reservations delete] Storage cleanup error:", storageError);
+      }
+    }
+
+    const { error: deleteError } = await supabase
+      .from("reservations")
+      .delete()
+      .eq("id", id);
+
+    if (deleteError) {
+      console.error("[admin/reservations delete]", deleteError);
+      return NextResponse.json({ error: "server_error" }, { status: 500 });
+    }
+
+    return NextResponse.json({ ok: true });
+  }
 
   // ─── CONFIRM ────────────────────────────────────────────────────────────────
   if (action === "confirm") {
