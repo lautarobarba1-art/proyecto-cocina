@@ -159,7 +159,11 @@ export function reservasToCSV(reservas: ReservaAdmin[]): string {
   };
 
   const rows = reservas.map((r) => [
-    escape(new Date(r.createdAt).toLocaleDateString("es-AR")),
+    escape(
+      new Date(r.createdAt).toLocaleDateString("es-AR", {
+        timeZone: "America/Argentina/Buenos_Aires",
+      }),
+    ),
     escape(r.customerName),
     escape(r.customerEmail),
     escape(r.customerPhone),

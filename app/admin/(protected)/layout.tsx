@@ -28,7 +28,7 @@ export default async function AdminLayout({
             >
               Menesteres · Admin
             </Link>
-            <nav className="order-last flex w-full gap-4 border-t border-carbon/5 pb-2 pt-2 sm:order-none sm:w-auto sm:gap-6 sm:border-t-0 sm:pb-0 sm:pt-0">
+            <nav className="order-last flex w-full gap-4 border-t border-carbon/5 pb-2 pt-2 sm:order-0 sm:w-auto sm:gap-6 sm:border-t-0 sm:pb-0 sm:pt-0">
               <Link
                 href="/admin/reservas"
                 className="font-sans text-[0.85rem] text-carbon/70 hover:text-carbon"
