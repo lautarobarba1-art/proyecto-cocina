@@ -87,18 +87,13 @@ export interface WhatsAppConfigValidation {
  * Se llama desde el cliente justo antes de pegarle a la Graph API, no al
  * cargar el módulo — así la app no se cae por no tener WhatsApp configurado
  * mientras esté deshabilitado o en modo simulado.
- *
- * WHATSAPP_APP_SECRET NO se valida acá a propósito: no hace falta para
- * mandar un mensaje, solo para validar la firma HMAC de los webhooks
- * entrantes (Etapa 6, todavía no construida). Antes se exigía acá por
- * error, lo que bloqueaba cualquier envío real mientras esa variable
- * quedara vacía — sin relación real con la capacidad de enviar.
  */
 export function validateWhatsAppConfig(config: WhatsAppConfig): WhatsAppConfigValidation {
   const errors: string[] = [];
 
   if (!config.accessToken) errors.push("Falta WHATSAPP_ACCESS_TOKEN");
   if (!config.phoneNumberId) errors.push("Falta WHATSAPP_PHONE_NUMBER_ID");
+  if (!config.appSecret) errors.push("Falta WHATSAPP_APP_SECRET");
 
   return { ok: errors.length === 0, errors };
 }
