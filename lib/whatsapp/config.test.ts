@@ -70,16 +70,24 @@ test("validateWhatsAppConfig falla si faltan credenciales", () => {
   assert.equal(result.ok, false);
   assert.ok(result.errors.some((e) => e.includes("WHATSAPP_ACCESS_TOKEN")));
   assert.ok(result.errors.some((e) => e.includes("WHATSAPP_PHONE_NUMBER_ID")));
-  assert.ok(result.errors.some((e) => e.includes("WHATSAPP_APP_SECRET")));
 });
 
-test("validateWhatsAppConfig pasa si están las tres credenciales requeridas", () => {
+test("validateWhatsAppConfig pasa con solo access token + phone number id (WHATSAPP_APP_SECRET no es necesario para enviar)", () => {
   const config = loadWhatsAppConfig({
     WHATSAPP_ACCESS_TOKEN: "token-123",
     WHATSAPP_PHONE_NUMBER_ID: "phone-id-1",
-    WHATSAPP_APP_SECRET: "secret-1",
   });
   const result = validateWhatsAppConfig(config);
   assert.equal(result.ok, true);
   assert.deepEqual(result.errors, []);
+});
+
+test("validateWhatsAppConfig no exige WHATSAPP_APP_SECRET aunque esté vacío", () => {
+  const config = loadWhatsAppConfig({
+    WHATSAPP_ACCESS_TOKEN: "token-123",
+    WHATSAPP_PHONE_NUMBER_ID: "phone-id-1",
+    WHATSAPP_APP_SECRET: "",
+  });
+  const result = validateWhatsAppConfig(config);
+  assert.equal(result.ok, true);
 });
