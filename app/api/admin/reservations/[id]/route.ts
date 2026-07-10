@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
 import { getCurrentUserEmail } from "@/lib/supabase/auth-server";
 import { isAdminEmail } from "@/lib/admin/config";
+import { confirmReservationPayment } from "@/lib/admin/reservas-actions";
 
 export const runtime = "nodejs";
 
@@ -73,50 +74,24 @@ export async function POST(
   }
 
   // ─── CONFIRM ────────────────────────────────────────────────────────────────
+  // La transición real (anterior != confirmed -> nuevo = confirmed) y el
+  // disparo de notifyPaymentConfirmed viven en confirmReservationPayment
+  // (lib/admin/reservas-actions.ts), testeado ahí directamente sin necesitar
+  // un Request/Response completo — ver lib/admin/reservas-actions.test.ts.
   if (action === "confirm") {
-    const { data, error } = await supabase
-      .from("reservations")
-      .update({
-        status: "confirmed",
-        confirmed_at: new Date().toISOString(),
-      })
-      .eq("id", id)
-      .eq("status", "pending")
-      .select("id, status, customer_name, customer_email, class_id")
-      .maybeSingle();
+    const result = await confirmReservationPayment(supabase, id);
 
-    if (error) {
-      console.error("[admin/reservations confirm]", error);
+    if (!result.ok && result.reason === "db_error") {
       return NextResponse.json({ error: "server_error" }, { status: 500 });
     }
-    if (!data) {
+    if (!result.ok) {
       return NextResponse.json(
         { error: "not_pending_or_not_found" },
         { status: 409 },
       );
     }
 
-    // Email al cliente: pago confirmado
-    try {
-      const { sendEmailReservaConfirmada } = await import("@/lib/resend/send");
-
-      // Traer nombre de la clase
-      const { data: cls } = await supabase
-        .from("classes")
-        .select("title")
-        .eq("id", data.class_id)
-        .maybeSingle();
-
-      await sendEmailReservaConfirmada(
-        data.customer_email,
-        data.customer_name,
-        cls?.title ?? "(clase)",
-      );
-    } catch (emailErr) {
-      console.error("[admin/reservations confirm] Email error:", emailErr);
-    }
-
-    return NextResponse.json({ ok: true, status: data.status });
+    return NextResponse.json({ ok: true, status: result.status });
   }
 
   // ─── CANCEL ─────────────────────────────────────────────────────────────────
