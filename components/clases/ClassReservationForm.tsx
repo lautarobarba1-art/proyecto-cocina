@@ -12,7 +12,6 @@ import {
 import type { ClassMock } from "@/lib/classes-mock";
 import { DEFAULT_CLASS_SESSIONS } from "@/lib/classes-mock";
 import { mailtoHref } from "@/lib/site/contact";
-import { normalizeArgentinePhone } from "@/lib/whatsapp/phone";
 
 export interface SessionOption {
   id: string;
@@ -47,7 +46,6 @@ export function ClassReservationForm({
   const [nombre, setNombre] = React.useState("");
   const [email, setEmail] = React.useState("");
   const [telefono, setTelefono] = React.useState("");
-  const [whatsappConsent, setWhatsappConsent] = React.useState(false);
   const [sessionId, setSessionId] = React.useState(
     initialSessionId ?? sessions[0]?.id ?? "",
   );
@@ -126,12 +124,6 @@ export function ClassReservationForm({
       return;
     }
 
-    // Ayuda visual nada más: la validación autoritativa es del servidor.
-    if (telefono.trim() && !normalizeArgentinePhone(telefono).valid) {
-      setError("El WhatsApp ingresado no parece válido. Revisalo o dejalo vacío.");
-      return;
-    }
-
     // waitlist nunca llega aquí — el soldOut card se muestra antes del form
 
     // Buscar el classId real de la sesión elegida
@@ -153,7 +145,6 @@ export function ClassReservationForm({
           name: nombre.trim(),
           email: email.trim(),
           phone: telefono.trim() || null,
-          whatsappConsent: whatsappConsent && Boolean(telefono.trim()),
           notes: mensaje.trim() || null,
           spots: parseInt(cupos, 10),
           idempotencyKey: idempotencyKeyRef.current,
@@ -171,8 +162,6 @@ export function ClassReservationForm({
           setError("Esta sesión fue cancelada.");
         } else if (code === "duplicate") {
           setError("Ya tenés una reserva registrada para esta sesión.");
-        } else if (code === "invalid_phone") {
-          setError("El WhatsApp ingresado no es válido. Revisalo o dejalo vacío.");
         } else {
           setError("No pudimos procesar tu reserva. Intentá de nuevo.");
         }
@@ -341,7 +330,6 @@ export function ClassReservationForm({
             setNombre("");
             setEmail("");
             setTelefono("");
-            setWhatsappConsent(false);
             setSessionId(initialSessionId ?? sessions[0]?.id ?? "");
             setCupos("1");
             setMensaje("");
@@ -429,23 +417,6 @@ export function ClassReservationForm({
               onChange={(e) => setTelefono(e.target.value)}
             />
           </Field>
-          <div className="flex items-start gap-3">
-            <input
-              id="res-whatsapp-consent"
-              name="whatsappConsent"
-              type="checkbox"
-              checked={whatsappConsent}
-              onChange={(e) => setWhatsappConsent(e.target.checked)}
-              className="mt-0.5 h-4 w-4 shrink-0 cursor-pointer accent-terracota"
-            />
-            <label
-              htmlFor="res-whatsapp-consent"
-              className="cursor-pointer font-body text-[0.82rem] leading-relaxed text-carbon/70"
-            >
-              Acepto recibir por WhatsApp confirmaciones, recordatorios y avisos
-              relacionados con mi reserva.
-            </label>
-          </div>
           {!waitlist && sessions.length > 0 ? (
             <Field id="res-turno" label="Turno">
               <FormSelect
