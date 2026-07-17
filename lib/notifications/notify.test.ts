@@ -112,6 +112,7 @@ test("la confirmación de pago también se deduplica por email", async () => {
     classDateISO: "2026-08-01",
     classStartTime: "10:00:00",
     classEndTime: "12:00:00",
+    spots: 2,
   };
   const deps = {
     sendEmailReservaConfirmada: async () => {

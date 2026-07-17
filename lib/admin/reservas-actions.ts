@@ -40,7 +40,7 @@ export async function confirmReservationPayment(
     })
     .eq("id", reservationId)
     .eq("status", "pending")
-    .select("id, status, customer_name, customer_email, class_id")
+    .select("id, status, customer_name, customer_email, class_id, spots")
     .maybeSingle();
 
   if (error) {
@@ -68,6 +68,7 @@ export async function confirmReservationPayment(
       classDateISO: cls?.date ?? "",
       classStartTime: cls?.start_time ?? "",
       classEndTime: cls?.end_time ?? "",
+      spots: data.spots,
     });
   } catch (err) {
     console.error("[confirmReservationPayment] notifyPaymentConfirmed error:", err);

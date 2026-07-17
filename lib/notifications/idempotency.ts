@@ -26,16 +26,20 @@ export function buildCancelacionKey(reservationId: string): string {
 }
 
 /**
- * classDateISO es la fecha de la clase (YYYY-MM-DD) vigente al momento de
- * armar la clave, no la fecha de hoy. Si la clase se reprograma, la fecha
- * cambia y el recordatorio para la nueva fecha es un evento distinto — no
- * queda "quemado" por un recordatorio ya enviado para la fecha vieja.
+ * classDateISO + classStartTime son la fecha/horario de la clase vigentes al
+ * momento de armar la clave, no los de hoy. Si la clase se reprograma —
+ * incluso a otro horario el mismo día — la clave cambia y el recordatorio
+ * para el nuevo horario es un evento distinto: no queda "quemado" por un
+ * recordatorio ya enviado para la fecha/horario viejos. Incluir el horario
+ * (no solo la fecha) es necesario porque un cambio de horario sin cambio de
+ * fecha, de otro modo, sería indistinguible del evento ya notificado.
  */
 export function buildRecordatorioKey(
   reservationId: string,
   classDateISO: string,
+  classStartTime: string,
 ): string {
-  return `recordatorio:${reservationId}:${classDateISO}`;
+  return `recordatorio:${reservationId}:${classDateISO}:${classStartTime}`;
 }
 
 export interface ReprogramacionKeyParams {
@@ -70,7 +74,12 @@ export type DeduplicationKeyBuilder =
   | { eventType: "reserva_confirmada"; reservationId: string }
   | { eventType: "pago_confirmado"; reservationId: string }
   | { eventType: "cancelacion"; reservationId: string }
-  | { eventType: "recordatorio"; reservationId: string; classDateISO: string }
+  | {
+      eventType: "recordatorio";
+      reservationId: string;
+      classDateISO: string;
+      classStartTime: string;
+    }
   | ({ eventType: "reprogramacion" } & ReprogramacionKeyParams);
 
 export function buildDeduplicationKey(params: DeduplicationKeyBuilder): string {
@@ -82,7 +91,11 @@ export function buildDeduplicationKey(params: DeduplicationKeyBuilder): string {
     case "cancelacion":
       return buildCancelacionKey(params.reservationId);
     case "recordatorio":
-      return buildRecordatorioKey(params.reservationId, params.classDateISO);
+      return buildRecordatorioKey(
+        params.reservationId,
+        params.classDateISO,
+        params.classStartTime,
+      );
     case "reprogramacion":
       return buildReprogramacionKey(params);
     default: {

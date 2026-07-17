@@ -102,6 +102,7 @@ const baseRow = {
   customer_name: "Ana",
   customer_email: "ana@example.com",
   class_id: "class-1",
+  spots: 2,
 };
 
 // ─── pending -> confirmed ───────────────────────────────────────────────────

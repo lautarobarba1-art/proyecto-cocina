@@ -3,7 +3,10 @@ import {
   templateReservaConfirmacion,
   templateReservaConfirmada,
   templateReservaCancelada,
+  templateRecordatorio,
   type EmailReservaConfirmacionData,
+  type EmailPagoConfirmadoData,
+  type EmailRecordatorioData,
 } from "./template";
 
 /**
@@ -37,16 +40,14 @@ export async function sendEmailReservaConfirmacion(
  * Email al cliente cuando admin marca pagada.
  */
 export async function sendEmailReservaConfirmada(
-  customerEmail: string,
-  customerName: string,
-  className: string,
+  data: EmailPagoConfirmadoData,
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    const html = templateReservaConfirmada(customerName, className);
+    const html = templateReservaConfirmada(data);
     const result = await resend.emails.send({
       from: FROM_EMAIL,
-      to: customerEmail,
-      subject: `✓ Pago confirmado: ${className}`,
+      to: data.customerEmail,
+      subject: `✓ Pago confirmado: ${data.className}`,
       html,
     });
 
@@ -87,6 +88,33 @@ export async function sendEmailReservaCancelada(
     return { success: true };
   } catch (err) {
     console.error("[sendEmailReservaCancelada exception]", err);
+    return { success: false, error: String(err) };
+  }
+}
+
+/**
+ * Email de recordatorio ~24hs antes de la clase (solo reservas confirmed).
+ */
+export async function sendEmailRecordatorio(
+  data: EmailRecordatorioData,
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const html = templateRecordatorio(data);
+    const result = await resend.emails.send({
+      from: FROM_EMAIL,
+      to: data.customerEmail,
+      subject: `⏰ Recordatorio: ${data.className} es mañana`,
+      html,
+    });
+
+    if (result.error) {
+      console.error("[sendEmailRecordatorio]", result.error);
+      return { success: false, error: result.error.message };
+    }
+
+    return { success: true };
+  } catch (err) {
+    console.error("[sendEmailRecordatorio exception]", err);
     return { success: false, error: String(err) };
   }
 }

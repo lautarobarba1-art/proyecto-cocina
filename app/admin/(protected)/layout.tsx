@@ -47,6 +47,12 @@ export default async function AdminLayout({
               >
                 Consultas
               </Link>
+              <Link
+                href="/admin/notificaciones"
+                className="font-sans text-[0.85rem] text-carbon/70 hover:text-carbon"
+              >
+                Notificaciones
+              </Link>
             </nav>
             <div className="ml-auto flex items-center gap-3 py-3 sm:py-4">
               <span className="hidden sm:inline font-sans text-[0.8rem] text-carbon/50">

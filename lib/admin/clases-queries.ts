@@ -95,7 +95,62 @@ export async function getClasesForAdmin(
     countByClass.set(r.class_id, (countByClass.get(r.class_id) ?? 0) + 1);
   }
 
-  return classesData.map((c) => ({
+  return classesData.map((c) =>
+    mapRowToClaseAdmin(c, countByClass.get(c.id) ?? 0),
+  );
+}
+
+/**
+ * Trae una clase individual (con spots_left y conteo de reservas activas)
+ * para la vista de detalle admin. Devuelve null si no existe.
+ */
+export async function getClaseAdminById(id: string): Promise<ClaseAdmin | null> {
+  const supabase = getSupabaseAdmin();
+
+  const { data, error } = await supabase
+    .from("classes_with_availability")
+    .select("*")
+    .eq("id", id)
+    .maybeSingle();
+
+  if (error) {
+    console.error("[getClaseAdminById]", error);
+    throw new Error(`Failed to fetch clase: ${error.message}`);
+  }
+  if (!data) return null;
+
+  const activeReservationsCount = await countActiveReservations(id);
+  return mapRowToClaseAdmin(data, activeReservationsCount);
+}
+
+interface ClassesWithAvailabilityRow {
+  id: string;
+  slug: string;
+  title: string;
+  date: string;
+  start_time: string | null;
+  end_time: string | null;
+  category_event: "adultos" | "ninos" | "eventos";
+  category_label: string;
+  total_spots: number;
+  spots_left: number | null;
+  price: number | string;
+  deposit_amount: number | string | null;
+  payment_link: string | null;
+  is_cancelled: boolean;
+  is_highlighted: boolean;
+  short_desc: string;
+  description_long: string;
+  duration_label: string;
+  image_src: string;
+  image_alt: string;
+}
+
+function mapRowToClaseAdmin(
+  c: ClassesWithAvailabilityRow,
+  activeReservationsCount: number,
+): ClaseAdmin {
+  return {
     id: c.id,
     slug: c.slug,
     title: c.title,
@@ -119,8 +174,8 @@ export async function getClasesForAdmin(
     durationLabel: c.duration_label,
     imageSrc: c.image_src,
     imageAlt: c.image_alt,
-    activeReservationsCount: countByClass.get(c.id) ?? 0,
-  }));
+    activeReservationsCount,
+  };
 }
 
 /**

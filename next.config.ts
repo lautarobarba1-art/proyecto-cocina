@@ -10,7 +10,7 @@ const scriptSrc = isDev
 
 // In dev, webpack HMR connects to localhost via websocket.
 const connectSrc = isDev
-  ? "connect-src 'self' https://*.supabase.co wss://*.supabase.co ws://localhost:* http://localhost:*"
+  ? "connect-src 'self' https://*.supabase.co wss://*.supabase.co ws://localhost:* http://localhost:* ws://127.0.0.1:* http://127.0.0.1:*"
   : "connect-src 'self' https://*.supabase.co wss://*.supabase.co";
 
 const csp = [

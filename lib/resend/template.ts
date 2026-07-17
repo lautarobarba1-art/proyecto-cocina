@@ -128,21 +128,66 @@ export interface EmailReservaConfirmacionData {
     `;
   }
   
-  export function templateReservaConfirmada(
-    customerName: string,
-    className: string,
-  ): string {
+  export interface EmailPagoConfirmadoData {
+    customerName: string;
+    customerEmail: string;
+    className: string;
+    classDate: string; // "Sábado 17 de mayo de 2026"
+    classTime: string; // "18:00 - 21:00"
+    cupos: number;
+  }
+
+  export function templateReservaConfirmada(data: EmailPagoConfirmadoData): string {
     return `
       <!DOCTYPE html>
       <html>
-      <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
-      <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; margin: 0; padding: 20px; background-color: #f9fafb;">
-        <div style="max-width: 600px; margin: 0 auto; background: white; padding: 24px; border-radius: 8px; border: 1px solid #e5e7eb;">
-          <h1 style="color: #1f2937; margin-top: 0;">✓ Pago recibido</h1>
-          <p style="color: #4b5563; line-height: 1.6;">
-            Hola <strong>${esc(customerName)}</strong>,<br>
-            Confirmamos que recibimos tu pago para <strong>${esc(className)}</strong>.<br>
-            ¡Te esperamos pronto!
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Pago confirmado</title>
+      </head>
+      <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; margin: 0; padding: 0; background-color: #f9fafb;">
+        <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
+          <div style="text-align: center; margin-bottom: 32px;">
+            <h1 style="margin: 0; font-size: 24px; color: #1f2937;">✓ Pago recibido</h1>
+          </div>
+
+          <div style="background-color: white; padding: 24px; border-radius: 8px; border: 1px solid #e5e7eb;">
+            <p style="margin: 0 0 16px 0; font-size: 16px; color: #4b5563;">
+              Hola <strong>${esc(data.customerName)}</strong>,
+            </p>
+
+            <p style="margin: 0 0 24px 0; font-size: 15px; color: #4b5563; line-height: 1.6;">
+              Confirmamos que recibimos tu pago para <strong>${esc(data.className)}</strong>.
+              Tu lugar está reservado y confirmado. ¡Te esperamos!
+            </p>
+
+            <div style="background-color: #f3f4f6; padding: 16px; border-radius: 4px; margin-bottom: 24px;">
+              <div style="margin-bottom: 12px;">
+                <span style="font-weight: bold; color: #1f2937;">Clase:</span>
+                <span style="color: #4b5563;">${esc(data.className)}</span>
+              </div>
+              <div style="margin-bottom: 12px;">
+                <span style="font-weight: bold; color: #1f2937;">Fecha:</span>
+                <span style="color: #4b5563;">${esc(data.classDate)}</span>
+              </div>
+              <div style="margin-bottom: 12px;">
+                <span style="font-weight: bold; color: #1f2937;">Horario:</span>
+                <span style="color: #4b5563;">${esc(data.classTime)}</span>
+              </div>
+              <div>
+                <span style="font-weight: bold; color: #1f2937;">Cupos:</span>
+                <span style="color: #4b5563;">${esc(String(data.cupos))}</span>
+              </div>
+            </div>
+
+            <p style="margin: 24px 0 0 0; font-size: 13px; color: #6b7280; border-top: 1px solid #e5e7eb; padding-top: 16px;">
+              Si tenés preguntas, podés respondernos directamente a este email.
+            </p>
+          </div>
+
+          <p style="text-align: center; margin-top: 24px; font-size: 12px; color: #9ca3af;">
+            Menesteres &copy; 2026
           </p>
         </div>
       </body>
@@ -150,7 +195,73 @@ export interface EmailReservaConfirmacionData {
     `;
   }
 
-  export function templateReservaCancelada(
+  export interface EmailRecordatorioData {
+    customerName: string;
+    customerEmail: string;
+    className: string;
+    classDate: string; // "Sábado 17 de mayo de 2026"
+    classTime: string; // "18:00 - 21:00"
+    cupos: number;
+  }
+
+  export function templateRecordatorio(data: EmailRecordatorioData): string {
+    return `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Recordatorio de tu clase</title>
+      </head>
+      <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; margin: 0; padding: 0; background-color: #f9fafb;">
+        <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
+          <div style="text-align: center; margin-bottom: 32px;">
+            <h1 style="margin: 0; font-size: 24px; color: #1f2937;">⏰ ¡Tu clase es mañana!</h1>
+          </div>
+
+          <div style="background-color: white; padding: 24px; border-radius: 8px; border: 1px solid #e5e7eb;">
+            <p style="margin: 0 0 16px 0; font-size: 16px; color: #4b5563;">
+              Hola <strong>${esc(data.customerName)}</strong>,
+            </p>
+
+            <p style="margin: 0 0 24px 0; font-size: 15px; color: #4b5563; line-height: 1.6;">
+              Te recordamos que tenés una clase de <strong>${esc(data.className)}</strong> mañana. ¡Te esperamos!
+            </p>
+
+            <div style="background-color: #f3f4f6; padding: 16px; border-radius: 4px; margin-bottom: 24px;">
+              <div style="margin-bottom: 12px;">
+                <span style="font-weight: bold; color: #1f2937;">Clase:</span>
+                <span style="color: #4b5563;">${esc(data.className)}</span>
+              </div>
+              <div style="margin-bottom: 12px;">
+                <span style="font-weight: bold; color: #1f2937;">Fecha:</span>
+                <span style="color: #4b5563;">${esc(data.classDate)}</span>
+              </div>
+              <div style="margin-bottom: 12px;">
+                <span style="font-weight: bold; color: #1f2937;">Horario:</span>
+                <span style="color: #4b5563;">${esc(data.classTime)}</span>
+              </div>
+              <div>
+                <span style="font-weight: bold; color: #1f2937;">Cupos:</span>
+                <span style="color: #4b5563;">${esc(String(data.cupos))}</span>
+              </div>
+            </div>
+
+            <p style="margin: 24px 0 0 0; font-size: 13px; color: #6b7280; border-top: 1px solid #e5e7eb; padding-top: 16px;">
+              Si tenés preguntas, podés respondernos directamente a este email.
+            </p>
+          </div>
+
+          <p style="text-align: center; margin-top: 24px; font-size: 12px; color: #9ca3af;">
+            Menesteres &copy; 2026
+          </p>
+        </div>
+      </body>
+      </html>
+    `;
+  }
+
+export function templateReservaCancelada(
     customerName: string,
     className: string,
   ): string {

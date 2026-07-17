@@ -24,6 +24,7 @@ export interface ReservaAdmin {
 export interface ReservasFilter {
   status?: "pending" | "confirmed" | "cancelled" | "all";
   mes?: string; // YYYY-MM
+  classId?: string;
 }
 
 export async function getReservasForAdmin(
@@ -62,6 +63,11 @@ export async function getReservasForAdmin(
   // Filtro por estado
   if (filter.status && filter.status !== "all") {
     query = query.eq("status", filter.status);
+  }
+
+  // Filtro por clase
+  if (filter.classId) {
+    query = query.eq("class_id", filter.classId);
   }
 
   // Filtro por mes (filtra por fecha de la clase, no de la reserva)

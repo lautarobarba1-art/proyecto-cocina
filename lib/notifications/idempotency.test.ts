@@ -25,14 +25,20 @@ test("buildPagoConfirmadoKey y buildCancelacionKey difieren entre sí para la mi
 });
 
 test("buildRecordatorioKey cambia si cambia la fecha de la clase (reprogramación)", () => {
-  const original = buildRecordatorioKey("res-1", "2026-08-01");
-  const reprogramada = buildRecordatorioKey("res-1", "2026-08-05");
+  const original = buildRecordatorioKey("res-1", "2026-08-01", "10:00:00");
+  const reprogramada = buildRecordatorioKey("res-1", "2026-08-05", "10:00:00");
   assert.notEqual(original, reprogramada);
 });
 
-test("buildRecordatorioKey es estable para la misma reserva+fecha (dedup de reintentos del cron)", () => {
-  const a = buildRecordatorioKey("res-1", "2026-08-01");
-  const b = buildRecordatorioKey("res-1", "2026-08-01");
+test("buildRecordatorioKey cambia si cambia el horario aunque la fecha sea la misma", () => {
+  const original = buildRecordatorioKey("res-1", "2026-08-01", "10:00:00");
+  const reprogramada = buildRecordatorioKey("res-1", "2026-08-01", "15:00:00");
+  assert.notEqual(original, reprogramada);
+});
+
+test("buildRecordatorioKey es estable para la misma reserva+fecha+horario (dedup de reintentos del cron)", () => {
+  const a = buildRecordatorioKey("res-1", "2026-08-01", "10:00:00");
+  const b = buildRecordatorioKey("res-1", "2026-08-01", "10:00:00");
   assert.equal(a, b);
 });
 
@@ -91,14 +97,19 @@ test("buildDeduplicationKey delega correctamente según eventType", () => {
     buildReservaConfirmadaKey("res-1"),
   );
   assert.equal(
-    buildDeduplicationKey({ eventType: "recordatorio", reservationId: "res-1", classDateISO: "2026-08-01" }),
-    buildRecordatorioKey("res-1", "2026-08-01"),
+    buildDeduplicationKey({
+      eventType: "recordatorio",
+      reservationId: "res-1",
+      classDateISO: "2026-08-01",
+      classStartTime: "10:00:00",
+    }),
+    buildRecordatorioKey("res-1", "2026-08-01", "10:00:00"),
   );
 });
 
 test("eventTypeFromKey reconoce el prefijo de cada tipo de evento", () => {
   assert.equal(eventTypeFromKey("reserva_confirmada:res-1"), "reserva_confirmada");
-  assert.equal(eventTypeFromKey("recordatorio:res-1:2026-08-01"), "recordatorio");
+  assert.equal(eventTypeFromKey("recordatorio:res-1:2026-08-01:10:00:00"), "recordatorio");
   assert.equal(eventTypeFromKey("reprogramacion:res-1:abcdef1234567890"), "reprogramacion");
   assert.equal(eventTypeFromKey("algo_desconocido:res-1"), null);
 });

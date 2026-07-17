@@ -16,10 +16,12 @@ export async function GET(req: Request) {
   const url = new URL(req.url);
   const estado = url.searchParams.get("estado") ?? undefined;
   const mes = url.searchParams.get("mes") ?? undefined;
+  const classId = url.searchParams.get("classId") ?? undefined;
 
   const reservas = await getReservasForAdmin(1000, {
     status: estado as "pending" | "confirmed" | "cancelled" | "all" | undefined,
     mes,
+    classId,
   });
 
   const csv = reservasToCSV(reservas);

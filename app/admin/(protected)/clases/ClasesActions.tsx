@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 interface Props {
@@ -25,10 +26,9 @@ export function ClasesActions({
   const [error, setError] = React.useState<string | null>(null);
   const [successMsg, setSuccessMsg] = React.useState<string | null>(null);
 
-  // No hay acciones si ya está cancelada o si es pasada
-  if (isCancelled || isPast) {
-    return null;
-  }
+  // Cancelar solo tiene sentido si la clase todavía está activa y no pasó,
+  // pero "Ver reservas" sigue siendo útil incluso para clases pasadas o canceladas.
+  const canCancel = !isCancelled && !isPast;
 
   const onCancel = async () => {
     if (loading) return;
@@ -90,14 +90,22 @@ export function ClasesActions({
 
   return (
     <div className="flex flex-col gap-1">
-      <button
-        type="button"
-        onClick={onCancel}
-        disabled={loading}
-        className="rounded border border-carbon/30 bg-white px-3 py-1.5 text-[0.75rem] font-medium uppercase tracking-wide text-carbon/70 transition hover:bg-red-50 hover:text-red-700 hover:border-red-300 disabled:opacity-50"
+      <Link
+        href={`/admin/clases/${claseId}/reservas`}
+        className="rounded border border-carbon/15 bg-white px-3 py-1.5 text-center text-[0.75rem] font-medium uppercase tracking-wide text-carbon/70 transition hover:border-carbon/30 hover:text-carbon"
       >
-        {loading ? "Cancelando…" : "Cancelar clase"}
-      </button>
+        Ver reservas
+      </Link>
+      {canCancel && (
+        <button
+          type="button"
+          onClick={onCancel}
+          disabled={loading}
+          className="rounded border border-carbon/30 bg-white px-3 py-1.5 text-[0.75rem] font-medium uppercase tracking-wide text-carbon/70 transition hover:bg-red-50 hover:text-red-700 hover:border-red-300 disabled:opacity-50"
+        >
+          {loading ? "Cancelando…" : "Cancelar clase"}
+        </button>
+      )}
       {error && <p className="text-[0.72rem] text-red-700">{error}</p>}
       {successMsg && (
         <p className="text-[0.72rem] text-green-700">{successMsg}</p>

@@ -1,9 +1,17 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 import { claimNotification, completeNotification } from "./claim.ts";
-import { buildPagoConfirmadoKey, buildReservaConfirmadaKey } from "./idempotency.ts";
+import {
+  buildPagoConfirmadoKey,
+  buildReservaConfirmadaKey,
+  buildRecordatorioKey,
+} from "./idempotency.ts";
 import type { ClaimNotificationResult } from "./types.ts";
-import type { EmailReservaConfirmacionData } from "../resend/template.ts";
+import type {
+  EmailReservaConfirmacionData,
+  EmailPagoConfirmadoData,
+  EmailRecordatorioData,
+} from "../resend/template.ts";
 
 const EMAIL_TIMEOUT_MS = 5000;
 
@@ -23,14 +31,17 @@ type SendEmailReservaConfirmacionFn = (
 ) => Promise<{ success: boolean; error?: string }>;
 
 type SendEmailReservaConfirmadaFn = (
-  customerEmail: string,
-  customerName: string,
-  className: string,
+  data: EmailPagoConfirmadoData,
+) => Promise<{ success: boolean; error?: string }>;
+
+type SendEmailRecordatorioFn = (
+  data: EmailRecordatorioData,
 ) => Promise<{ success: boolean; error?: string }>;
 
 export interface NotifyDeps {
   sendEmailReservaConfirmacion?: SendEmailReservaConfirmacionFn;
   sendEmailReservaConfirmada?: SendEmailReservaConfirmadaFn;
+  sendEmailRecordatorio?: SendEmailRecordatorioFn;
 }
 
 function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
@@ -65,12 +76,17 @@ async function defaultSendEmailReservaConfirmacion(
 }
 
 async function defaultSendEmailReservaConfirmada(
-  customerEmail: string,
-  customerName: string,
-  className: string,
+  data: EmailPagoConfirmadoData,
 ): Promise<{ success: boolean; error?: string }> {
   const { sendEmailReservaConfirmada } = await import("../resend/send.ts");
-  return sendEmailReservaConfirmada(customerEmail, customerName, className);
+  return sendEmailReservaConfirmada(data);
+}
+
+async function defaultSendEmailRecordatorio(
+  data: EmailRecordatorioData,
+): Promise<{ success: boolean; error?: string }> {
+  const { sendEmailRecordatorio } = await import("../resend/send.ts");
+  return sendEmailRecordatorio(data);
 }
 
 async function finishFailedAttempt(
@@ -189,6 +205,7 @@ export interface NotifyPaymentConfirmedParams {
   classDateISO: string;
   classStartTime: string;
   classEndTime: string;
+  spots: number;
 }
 
 export async function notifyPaymentConfirmed(
@@ -208,7 +225,12 @@ export async function notifyPaymentConfirmed(
       reservationId: params.reservationId,
       classId: params.classId,
       templateName: "reserva_confirmada",
-      payload: { customerName: params.customerName, className: params.className },
+      payload: {
+        customerName: params.customerName,
+        className: params.className,
+        classDate: params.classDateISO,
+        spots: params.spots,
+      },
       deliveryMode: "live",
     });
   } catch (error) {
@@ -222,7 +244,93 @@ export async function notifyPaymentConfirmed(
 
   try {
     const result = await withTimeout(
-      sendEmail(params.customerEmail, params.customerName, params.className),
+      sendEmail({
+        customerName: params.customerName,
+        customerEmail: params.customerEmail,
+        className: params.className,
+        classDate: formatEmailDateLong(params.classDateISO),
+        classTime: `${params.classStartTime.slice(0, 5)} - ${params.classEndTime.slice(0, 5)}`,
+        cupos: params.spots,
+      }),
+      EMAIL_TIMEOUT_MS,
+    );
+    if (!result.success) {
+      await finishFailedAttempt(supabase, claim, "resend_error", result.error ?? null);
+      return { email: { outcome: "failed", reason: "resend_error" } };
+    }
+
+    await completeNotification(supabase, {
+      id: claim.id,
+      claimToken: claim.claimToken,
+      status: "sent",
+    });
+    return { email: { outcome: "sent" } };
+  } catch (error) {
+    await finishFailedAttempt(supabase, claim, "exception", errorMessageOf(error));
+    return { email: { outcome: "failed", reason: "exception" } };
+  }
+}
+
+export interface NotifyClassReminderParams {
+  reservationId: string;
+  classId: string;
+  customerName: string;
+  customerEmail: string;
+  className: string;
+  classDateISO: string;
+  classStartTime: string;
+  classEndTime: string;
+  spots: number;
+}
+
+export async function notifyClassReminder(
+  supabase: SupabaseClient,
+  params: NotifyClassReminderParams,
+  deps: NotifyDeps = {},
+): Promise<NotifyResult> {
+  const sendEmail = deps.sendEmailRecordatorio ?? defaultSendEmailRecordatorio;
+  let claim: ClaimNotificationResult;
+
+  try {
+    claim = await claimNotification(supabase, {
+      channel: "email",
+      deduplicationKey: buildRecordatorioKey(
+        params.reservationId,
+        params.classDateISO,
+        params.classStartTime,
+      ),
+      eventType: "recordatorio",
+      recipient: params.customerEmail,
+      reservationId: params.reservationId,
+      classId: params.classId,
+      templateName: "recordatorio",
+      payload: {
+        customerName: params.customerName,
+        className: params.className,
+        classDate: params.classDateISO,
+        spots: params.spots,
+      },
+      deliveryMode: "live",
+    });
+  } catch (error) {
+    console.error("[notify/email:recordatorio] claim falló:", errorMessageOf(error));
+    return { email: { outcome: "failed", reason: "claim_error" } };
+  }
+
+  if (!claim.claimed || !claim.claimToken) {
+    return { email: { outcome: "not_claimed" } };
+  }
+
+  try {
+    const result = await withTimeout(
+      sendEmail({
+        customerName: params.customerName,
+        customerEmail: params.customerEmail,
+        className: params.className,
+        classDate: formatEmailDateLong(params.classDateISO),
+        classTime: `${params.classStartTime.slice(0, 5)} - ${params.classEndTime.slice(0, 5)}`,
+        cupos: params.spots,
+      }),
       EMAIL_TIMEOUT_MS,
     );
     if (!result.success) {
