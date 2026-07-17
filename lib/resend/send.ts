@@ -4,9 +4,11 @@ import {
   templateReservaConfirmada,
   templateReservaCancelada,
   templateRecordatorio,
+  templateReprogramacion,
   type EmailReservaConfirmacionData,
   type EmailPagoConfirmadoData,
   type EmailRecordatorioData,
+  type EmailReprogramacionData,
 } from "./template";
 
 /**
@@ -115,6 +117,34 @@ export async function sendEmailRecordatorio(
     return { success: true };
   } catch (err) {
     console.error("[sendEmailRecordatorio exception]", err);
+    return { success: false, error: String(err) };
+  }
+}
+
+/**
+ * Email al cliente cuando se reprograma la clase de su reserva (pending o
+ * confirmed) a otra fecha/horario.
+ */
+export async function sendEmailReprogramacion(
+  data: EmailReprogramacionData,
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const html = templateReprogramacion(data);
+    const result = await resend.emails.send({
+      from: FROM_EMAIL,
+      to: data.customerEmail,
+      subject: `📅 ${data.className} cambió de fecha`,
+      html,
+    });
+
+    if (result.error) {
+      console.error("[sendEmailReprogramacion]", result.error);
+      return { success: false, error: result.error.message };
+    }
+
+    return { success: true };
+  } catch (err) {
+    console.error("[sendEmailReprogramacion exception]", err);
     return { success: false, error: String(err) };
   }
 }

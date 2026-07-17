@@ -5,12 +5,14 @@ import {
   buildPagoConfirmadoKey,
   buildReservaConfirmadaKey,
   buildRecordatorioKey,
+  buildReprogramacionKey,
 } from "./idempotency.ts";
 import type { ClaimNotificationResult } from "./types.ts";
 import type {
   EmailReservaConfirmacionData,
   EmailPagoConfirmadoData,
   EmailRecordatorioData,
+  EmailReprogramacionData,
 } from "../resend/template.ts";
 
 const EMAIL_TIMEOUT_MS = 5000;
@@ -38,10 +40,15 @@ type SendEmailRecordatorioFn = (
   data: EmailRecordatorioData,
 ) => Promise<{ success: boolean; error?: string }>;
 
+type SendEmailReprogramacionFn = (
+  data: EmailReprogramacionData,
+) => Promise<{ success: boolean; error?: string }>;
+
 export interface NotifyDeps {
   sendEmailReservaConfirmacion?: SendEmailReservaConfirmacionFn;
   sendEmailReservaConfirmada?: SendEmailReservaConfirmadaFn;
   sendEmailRecordatorio?: SendEmailRecordatorioFn;
+  sendEmailReprogramacion?: SendEmailReprogramacionFn;
 }
 
 function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
@@ -87,6 +94,13 @@ async function defaultSendEmailRecordatorio(
 ): Promise<{ success: boolean; error?: string }> {
   const { sendEmailRecordatorio } = await import("../resend/send.ts");
   return sendEmailRecordatorio(data);
+}
+
+async function defaultSendEmailReprogramacion(
+  data: EmailReprogramacionData,
+): Promise<{ success: boolean; error?: string }> {
+  const { sendEmailReprogramacion } = await import("../resend/send.ts");
+  return sendEmailReprogramacion(data);
 }
 
 async function finishFailedAttempt(
@@ -330,6 +344,92 @@ export async function notifyClassReminder(
         classDate: formatEmailDateLong(params.classDateISO),
         classTime: `${params.classStartTime.slice(0, 5)} - ${params.classEndTime.slice(0, 5)}`,
         cupos: params.spots,
+      }),
+      EMAIL_TIMEOUT_MS,
+    );
+    if (!result.success) {
+      await finishFailedAttempt(supabase, claim, "resend_error", result.error ?? null);
+      return { email: { outcome: "failed", reason: "resend_error" } };
+    }
+
+    await completeNotification(supabase, {
+      id: claim.id,
+      claimToken: claim.claimToken,
+      status: "sent",
+    });
+    return { email: { outcome: "sent" } };
+  } catch (error) {
+    await finishFailedAttempt(supabase, claim, "exception", errorMessageOf(error));
+    return { email: { outcome: "failed", reason: "exception" } };
+  }
+}
+
+export interface NotifyClassRescheduledParams {
+  reservationId: string;
+  classId: string;
+  customerName: string;
+  customerEmail: string;
+  className: string;
+  oldDateISO: string;
+  oldStartTime: string;
+  oldEndTime: string;
+  newDateISO: string;
+  newStartTime: string;
+  newEndTime: string;
+}
+
+export async function notifyClassRescheduled(
+  supabase: SupabaseClient,
+  params: NotifyClassRescheduledParams,
+  deps: NotifyDeps = {},
+): Promise<NotifyResult> {
+  const sendEmail = deps.sendEmailReprogramacion ?? defaultSendEmailReprogramacion;
+  let claim: ClaimNotificationResult;
+
+  try {
+    claim = await claimNotification(supabase, {
+      channel: "email",
+      deduplicationKey: buildReprogramacionKey({
+        reservationId: params.reservationId,
+        oldDate: params.oldDateISO,
+        oldStartTime: params.oldStartTime,
+        oldEndTime: params.oldEndTime,
+        newDate: params.newDateISO,
+        newStartTime: params.newStartTime,
+        newEndTime: params.newEndTime,
+      }),
+      eventType: "reprogramacion",
+      recipient: params.customerEmail,
+      reservationId: params.reservationId,
+      classId: params.classId,
+      templateName: "reprogramacion",
+      payload: {
+        customerName: params.customerName,
+        className: params.className,
+        oldDate: params.oldDateISO,
+        newDate: params.newDateISO,
+      },
+      deliveryMode: "live",
+    });
+  } catch (error) {
+    console.error("[notify/email:reprogramacion] claim falló:", errorMessageOf(error));
+    return { email: { outcome: "failed", reason: "claim_error" } };
+  }
+
+  if (!claim.claimed || !claim.claimToken) {
+    return { email: { outcome: "not_claimed" } };
+  }
+
+  try {
+    const result = await withTimeout(
+      sendEmail({
+        customerName: params.customerName,
+        customerEmail: params.customerEmail,
+        className: params.className,
+        oldDate: formatEmailDateLong(params.oldDateISO),
+        oldTime: `${params.oldStartTime.slice(0, 5)} - ${params.oldEndTime.slice(0, 5)}`,
+        newDate: formatEmailDateLong(params.newDateISO),
+        newTime: `${params.newStartTime.slice(0, 5)} - ${params.newEndTime.slice(0, 5)}`,
       }),
       EMAIL_TIMEOUT_MS,
     );

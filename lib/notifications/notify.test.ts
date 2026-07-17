@@ -2,7 +2,11 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
-import { notifyPaymentConfirmed, notifyReservationConfirmed } from "./notify.ts";
+import {
+  notifyPaymentConfirmed,
+  notifyReservationConfirmed,
+  notifyClassRescheduled,
+} from "./notify.ts";
 
 function createMockSupabase() {
   const claimedKeys = new Set<string>();
@@ -127,4 +131,75 @@ test("la confirmación de pago también se deduplica por email", async () => {
   assert.equal(first.email.outcome, "sent");
   assert.equal(second.email.outcome, "not_claimed");
   assert.equal(sends, 1);
+});
+
+const rescheduleParams = {
+  reservationId: "res-1",
+  classId: "class-1",
+  customerName: "Ana",
+  customerEmail: "ana@example.com",
+  className: "Cocina italiana",
+  oldDateISO: "2026-08-01",
+  oldStartTime: "10:00:00",
+  oldEndTime: "12:00:00",
+  newDateISO: "2026-08-05",
+  newStartTime: "10:00:00",
+  newEndTime: "12:00:00",
+};
+
+test("la reprogramación envía email y registra el intento", async () => {
+  const { client, claimCalls, completeCalls } = createMockSupabase();
+  const sent: unknown[] = [];
+
+  const result = await notifyClassRescheduled(client, rescheduleParams, {
+    sendEmailReprogramacion: async (data) => {
+      sent.push(data);
+      return { success: true };
+    },
+  });
+
+  assert.equal(result.email.outcome, "sent");
+  assert.equal(sent.length, 1);
+  assert.equal(claimCalls[0].p_event_type, "reprogramacion");
+  assert.equal(completeCalls[0].p_status, "sent");
+});
+
+test("la misma reprogramación reenviada no genera un segundo email", async () => {
+  const { client } = createMockSupabase();
+  let sends = 0;
+  const deps = {
+    sendEmailReprogramacion: async () => {
+      sends += 1;
+      return { success: true };
+    },
+  };
+
+  const first = await notifyClassRescheduled(client, rescheduleParams, deps);
+  const second = await notifyClassRescheduled(client, rescheduleParams, deps);
+
+  assert.equal(first.email.outcome, "sent");
+  assert.equal(second.email.outcome, "not_claimed");
+  assert.equal(sends, 1);
+});
+
+test("una segunda reprogramación distinta (nueva transición) sí genera un nuevo email", async () => {
+  const { client } = createMockSupabase();
+  let sends = 0;
+  const deps = {
+    sendEmailReprogramacion: async () => {
+      sends += 1;
+      return { success: true };
+    },
+  };
+
+  const primera = await notifyClassRescheduled(client, rescheduleParams, deps);
+  const segunda = await notifyClassRescheduled(client, {
+    ...rescheduleParams,
+    oldDateISO: rescheduleParams.newDateISO,
+    newDateISO: "2026-08-10",
+  }, deps);
+
+  assert.equal(primera.email.outcome, "sent");
+  assert.equal(segunda.email.outcome, "sent");
+  assert.equal(sends, 2);
 });

@@ -283,3 +283,68 @@ export function templateReservaCancelada(
     `;
   }
 
+  export interface EmailReprogramacionData {
+    customerName: string;
+    customerEmail: string;
+    className: string;
+    oldDate: string; // "Sábado 17 de mayo de 2026"
+    oldTime: string; // "18:00 - 21:00"
+    newDate: string;
+    newTime: string;
+  }
+
+  export function templateReprogramacion(data: EmailReprogramacionData): string {
+    return `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Tu clase cambió de fecha</title>
+      </head>
+      <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; margin: 0; padding: 0; background-color: #f9fafb;">
+        <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
+          <div style="text-align: center; margin-bottom: 32px;">
+            <h1 style="margin: 0; font-size: 24px; color: #1f2937;">📅 Tu clase cambió de fecha</h1>
+          </div>
+
+          <div style="background-color: white; padding: 24px; border-radius: 8px; border: 1px solid #e5e7eb;">
+            <p style="margin: 0 0 16px 0; font-size: 16px; color: #4b5563;">
+              Hola <strong>${esc(data.customerName)}</strong>,
+            </p>
+
+            <p style="margin: 0 0 24px 0; font-size: 15px; color: #4b5563; line-height: 1.6;">
+              Te avisamos que tu clase de <strong>${esc(data.className)}</strong> se reprogramó. Estos son los nuevos datos:
+            </p>
+
+            <div style="background-color: #fff8f3; padding: 16px; border-radius: 4px; margin-bottom: 16px; border-left: 4px solid #9ca3af;">
+              <div style="font-size: 13px; color: #6b7280; text-decoration: line-through;">
+                Antes: ${esc(data.oldDate)} · ${esc(data.oldTime)}
+              </div>
+            </div>
+
+            <div style="background-color: #f0fdf4; padding: 16px; border-radius: 4px; margin-bottom: 24px; border-left: 4px solid #16a34a;">
+              <div style="margin-bottom: 8px;">
+                <span style="font-weight: bold; color: #1f2937;">Nueva fecha:</span>
+                <span style="color: #4b5563;">${esc(data.newDate)}</span>
+              </div>
+              <div>
+                <span style="font-weight: bold; color: #1f2937;">Nuevo horario:</span>
+                <span style="color: #4b5563;">${esc(data.newTime)}</span>
+              </div>
+            </div>
+
+            <p style="margin: 24px 0 0 0; font-size: 13px; color: #6b7280; border-top: 1px solid #e5e7eb; padding-top: 16px;">
+              Si el nuevo horario no te funciona, respondé este email y lo vemos juntos.
+            </p>
+          </div>
+
+          <p style="text-align: center; margin-top: 24px; font-size: 12px; color: #9ca3af;">
+            Menesteres &copy; 2026
+          </p>
+        </div>
+      </body>
+      </html>
+    `;
+  }
+

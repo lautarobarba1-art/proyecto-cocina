@@ -11,11 +11,56 @@ import {
   validateEventoForm,
   type EventoFormData,
 } from "@/lib/admin/eventos-validation";
+import {
+  notifyReservationsOfReschedule,
+  hasScheduleChanged,
+} from "@/lib/notifications/reschedule-dispatch";
 
 export const runtime = "nodejs";
 
 function isEventoKind(body: Record<string, unknown>): boolean {
   return body.kind === "evento";
+}
+
+interface ClaseBeforeRow {
+  date: string;
+  start_time: string;
+  end_time: string;
+}
+
+/**
+ * Best-effort: si la fecha/horario cambió, avisa a las reservas activas.
+ * Un fallo acá nunca debe impactar la respuesta del PATCH — la clase ya
+ * quedó guardada.
+ */
+async function notifyIfRescheduled(
+  supabase: ReturnType<typeof getSupabaseAdmin>,
+  classId: string,
+  className: string,
+  before: ClaseBeforeRow,
+  after: { date: string; startTime: string; endTime: string },
+): Promise<void> {
+  if (
+    !hasScheduleChanged(
+      { date: before.date, startTime: before.start_time, endTime: before.end_time },
+      after,
+    )
+  ) {
+    return;
+  }
+
+  try {
+    await notifyReservationsOfReschedule(supabase, classId, className, {
+      oldDateISO: before.date,
+      oldStartTime: before.start_time,
+      oldEndTime: before.end_time,
+      newDateISO: after.date,
+      newStartTime: after.startTime,
+      newEndTime: after.endTime,
+    });
+  } catch (err) {
+    console.error("[PATCH /api/admin/classes] notifyReservationsOfReschedule falló:", err);
+  }
 }
 
 /**
@@ -46,6 +91,20 @@ export async function PATCH(
   const payload = body as Record<string, unknown>;
   const supabase = getSupabaseAdmin();
 
+  const { data: before, error: beforeError } = await supabase
+    .from("classes")
+    .select("date, start_time, end_time")
+    .eq("id", id)
+    .maybeSingle<ClaseBeforeRow>();
+
+  if (beforeError) {
+    // No abortamos el PATCH por esto: solo significa que no vamos a poder
+    // avisar por email si la clase termina reprogramándose. Se loguea para
+    // no perder de vista por qué no se notificó, a diferencia de un "before"
+    // null legítimo (clase realmente no encontrada).
+    console.error("[PATCH /api/admin/classes] fetch de estado previo falló:", beforeError);
+  }
+
   if (isEventoKind(payload)) {
     const data = payload as Partial<EventoFormData>;
     const { ok, errors } = validateEventoForm(data);
@@ -56,9 +115,10 @@ export async function PATCH(
       );
     }
 
+    const v = data as EventoFormData;
     const { data: updated, error } = await supabase
       .from("classes")
-      .update(eventoFormToDbRow(data as EventoFormData))
+      .update(eventoFormToDbRow(v))
       .eq("id", id)
       .select("id")
       .maybeSingle();
@@ -76,6 +136,14 @@ export async function PATCH(
 
     if (!updated) {
       return NextResponse.json({ error: "not_found" }, { status: 404 });
+    }
+
+    if (before) {
+      await notifyIfRescheduled(supabase, id, v.title, before, {
+        date: v.date,
+        startTime: v.startTime,
+        endTime: v.endTime,
+      });
     }
 
     return NextResponse.json({ ok: true });
@@ -129,6 +197,14 @@ export async function PATCH(
 
   if (!updated) {
     return NextResponse.json({ error: "not_found" }, { status: 404 });
+  }
+
+  if (before) {
+    await notifyIfRescheduled(supabase, id, v.title, before, {
+      date: v.date,
+      startTime: v.startTime,
+      endTime: v.endTime,
+    });
   }
 
   return NextResponse.json({ ok: true });
