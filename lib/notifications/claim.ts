@@ -14,7 +14,7 @@ const DEFAULT_DELIVERY_MODE = "live";
 
 /**
  * Reclama atómicamente el derecho a enviar una notificación. Debe llamarse
- * ANTES de invocar WhatsApp/Resend — nunca después. Si `claimed` es false,
+ * ANTES de invocar Resend — nunca después. Si `claimed` es false,
  * el llamador no debe enviar nada (ya hay otro intento en curso, ya se
  * resolvió antes, el error fue clasificado como permanente, o se agotaron
  * los reintentos).

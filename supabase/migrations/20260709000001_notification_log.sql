@@ -1,11 +1,11 @@
--- Registro de notificaciones transaccionales (WhatsApp / email de respaldo)
+-- Registro e idempotencia de notificaciones transaccionales por email.
 -- Reverse-engineered a mano para esta fase (no ejecutado aún contra el proyecto real).
 -- Verificar contra el schema real de Supabase antes de aplicar.
 -- Requiere: 20260519000001_classes.sql, 20260519000002_reservations.sql (public.set_updated_at()
 -- ya existe desde la primera; se reutiliza acá, no se redefine).
 --
 -- ⚠️ LIMITACIÓN DOCUMENTADA (no resuelta por este diseño, y no lo pretende):
--- si el proveedor (WhatsApp Cloud API / Resend) ACEPTA el mensaje pero el proceso
+-- si Resend ACEPTA el mensaje pero el proceso
 -- se cae antes de que `complete_notification_attempt` persista la respuesta, la
 -- fila queda en 'processing' y eventualmente se puede reclamar de nuevo (ver más
 -- abajo) y reintentar el envío. Esto puede producir un mensaje duplicado del lado
@@ -14,7 +14,7 @@
 -- persistido), pero NO es una garantía de "exactly once" end-to-end — el tramo
 -- entre "el proveedor confirmó recepción" y "nosotros lo persistimos" es una
 -- ventana real de ambigüedad que este diseño no puede cerrar sin soporte de
--- idempotencia del lado del proveedor (WhatsApp no expone eso hoy).
+-- idempotencia del lado del proveedor.
 
 -- ─── Tabla notification_log ────────────────────────────────────────────────────
 -- Una fila = un evento de negocio (channel + delivery_mode + deduplication_key)
@@ -42,7 +42,7 @@ create table if not exists public.notification_log (
 
   -- Qué evento es, por qué canal, y si fue un envío real o uno simulado.
   channel                 text not null
-                            check (channel in ('whatsapp', 'email')),
+                            check (channel = 'email'),
   delivery_mode           text not null default 'live'
                             check (delivery_mode in ('live', 'dry_run')),
   event_type              text not null
@@ -141,9 +141,9 @@ create index if not exists notification_log_status_retry_idx
 
 -- Guarda contra que dos filas terminen apuntando al mismo mensaje del MISMO
 -- proveedor (ej. un bug que reenvíe y el proveedor devuelva el mismo id). Se
--- incluye `channel` en el índice a propósito: no asumimos que WhatsApp Cloud
--- API y Resend (proveedores distintos) jamás puedan coincidir en el formato o
--- valor de un id de mensaje. Índice parcial: múltiples filas en 'processing'
+-- incluye `channel` para que la infraestructura pueda evolucionar a otros
+-- proveedores sin cambiar la clave de idempotencia existente.
+-- Índice parcial: múltiples filas en 'processing'
 -- (provider_message_id null) no chocan entre sí.
 create unique index if not exists notification_log_channel_provider_message_id_key
   on public.notification_log (channel, provider_message_id)
@@ -165,7 +165,7 @@ alter table public.notification_log enable row level security;
 
 -- ─── RPC claim_notification_attempt ────────────────────────────────────────────
 -- Reclama atómicamente el derecho a enviar una notificación ANTES de llamar a
--- WhatsApp/Resend. Nunca se debe insertar/actualizar la fila después de enviar.
+-- Resend. Nunca se debe insertar/actualizar la fila después de enviar.
 --
 -- Casos:
 --   1. No existe fila para (channel, delivery_mode, deduplication_key) -> se

@@ -40,9 +40,7 @@ export async function confirmReservationPayment(
     })
     .eq("id", reservationId)
     .eq("status", "pending")
-    .select(
-      "id, status, customer_name, customer_email, customer_phone_normalized, whatsapp_consent, class_id",
-    )
+    .select("id, status, customer_name, customer_email, class_id")
     .maybeSingle();
 
   if (error) {
@@ -66,8 +64,6 @@ export async function confirmReservationPayment(
       classId: data.class_id,
       customerName: data.customer_name,
       customerEmail: data.customer_email,
-      customerPhoneNormalized: data.customer_phone_normalized,
-      whatsappConsent: data.whatsapp_consent ?? false,
       className: cls?.title ?? "(clase)",
       classDateISO: cls?.date ?? "",
       classStartTime: cls?.start_time ?? "",
@@ -77,7 +73,6 @@ export async function confirmReservationPayment(
     console.error("[confirmReservationPayment] notifyPaymentConfirmed error:", err);
     notifyResult = {
       email: { outcome: "failed", reason: "unexpected_exception" },
-      whatsapp: { outcome: "failed", reason: "unexpected_exception" },
     };
   }
 

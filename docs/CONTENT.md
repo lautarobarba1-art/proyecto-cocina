@@ -15,7 +15,6 @@ Documento de referencia para actualizar textos del sitio. El código lee los val
 | Email | `hola@menesteres.com` | Confirmar buzón activo |
 | Dirección (`address.street`) | `Malvinas Argentinas 1150, Rafaela` | **⚠️ Confirmar con la clienta** — el mapa apunta a "San Martín 1234" |
 | URL de mapa (`map.directionsUrl`) | Apunta a `San Martín 1234` | Actualizar cuando se confirme la dirección real |
-| WhatsApp | `+54 9 349 269-4750` | Confirmar número real |
 | Horarios | Martes a sábado · 10:00 – 20:00 | Ajustar según operación |
 | Instagram / Facebook | `null` (deshabilitado) | Completar URLs en `lib/site/contact.ts` → `social` |
 | Mapa embed | `maps.app.goo.gl/iycWJq9H2mnyQkuW6` | Reemplazar con Place ID fijo una vez confirmada la dirección |

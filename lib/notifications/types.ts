@@ -1,12 +1,8 @@
-export type NotificationChannel = "whatsapp" | "email";
+export type NotificationChannel = "email";
 
 /**
- * 'live' = intento real (feature habilitada, no simulado). 'dry_run' =
- * cualquier ejecución que no vaya a pegarle de verdad al proveedor
- * (WHATSAPP_ENABLED=false o WHATSAPP_DRY_RUN=true). Forma parte de la clave
- * única junto con channel+deduplicationKey a propósito: así un intento
- * simulado nunca bloquea el envío real futuro del mismo evento (ver
- * comentario en la migración 20260709000001_notification_log.sql).
+ * Se conserva `dry_run` en la infraestructura genérica para pruebas o
+ * futuros canales; el canal email actual siempre usa `live`.
  */
 export type NotificationDeliveryMode = "live" | "dry_run";
 
@@ -68,7 +64,7 @@ export interface ClaimNotificationParams {
   recipient: string;
   reservationId?: string | null;
   classId?: string | null;
-  /** Nombre de la plantilla usada (WhatsApp) o null/omitido para email. */
+  /** Identificador interno de la plantilla de email. */
   templateName?: string | null;
   /**
    * Variables mínimas para reproducir la notificación. Se sanitiza con
@@ -77,10 +73,7 @@ export interface ClaimNotificationParams {
    */
   payload?: Record<string, unknown>;
   /**
-   * 'live' solo cuando se está por intentar un envío real. Default 'live'
-   * por conveniencia de los tests/llamadas directas, pero cualquier caller
-   * que dispare esto desde el cliente de WhatsApp DEBE pasar 'dry_run'
-   * explícito si WHATSAPP_ENABLED=false o WHATSAPP_DRY_RUN=true.
+   * El email transaccional usa siempre `live`.
    */
   deliveryMode?: NotificationDeliveryMode;
   /** Máximo de intentos antes de que una falla recuperable deje de ser reclamable. */

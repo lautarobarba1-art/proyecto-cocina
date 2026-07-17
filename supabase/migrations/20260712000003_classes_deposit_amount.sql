@@ -1,5 +1,5 @@
 -- classes.deposit_amount: columna que el código ya usaba en todos lados
--- (formulario admin de clases, validación, email/WhatsApp de confirmación de
+-- (formulario admin de clases, validación y email de confirmación de
 -- reserva — lib/admin/clases-validation.ts, app/api/admin/classes/**,
 -- app/api/reservations/route.ts, lib/calendar/adapters.ts) pero que ninguna
 -- migración del repo llegó a crear — discrepancia ya señalada en la
@@ -7,7 +7,7 @@
 -- a la luz recién ahora al crear una clase de prueba en un Postgres local
 -- limpio: `select ... deposit_amount` fallaba silenciosamente (el error de
 -- Postgres no se estaba chequeando en app/api/reservations/route.ts, así que
--- el request no se rompía, pero el email/WhatsApp quedaban sin el monto de
+-- el request no se rompía, pero el email quedaba sin el monto de
 -- seña).
 --
 -- Nullable (no todas las clases tienen seña) y con el mismo tipo/precisión

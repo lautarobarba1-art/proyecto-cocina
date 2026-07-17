@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
 import { checkReservationsLimit, getIp } from "@/lib/ratelimit";
-import { normalizeArgentinePhone } from "@/lib/whatsapp/phone";
 import { notifyReservationConfirmed } from "@/lib/notifications/notify";
 
 export async function POST(req: Request) {
@@ -33,10 +32,6 @@ export async function POST(req: Request) {
   const customerPhone = (payload.phone ?? payload.customerPhone) as string | null;
   const notes = (payload.notes ?? payload.messages) as string | null;
   const honeypot = (payload.honeypot ?? "") as string;
-  // Consentimiento explícito para WhatsApp: nunca implícito por el solo hecho
-  // de haber cargado un teléfono. Default false si no viene (no marcado por
-  // defecto en el formulario).
-  const whatsappConsent = payload.whatsappConsent === true;
 
   // Validar honeypot
   if (honeypot) {
@@ -69,20 +64,6 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "missing_or_invalid_fields" }, { status: 400 });
   }
 
-  // Teléfono: opcional (mantiene compatibilidad con reservas sin WhatsApp),
-  // pero si el cliente cargó algo, tiene que ser un número argentino válido.
-  // La validación del cliente es solo una ayuda visual — esta es la
-  // autoritativa. customer_phone guarda el valor tal cual lo tipeó la
-  // persona (sin cambios); customer_phone_normalized guarda el E.164 que
-  // WhatsApp va a usar — se calcula acá, una sola vez, y se persiste en la
-  // misma transacción que crea la reserva (ver create_reservation_atomic).
-  const hasPhoneInput = typeof customerPhone === "string" && customerPhone.trim() !== "";
-  const phoneCheck = hasPhoneInput ? normalizeArgentinePhone(customerPhone) : null;
-  if (hasPhoneInput && !phoneCheck!.valid) {
-    return NextResponse.json({ error: "invalid_phone" }, { status: 400 });
-  }
-  const customerPhoneNormalized = phoneCheck?.valid ? phoneCheck.e164 : null;
-
   const supabase = getSupabaseAdmin();
 
   const { data: classRow } = await supabase
@@ -98,8 +79,7 @@ export async function POST(req: Request) {
     );
   }
 
-  // Llamar función transaccional — teléfono normalizado y consentimiento se
-  // persisten DENTRO de esta misma transacción, no en un paso separado.
+  // Crear la reserva en una única transacción.
   const { data, error } = await supabase.rpc("create_reservation_atomic", {
     p_class_id: classId,
     p_customer_email: customerEmail,
@@ -108,9 +88,6 @@ export async function POST(req: Request) {
     p_idempotency_key: payload.idempotencyKey as string,
     p_notes: notes ?? null,
     p_spots: spots,
-    p_customer_phone_normalized: customerPhoneNormalized,
-    p_whatsapp_consent: whatsappConsent,
-    p_whatsapp_consent_at: whatsappConsent ? new Date().toISOString() : null,
   });
 
   if (error) {
@@ -143,20 +120,6 @@ export async function POST(req: Request) {
   const created = data[0];
   const reservationId = created.reservation_id;
 
-  // Releemos el consentimiento/teléfono normalizado YA PERSISTIDOS (no el
-  // valor en memoria de este request) antes de notificar. Esto cubre tanto
-  // el alta nueva (created.was_created=true, recién insertado por la RPC de
-  // arriba en esta misma transacción) como una réplica por idempotency_key
-  // (created.was_created=false, donde lo que vale es lo que quedó guardado
-  // en el alta original, no lo que venga en este request repetido). Así
-  // WhatsApp nunca se intenta a partir de un consentimiento que no quedó
-  // efectivamente en la base.
-  const { data: persisted } = await supabase
-    .from("reservations")
-    .select("customer_phone_normalized, whatsapp_consent")
-    .eq("id", reservationId)
-    .maybeSingle();
-
   // Obtener datos de la clase para las notificaciones
   const { data: cls } = await supabase
     .from("classes")
@@ -165,7 +128,7 @@ export async function POST(req: Request) {
     .maybeSingle();
 
   // ============================================
-  // 📧 📱 Notificar (fire con timeout interno por canal; nunca revierte la reserva)
+  // 📧 Notificar por email (con timeout interno; nunca revierte la reserva)
   // ============================================
   try {
     await notifyReservationConfirmed(supabase, {
@@ -173,8 +136,6 @@ export async function POST(req: Request) {
       classId,
       customerName,
       customerEmail,
-      customerPhoneNormalized: persisted?.customer_phone_normalized ?? null,
-      whatsappConsent: persisted?.whatsapp_consent ?? false,
       className: cls?.title ?? "(clase)",
       classDateISO: cls?.date ?? "",
       classStartTime: cls?.start_time ?? "",

@@ -114,7 +114,7 @@ export interface EmailReservaConfirmacionData {
   
             <!-- Footer -->
             <p style="margin: 24px 0 0 0; font-size: 13px; color: #6b7280; border-top: 1px solid #e5e7eb; padding-top: 16px;">
-              Si tenés preguntas, podés respondernos a este email o contactarnos por WhatsApp.
+              Si tenés preguntas, podés respondernos directamente a este email.
             </p>
           </div>
   

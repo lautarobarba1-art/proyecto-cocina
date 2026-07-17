@@ -3,7 +3,7 @@
 import * as React from "react";
 import { usePathname } from "next/navigation";
 import { motion, useReducedMotion } from "framer-motion";
-import { Link2, MessageCircle, Share2 } from "lucide-react";
+import { Link2, Share2 } from "lucide-react";
 
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
@@ -60,7 +60,6 @@ export function ClassPreview({ event, onClose }: ClassPreviewProps) {
   const status = statusBlock(event);
   const past = isPastClassDate(event.date);
   const reserveHref = `/clases/${event.slug}?fecha=${encodeURIComponent(event.date)}`;
-  const shareText = `${event.title} · ${event.date}`;
 
   React.useEffect(() => {
     setShareUrl(typeof window !== "undefined" ? window.location.href : "");
@@ -74,9 +73,6 @@ export function ClassPreview({ event, onClose }: ClassPreviewProps) {
       /* noop */
     }
   }, [shareUrl]);
-
-  const waHref =
-    shareUrl.length > 0 ? `https://wa.me/?text=${encodeURIComponent(`${shareText}\n${shareUrl}`)}` : "#";
 
   return (
     <motion.div
@@ -187,19 +183,6 @@ export function ClassPreview({ event, onClose }: ClassPreviewProps) {
               <Share2 className="h-3.5 w-3.5" aria-hidden="true" />
               Compartir
             </span>
-            <a
-              href={waHref}
-              target="_blank"
-              rel="noreferrer"
-              className={[
-                "flex items-center gap-1.5 text-crema/70 transition-colors hover:text-terracota-soft",
-                shareUrl.length === 0 ? "pointer-events-none opacity-40" : "",
-              ].join(" ")}
-              aria-disabled={shareUrl.length === 0}
-            >
-              <MessageCircle className="h-3.5 w-3.5" aria-hidden="true" />
-              WhatsApp
-            </a>
             <button type="button" onClick={copyLink} className="flex items-center gap-1.5 text-crema/70 transition-colors hover:text-terracota-soft">
               <Link2 className="h-3.5 w-3.5" aria-hidden="true" />
               Copiar enlace

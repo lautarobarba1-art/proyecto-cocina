@@ -95,15 +95,12 @@ function mockNotify(result: NotifyResult) {
 
 const SENT_RESULT: NotifyResult = {
   email: { outcome: "sent" },
-  whatsapp: { outcome: "sent" },
 };
 
 const baseRow = {
   id: "res-1",
   customer_name: "Ana",
   customer_email: "ana@example.com",
-  customer_phone_normalized: "5491123456789",
-  whatsapp_consent: true,
   class_id: "class-1",
 };
 
@@ -166,7 +163,7 @@ test("error de base de datos en el UPDATE: NO notifica, devuelve db_error", asyn
 
 // ─── repetición de la acción ─────────────────────────────────────────────────
 
-test("repetición de la acción (doble click / POST repetido): la segunda llamada no genera un segundo email ni WhatsApp", async () => {
+test("repetición de la acción (doble click / POST repetido): la segunda llamada no genera un segundo email", async () => {
   const { client, getUpdateCallCount } = createMockSupabase({
     pendingRow: baseRow,
     classRow: { title: "Cocina italiana", date: "2026-08-01", start_time: "10:00:00", end_time: "12:00:00" },
@@ -200,6 +197,5 @@ test("si notifyPaymentConfirmed lanza, confirmReservationPayment igual devuelve 
   assert.equal(result.ok, true);
   if (result.ok) {
     assert.equal(result.notifyResult.email.outcome, "failed");
-    assert.equal(result.notifyResult.whatsapp.outcome, "failed");
   }
 });
