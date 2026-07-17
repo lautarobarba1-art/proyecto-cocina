@@ -69,6 +69,11 @@ export async function runClassReminders(
     .toISOString()
     .slice(0, 10);
 
+  // classes!inner (no solo "classes") es necesario para que .gte/.lte sobre
+  // "classes.date" restrinja las filas de reservations: sin !inner, un filtro
+  // sobre una relación embebida to-one solo decide si el objeto embebido viene
+  // poblado o null, no si la fila padre se incluye — la consulta traería
+  // TODAS las reservas confirmed de toda la historia, sin cota real.
   const { data, error } = await supabase
     .from("reservations")
     .select(
@@ -78,7 +83,7 @@ export async function runClassReminders(
       customer_name,
       customer_email,
       spots,
-      classes (
+      classes!inner (
         title,
         date,
         start_time,
@@ -97,9 +102,9 @@ export async function runClassReminders(
 
   const rows = (data ?? []) as unknown as CandidateRow[];
 
-  // Filtro defensivo en JS (mismo patrón que getReservasForAdmin): el filtro
-  // por columna de una FK embebida no siempre se aplica de forma confiable
-  // a nivel SQL en todas las versiones de PostgREST.
+  // Con classes!inner el filtro SQL de arriba ya hace el trabajo real; este
+  // filtro en JS queda como red de seguridad defensiva (mismo patrón que
+  // getReservasForAdmin), no como el único mecanismo de corte.
   const candidatas = rows.filter((r) => {
     const cls = r.classes;
     if (!cls) return false;

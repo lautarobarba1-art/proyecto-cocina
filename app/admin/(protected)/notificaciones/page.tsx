@@ -99,17 +99,24 @@ export default async function NotificacionesAdminPage({ searchParams }: PageProp
     ? (estado as NotificationStatus | undefined)
     : undefined;
 
-  const notifications = await getNotificationLogForAdmin(200, { eventType, status });
+  // Dos fetches separados a propósito: `notifications` es lo que se muestra
+  // en la tabla (respeta el filtro de estado); `allForCounts` solo respeta el
+  // filtro de evento, para que las pills de estado reflejen los totales
+  // reales y no se pisen a 0 cuando hay un filtro de estado activo.
+  const [notifications, allForCounts] = await Promise.all([
+    getNotificationLogForAdmin(200, { eventType, status }),
+    getNotificationLogForAdmin(200, { eventType }),
+  ]);
 
   const counts = {
-    total: notifications.length,
-    sent: notifications.filter((n) => n.status === "sent").length,
-    failed: notifications.filter((n) => n.status === "failed").length,
-    processing: notifications.filter((n) => n.status === "processing").length,
-    skipped: notifications.filter((n) => n.status === "skipped").length,
+    total: allForCounts.length,
+    sent: allForCounts.filter((n) => n.status === "sent").length,
+    failed: allForCounts.filter((n) => n.status === "failed").length,
+    processing: allForCounts.filter((n) => n.status === "processing").length,
+    skipped: allForCounts.filter((n) => n.status === "skipped").length,
   };
 
-  const needsAttention = notifications.filter(
+  const needsAttention = allForCounts.filter(
     (n) => n.status === "failed" && (n.retryable === false || n.attemptCount >= n.maxAttempts),
   ).length;
 
