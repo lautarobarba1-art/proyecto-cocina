@@ -1,6 +1,10 @@
 export interface PhoneValidationResult {
   valid: boolean;
-  /** E.164 sin el "+" (formato que espera el campo `to` de la Graph API), o null si no es válido. */
+  /**
+   * Formato que espera el campo `to` de la Graph API para AR: código de país
+   * 54 + área + abonado, sin "+" y sin el "9" (no es E.164 estricto — ver
+   * comentario de `normalizeArgentinePhone`). `null` si no es válido.
+   */
   e164: string | null;
   reason?: string;
 }
@@ -12,9 +16,10 @@ const INVALID: (reason: string) => PhoneValidationResult = (reason) => ({
 });
 
 /**
- * Normaliza y valida un teléfono argentino a formato E.164 para WhatsApp
- * (54 9 + 10 dígitos = área + abonado, sin el "0" de larga distancia ni el
- * "15" de celular usado en la marcación doméstica vieja).
+ * Normaliza y valida un teléfono argentino al formato que espera el campo
+ * `to` de la Cloud API de WhatsApp: código de país 54 + área + abonado (10
+ * dígitos), SIN el "9" que sí lleva el E.164 "oficial" para celulares
+ * argentinos.
  *
  * Esta es una normalización heurística, no un parser completo por área
  * (no hay tabla de códigos de área): cubre los formatos más comunes con los
@@ -23,11 +28,14 @@ const INVALID: (reason: string) => PhoneValidationResult = (reason) => ({
  * lanzar — reservas históricas sin teléfono o con datos sucios no deben
  * romper nada río abajo (ver AGENTS feedback punto 10).
  *
- * IMPORTANTE (riesgo documentado en la auditoría): algunos números
- * argentinos requieren el "9" en la posición E.164 estándar, pero hay
- * inconsistencias reportadas en la Cloud API de WhatsApp con el dígito "9"
- * para AR. Antes de conectar esto a un envío real, probar contra el número
- * de test de Meta con casos reales.
+ * Verificado con un envío real (2026-07-11) contra el número de prueba de
+ * Meta: un destinatario argentino verificado solo aceptó el mensaje con el
+ * código de país seguido del número (sin "9"); el mismo destinatario con
+ * "549..." fue rechazado por Meta con el error 131030 "Recipient phone
+ * number not in allowed list". Meta dejó de requerir el "9" para mensajería (no para
+ * llamadas) en números argentinos hace varios años; este código antes lo
+ * agregaba por error, replicando el formato de marcación telefónica en vez
+ * del que realmente espera la Graph API.
  */
 export function normalizeArgentinePhone(
   raw: string | null | undefined,
@@ -76,8 +84,8 @@ export function normalizeArgentinePhone(
     return INVALID("unrecognized_length");
   }
 
-  const e164 = `549${areaAndSubscriber}`;
-  if (!/^549\d{10}$/.test(e164)) {
+  const e164 = `54${areaAndSubscriber}`;
+  if (!/^54\d{10}$/.test(e164)) {
     return INVALID("unrecognized_format");
   }
 
