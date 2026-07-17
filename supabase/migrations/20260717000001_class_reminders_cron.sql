@@ -34,7 +34,10 @@ select cron.schedule(
                -- la app con la hora real de ejecución, no con el cron).
   $$
   select net.http_get(
-    url := 'https://menesteres.ar/api/cron/class-reminders',
+    -- Usar el dominio canónico (www) directo: menesteres.ar sin www hace un
+    -- 307 redirect a www.menesteres.ar, y no vale la pena depender de que
+    -- pg_net siga redirects automáticamente.
+    url := 'https://www.menesteres.ar/api/cron/class-reminders',
     headers := jsonb_build_object(
       'Authorization',
       'Bearer ' || (
