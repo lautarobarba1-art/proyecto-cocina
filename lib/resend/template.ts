@@ -24,6 +24,8 @@ export interface EmailReservaConfirmacionData {
     transferAlias?: string | null;
     transferCvu?: string | null;
     transferBank?: string | null;
+    /** Link persistente para subir el comprobante en cualquier momento, no solo en el momento de reservar. */
+    uploadUrl: string;
   }
 
   export function templateReservaConfirmacion(
@@ -50,6 +52,14 @@ export interface EmailReservaConfirmacionData {
         <p style="margin: 12px 0 0 0; font-size: 13px; color: #6b7280; font-style: italic;">
           La reserva queda pendiente hasta que el pago sea realizado.
         </p>
+        <p style="margin-top: 16px;">
+          <a href="${esc(data.uploadUrl)}" style="display: inline-block; background-color: #d97706; color: white; padding: 10px 20px; border-radius: 4px; text-decoration: none; font-weight: bold; font-size: 14px;">
+            Subir comprobante
+          </a>
+        </p>
+        <p style="margin: 8px 0 0 0; font-size: 12px; color: #9ca3af;">
+          Guardá este email: podés volver a este link para subir el comprobante en cualquier momento.
+        </p>
       </div>
       `
       : `
@@ -67,17 +77,17 @@ export interface EmailReservaConfirmacionData {
       <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Reserva confirmada</title>
+        <title>Reserva recibida — falta confirmar el pago</title>
       </head>
       <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; margin: 0; padding: 0; background-color: #f9fafb;">
         <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
           <!-- Header -->
           <div style="text-align: center; margin-bottom: 32px;">
             <h1 style="margin: 0; font-size: 24px; color: #1f2937;">
-              ¡Reserva confirmada!
+              Reserva recibida — falta confirmar el pago
             </h1>
           </div>
-  
+
           <!-- Body -->
           <div style="background-color: white; padding: 24px; border-radius: 8px; border: 1px solid #e5e7eb;">
             <p style="margin: 0 0 16px 0; font-size: 16px; color: #4b5563;">
@@ -86,7 +96,8 @@ export interface EmailReservaConfirmacionData {
 
             <p style="margin: 0 0 24px 0; font-size: 15px; color: #4b5563; line-height: 1.6;">
               Recibimos tu reserva para la clase de <strong>${esc(data.className)}</strong>.
-              Aquí están los detalles:
+              Todavía no está confirmada: tu lugar queda asegurado recién cuando
+              confirmemos el pago de la seña. Aquí están los detalles:
             </p>
 
             <!-- Detalles -->
@@ -276,6 +287,127 @@ export function templateReservaCancelada(
             Hola <strong>${esc(customerName)}</strong>,<br>
             Lamentablemente cancelamos tu reserva para <strong>${esc(className)}</strong>.<br>
             Si tenés preguntas, contactanos.
+          </p>
+        </div>
+      </body>
+      </html>
+    `;
+  }
+
+  export function templateReservaCanceladaPorFaltaComprobante(
+    customerName: string,
+    className: string,
+  ): string {
+    return `
+      <!DOCTYPE html>
+      <html>
+      <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
+      <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; margin: 0; padding: 20px; background-color: #f9fafb;">
+        <div style="max-width: 600px; margin: 0 auto; background: white; padding: 24px; border-radius: 8px; border: 1px solid #e5e7eb;">
+          <h1 style="color: #dc2626; margin-top: 0;">Reserva cancelada</h1>
+          <p style="color: #4b5563; line-height: 1.6;">
+            Hola <strong>${esc(customerName)}</strong>,<br>
+            Cancelamos tu reserva para <strong>${esc(className)}</strong> porque no recibimos el comprobante de pago dentro del plazo.<br>
+            Si ya transferiste y esto es un error, respondé este email con el comprobante y te reactivamos la reserva si todavía hay cupo.
+          </p>
+        </div>
+      </body>
+      </html>
+    `;
+  }
+
+  export interface EmailRecordatorioComprobanteData {
+    customerName: string;
+    customerEmail: string;
+    className: string;
+    depositAmount?: number | null;
+    transferHolder?: string | null;
+    transferAlias?: string | null;
+    transferCvu?: string | null;
+    transferBank?: string | null;
+    uploadUrl: string;
+  }
+
+  export function templateRecordatorioComprobante(
+    data: EmailRecordatorioComprobanteData,
+  ): string {
+    const depositLabel = data.depositAmount != null && data.depositAmount > 0
+      ? new Intl.NumberFormat("es-AR", { style: "currency", currency: "ARS", maximumFractionDigits: 0 }).format(data.depositAmount)
+      : null;
+
+    return `
+      <!DOCTYPE html>
+      <html>
+      <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
+      <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; margin: 0; padding: 0; background-color: #f9fafb;">
+        <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
+          <div style="text-align: center; margin-bottom: 32px;">
+            <h1 style="margin: 0; font-size: 24px; color: #1f2937;">⏳ Tu reserva se cancela mañana</h1>
+          </div>
+          <div style="background-color: white; padding: 24px; border-radius: 8px; border: 1px solid #e5e7eb;">
+            <p style="margin: 0 0 16px 0; font-size: 16px; color: #4b5563;">
+              Hola <strong>${esc(data.customerName)}</strong>,
+            </p>
+            <p style="margin: 0 0 20px 0; font-size: 15px; color: #4b5563; line-height: 1.6;">
+              Todavía no recibimos el comprobante de pago de tu reserva para
+              <strong>${esc(data.className)}</strong>${depositLabel ? ` (${esc(depositLabel)})` : ""}.
+              Si no lo subís antes de mañana, la reserva se cancela automáticamente para liberar el cupo.
+            </p>
+            ${data.transferHolder || data.transferAlias || data.transferCvu || data.transferBank
+              ? `
+              <table style="font-size: 14px; color: #374151; border-collapse: collapse; width: 100%; margin-bottom: 20px;">
+                ${data.transferHolder ? `<tr><td style="padding: 4px 12px 4px 0; font-weight: bold; white-space: nowrap;">Titular:</td><td style="padding: 4px 0;">${esc(data.transferHolder)}</td></tr>` : ""}
+                ${data.transferAlias ? `<tr><td style="padding: 4px 12px 4px 0; font-weight: bold; white-space: nowrap;">Alias:</td><td style="padding: 4px 0;">${esc(data.transferAlias)}</td></tr>` : ""}
+                ${data.transferCvu ? `<tr><td style="padding: 4px 12px 4px 0; font-weight: bold; white-space: nowrap;">CVU:</td><td style="padding: 4px 0;">${esc(data.transferCvu)}</td></tr>` : ""}
+                ${data.transferBank ? `<tr><td style="padding: 4px 12px 4px 0; font-weight: bold; white-space: nowrap;">Banco / Billetera:</td><td style="padding: 4px 0;">${esc(data.transferBank)}</td></tr>` : ""}
+              </table>
+              `
+              : ""}
+            <p>
+              <a href="${esc(data.uploadUrl)}" style="display: inline-block; background-color: #d97706; color: white; padding: 10px 20px; border-radius: 4px; text-decoration: none; font-weight: bold; font-size: 14px;">
+                Subir comprobante
+              </a>
+            </p>
+            <p style="margin: 24px 0 0 0; font-size: 13px; color: #6b7280; border-top: 1px solid #e5e7eb; padding-top: 16px;">
+              Si ya transferiste y todavía no subiste el comprobante, hacelo desde el botón de arriba.
+            </p>
+          </div>
+          <p style="text-align: center; margin-top: 24px; font-size: 12px; color: #9ca3af;">
+            Menesteres &copy; 2026
+          </p>
+        </div>
+      </body>
+      </html>
+    `;
+  }
+
+  export interface EmailAdminComprobanteSubidoData {
+    customerName: string;
+    customerEmail: string;
+    className: string;
+    cupos: number;
+    reviewUrl: string;
+  }
+
+  export function templateAdminComprobanteSubido(
+    data: EmailAdminComprobanteSubidoData,
+  ): string {
+    return `
+      <!DOCTYPE html>
+      <html>
+      <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
+      <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; margin: 0; padding: 20px; background-color: #f9fafb;">
+        <div style="max-width: 600px; margin: 0 auto; background: white; padding: 24px; border-radius: 8px; border: 1px solid #e5e7eb;">
+          <h1 style="color: #1f2937; margin-top: 0; font-size: 20px;">📎 Nuevo comprobante para revisar</h1>
+          <p style="color: #4b5563; line-height: 1.6;">
+            <strong>${esc(data.customerName)}</strong> (${esc(data.customerEmail)}) subió el
+            comprobante de pago para <strong>${esc(data.className)}</strong>
+            (${esc(String(data.cupos))} ${data.cupos === 1 ? "persona" : "personas"}).
+          </p>
+          <p style="margin-top: 20px;">
+            <a href="${esc(data.reviewUrl)}" style="display: inline-block; background-color: #d97706; color: white; padding: 10px 20px; border-radius: 4px; text-decoration: none; font-weight: bold;">
+              Revisar en el panel
+            </a>
           </p>
         </div>
       </body>

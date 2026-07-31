@@ -106,6 +106,12 @@ export async function POST(req: Request) {
     if ((error as { code?: string }).code === "23505") {
       return NextResponse.json({ error: "duplicate" }, { status: 409 });
     }
+    // Check constraint violation (ej. reservations_spots_check): la API valida
+    // spots <= 15 arriba, pero si el constraint de DB queda desalineado de
+    // nuevo en el futuro, esto evita un 500 genérico sin motivo claro.
+    if ((error as { code?: string }).code === "23514") {
+      return NextResponse.json({ error: "invalid_spots" }, { status: 400 });
+    }
 
     return NextResponse.json({ error: "server_error" }, { status: 500 });
   }

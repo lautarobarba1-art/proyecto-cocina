@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
 import { checkComprobanteLimit, getIp } from "@/lib/ratelimit";
 import { getMagicMime } from "@/lib/file-utils";
+import { notifyComprobanteUploaded } from "@/lib/notifications/notify";
+import { siteContact } from "@/lib/site/contact";
 
 export const runtime = "nodejs";
 
@@ -65,7 +67,7 @@ export async function POST(
 
   const { data: reservation } = await supabase
     .from("reservations")
-    .select("customer_name, customer_email, class_id, comprobante_url")
+    .select("customer_name, customer_email, class_id, comprobante_url, spots, status")
     .eq("id", id)
     .maybeSingle();
 
@@ -75,6 +77,13 @@ export async function POST(
 
   if (reservation.comprobante_url) {
     return NextResponse.json({ error: "comprobante_already_exists" }, { status: 409 });
+  }
+
+  // Ej: el cron de expiración (lib/notifications/payment-deadline-dispatch.ts)
+  // ya canceló esta reserva por falta de comprobante, y el cliente recién
+  // ahora vuelve (pestaña vieja, link del email usado tarde) a subirlo.
+  if (reservation.status !== "pending") {
+    return NextResponse.json({ error: "reservation_not_pending" }, { status: 409 });
   }
 
   const safeName = reservation.customer_name.replace(/[^a-zA-Z0-9_\-]/g, "_");
@@ -97,17 +106,48 @@ export async function POST(
     return NextResponse.json({ error: "upload_failed" }, { status: 500 });
   }
 
-  const { error: updateError } = await supabase
+  const { data: updated, error: updateError } = await supabase
     .from("reservations")
     .update({
       comprobante_url: storagePath,
       comprobante_uploaded_at: new Date().toISOString(),
     })
-    .eq("id", id);
+    .eq("id", id)
+    .eq("status", "pending")
+    .select("id")
+    .maybeSingle();
 
   if (updateError) {
     console.error("[POST /api/reservations/[id]/comprobante] DB update error:", updateError);
     return NextResponse.json({ error: "db_update_failed" }, { status: 500 });
+  }
+  if (!updated) {
+    // Carrera con el cron de expiración entre el check de arriba y este UPDATE
+    // (ventana angosta: el cron corre una vez por hora, no es un caso frecuente).
+    // El archivo ya se subió a Storage — queda huérfano, mismo trade-off de
+    // "best effort" que ya documenta notification_log para otros casos límite.
+    return NextResponse.json({ error: "reservation_not_pending" }, { status: 409 });
+  }
+
+  // Aviso a la admin (nunca revierte la subida del comprobante, que ya se persistió).
+  try {
+    const { data: cls } = await supabase
+      .from("classes")
+      .select("title")
+      .eq("id", reservation.class_id)
+      .maybeSingle();
+
+    await notifyComprobanteUploaded(supabase, {
+      reservationId: id,
+      classId: reservation.class_id,
+      customerName: reservation.customer_name,
+      customerEmail: reservation.customer_email,
+      className: cls?.title ?? "(clase)",
+      spots: reservation.spots,
+      reviewUrl: `${siteContact.siteUrl}/admin/reservas`,
+    });
+  } catch (notifyErr) {
+    console.error("[POST /api/reservations/[id]/comprobante] notifyComprobanteUploaded error:", notifyErr);
   }
 
   return NextResponse.json({ ok: true }, { status: 200 });

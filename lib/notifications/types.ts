@@ -11,7 +11,9 @@ export type NotificationEventType =
   | "pago_confirmado"
   | "recordatorio"
   | "cancelacion"
-  | "reprogramacion";
+  | "reprogramacion"
+  | "comprobante_subido"
+  | "recordatorio_comprobante";
 
 /**
  * 'skipped' cubre tanto "feature deshabilitada" como "dry run": un envío

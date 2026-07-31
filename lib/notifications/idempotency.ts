@@ -26,6 +26,32 @@ export function buildCancelacionKey(reservationId: string): string {
 }
 
 /**
+ * Una reserva solo puede tener un comprobante subido (el endpoint de subida
+ * rechaza un segundo intento si `comprobante_url` ya está seteado), así que
+ * alcanza con la reservationId sola: no puede haber un segundo evento
+ * legítimo de "comprobante subido" para la misma reserva.
+ */
+export function buildComprobanteSubidoKey(reservationId: string): string {
+  return `comprobante_subido:${reservationId}`;
+}
+
+/**
+ * A diferencia del recordatorio de clase, acá NO hace falta ningún
+ * componente de fecha: una reserva pending sin comprobante tiene un único
+ * `created_at` inmutable (no se reprograma), así que solo puede existir un
+ * evento "recordatorio de comprobante" legítimo por reserva en toda su vida.
+ * Incluir la fecha de ENVÍO (en vez de una fecha propia del evento) sería un
+ * error: la ventana de envío (23-25hs desde created_at) puede caer a caballo
+ * de la medianoche, y el cron corre cada hora — si una corrida cae de un
+ * lado de la medianoche y la siguiente (misma reserva, todavía dentro de la
+ * ventana) cae del otro lado, una clave basada en "hoy" cambiaría entre esas
+ * dos corridas y produciría un segundo email para el mismo evento.
+ */
+export function buildRecordatorioComprobanteKey(reservationId: string): string {
+  return `recordatorio_comprobante:${reservationId}`;
+}
+
+/**
  * classDateISO + classStartTime son la fecha/horario de la clase vigentes al
  * momento de armar la clave, no los de hoy. Si la clase se reprograma —
  * incluso a otro horario el mismo día — la clave cambia y el recordatorio
@@ -80,7 +106,9 @@ export type DeduplicationKeyBuilder =
       classDateISO: string;
       classStartTime: string;
     }
-  | ({ eventType: "reprogramacion" } & ReprogramacionKeyParams);
+  | ({ eventType: "reprogramacion" } & ReprogramacionKeyParams)
+  | { eventType: "comprobante_subido"; reservationId: string }
+  | { eventType: "recordatorio_comprobante"; reservationId: string };
 
 export function buildDeduplicationKey(params: DeduplicationKeyBuilder): string {
   switch (params.eventType) {
@@ -98,6 +126,10 @@ export function buildDeduplicationKey(params: DeduplicationKeyBuilder): string {
       );
     case "reprogramacion":
       return buildReprogramacionKey(params);
+    case "comprobante_subido":
+      return buildComprobanteSubidoKey(params.reservationId);
+    case "recordatorio_comprobante":
+      return buildRecordatorioComprobanteKey(params.reservationId);
     default: {
       const exhaustive: never = params;
       throw new Error(`Evento de notificación desconocido: ${JSON.stringify(exhaustive)}`);
@@ -113,6 +145,8 @@ export function eventTypeFromKey(key: string): NotificationEventType | null {
     "recordatorio",
     "cancelacion",
     "reprogramacion",
+    "comprobante_subido",
+    "recordatorio_comprobante",
   ];
   return (known as string[]).includes(prefix) ? (prefix as NotificationEventType) : null;
 }

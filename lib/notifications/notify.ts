@@ -6,14 +6,24 @@ import {
   buildReservaConfirmadaKey,
   buildRecordatorioKey,
   buildReprogramacionKey,
+  buildComprobanteSubidoKey,
+  buildCancelacionKey,
+  buildRecordatorioComprobanteKey,
 } from "./idempotency.ts";
 import type { ClaimNotificationResult } from "./types.ts";
 import type {
   EmailReservaConfirmacionData,
   EmailPagoConfirmadoData,
   EmailRecordatorioData,
+  EmailRecordatorioComprobanteData,
   EmailReprogramacionData,
+  EmailAdminComprobanteSubidoData,
 } from "../resend/template.ts";
+import { siteContact } from "../site/contact.ts";
+
+function comprobanteUploadUrl(reservationId: string): string {
+  return `${siteContact.siteUrl}/reservas/${reservationId}/comprobante`;
+}
 
 const EMAIL_TIMEOUT_MS = 5000;
 
@@ -44,11 +54,28 @@ type SendEmailReprogramacionFn = (
   data: EmailReprogramacionData,
 ) => Promise<{ success: boolean; error?: string }>;
 
+type SendEmailAdminComprobanteSubidoFn = (
+  data: EmailAdminComprobanteSubidoData,
+) => Promise<{ success: boolean; error?: string }>;
+
+type SendEmailRecordatorioComprobanteFn = (
+  data: EmailRecordatorioComprobanteData,
+) => Promise<{ success: boolean; error?: string }>;
+
+type SendEmailReservaCanceladaPorFaltaComprobanteFn = (
+  customerEmail: string,
+  customerName: string,
+  className: string,
+) => Promise<{ success: boolean; error?: string }>;
+
 export interface NotifyDeps {
   sendEmailReservaConfirmacion?: SendEmailReservaConfirmacionFn;
   sendEmailReservaConfirmada?: SendEmailReservaConfirmadaFn;
   sendEmailRecordatorio?: SendEmailRecordatorioFn;
   sendEmailReprogramacion?: SendEmailReprogramacionFn;
+  sendEmailAdminComprobanteSubido?: SendEmailAdminComprobanteSubidoFn;
+  sendEmailRecordatorioComprobante?: SendEmailRecordatorioComprobanteFn;
+  sendEmailReservaCanceladaPorFaltaComprobante?: SendEmailReservaCanceladaPorFaltaComprobanteFn;
 }
 
 function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
@@ -101,6 +128,29 @@ async function defaultSendEmailReprogramacion(
 ): Promise<{ success: boolean; error?: string }> {
   const { sendEmailReprogramacion } = await import("../resend/send.ts");
   return sendEmailReprogramacion(data);
+}
+
+async function defaultSendEmailAdminComprobanteSubido(
+  data: EmailAdminComprobanteSubidoData,
+): Promise<{ success: boolean; error?: string }> {
+  const { sendEmailAdminComprobanteSubido } = await import("../resend/send.ts");
+  return sendEmailAdminComprobanteSubido(data);
+}
+
+async function defaultSendEmailRecordatorioComprobante(
+  data: EmailRecordatorioComprobanteData,
+): Promise<{ success: boolean; error?: string }> {
+  const { sendEmailRecordatorioComprobante } = await import("../resend/send.ts");
+  return sendEmailRecordatorioComprobante(data);
+}
+
+async function defaultSendEmailReservaCanceladaPorFaltaComprobante(
+  customerEmail: string,
+  customerName: string,
+  className: string,
+): Promise<{ success: boolean; error?: string }> {
+  const { sendEmailReservaCanceladaPorFaltaComprobante } = await import("../resend/send.ts");
+  return sendEmailReservaCanceladaPorFaltaComprobante(customerEmail, customerName, className);
 }
 
 async function finishFailedAttempt(
@@ -189,6 +239,7 @@ export async function notifyReservationConfirmed(
         transferAlias: params.transferAlias,
         transferCvu: params.transferCvu,
         transferBank: params.transferBank,
+        uploadUrl: comprobanteUploadUrl(params.reservationId),
       }),
       EMAIL_TIMEOUT_MS,
     );
@@ -266,6 +317,239 @@ export async function notifyPaymentConfirmed(
         classTime: `${params.classStartTime.slice(0, 5)} - ${params.classEndTime.slice(0, 5)}`,
         cupos: params.spots,
       }),
+      EMAIL_TIMEOUT_MS,
+    );
+    if (!result.success) {
+      await finishFailedAttempt(supabase, claim, "resend_error", result.error ?? null);
+      return { email: { outcome: "failed", reason: "resend_error" } };
+    }
+
+    await completeNotification(supabase, {
+      id: claim.id,
+      claimToken: claim.claimToken,
+      status: "sent",
+    });
+    return { email: { outcome: "sent" } };
+  } catch (error) {
+    await finishFailedAttempt(supabase, claim, "exception", errorMessageOf(error));
+    return { email: { outcome: "failed", reason: "exception" } };
+  }
+}
+
+export interface NotifyComprobanteUploadedParams {
+  reservationId: string;
+  classId: string;
+  customerName: string;
+  customerEmail: string;
+  className: string;
+  spots: number;
+  reviewUrl: string;
+}
+
+/**
+ * Avisa a la admin por email que llegó un comprobante para revisar. Sin
+ * ADMIN_EMAIL configurado, no hace nada (no bloquea la subida, que ya se
+ * persistió antes de llamar a esta función).
+ */
+export async function notifyComprobanteUploaded(
+  supabase: SupabaseClient,
+  params: NotifyComprobanteUploadedParams,
+  deps: NotifyDeps = {},
+): Promise<NotifyResult> {
+  const adminEmail = process.env.ADMIN_EMAIL;
+  if (!adminEmail) {
+    console.warn("[notify/email:comprobante_subido] Falta ADMIN_EMAIL — no se avisa");
+    return { email: { outcome: "not_claimed" } };
+  }
+
+  const sendEmail = deps.sendEmailAdminComprobanteSubido ?? defaultSendEmailAdminComprobanteSubido;
+  let claim: ClaimNotificationResult;
+
+  try {
+    claim = await claimNotification(supabase, {
+      channel: "email",
+      deduplicationKey: buildComprobanteSubidoKey(params.reservationId),
+      eventType: "comprobante_subido",
+      recipient: adminEmail,
+      reservationId: params.reservationId,
+      classId: params.classId,
+      templateName: "admin_comprobante_subido",
+      payload: {
+        customerName: params.customerName,
+        className: params.className,
+        spots: params.spots,
+      },
+      deliveryMode: "live",
+    });
+  } catch (error) {
+    console.error("[notify/email:comprobante_subido] claim falló:", errorMessageOf(error));
+    return { email: { outcome: "failed", reason: "claim_error" } };
+  }
+
+  if (!claim.claimed || !claim.claimToken) {
+    return { email: { outcome: "not_claimed" } };
+  }
+
+  try {
+    const result = await withTimeout(
+      sendEmail({
+        customerName: params.customerName,
+        customerEmail: params.customerEmail,
+        className: params.className,
+        cupos: params.spots,
+        reviewUrl: params.reviewUrl,
+      }),
+      EMAIL_TIMEOUT_MS,
+    );
+    if (!result.success) {
+      await finishFailedAttempt(supabase, claim, "resend_error", result.error ?? null);
+      return { email: { outcome: "failed", reason: "resend_error" } };
+    }
+
+    await completeNotification(supabase, {
+      id: claim.id,
+      claimToken: claim.claimToken,
+      status: "sent",
+    });
+    return { email: { outcome: "sent" } };
+  } catch (error) {
+    await finishFailedAttempt(supabase, claim, "exception", errorMessageOf(error));
+    return { email: { outcome: "failed", reason: "exception" } };
+  }
+}
+
+export interface NotifyComprobanteReminderParams {
+  reservationId: string;
+  classId: string;
+  customerName: string;
+  customerEmail: string;
+  className: string;
+  depositAmount: number | null;
+  transferHolder: string | null;
+  transferAlias: string | null;
+  transferCvu: string | null;
+  transferBank: string | null;
+}
+
+/**
+ * Aviso al cliente ~24hs después de reservar si la reserva sigue `pending`
+ * sin comprobante subido: "mañana se cancela si no subís el comprobante".
+ */
+export async function notifyComprobanteReminder(
+  supabase: SupabaseClient,
+  params: NotifyComprobanteReminderParams,
+  deps: NotifyDeps = {},
+): Promise<NotifyResult> {
+  const sendEmail = deps.sendEmailRecordatorioComprobante ?? defaultSendEmailRecordatorioComprobante;
+  let claim: ClaimNotificationResult;
+
+  try {
+    claim = await claimNotification(supabase, {
+      channel: "email",
+      deduplicationKey: buildRecordatorioComprobanteKey(params.reservationId),
+      eventType: "recordatorio_comprobante",
+      recipient: params.customerEmail,
+      reservationId: params.reservationId,
+      classId: params.classId,
+      templateName: "recordatorio_comprobante",
+      payload: {
+        customerName: params.customerName,
+        className: params.className,
+      },
+      deliveryMode: "live",
+    });
+  } catch (error) {
+    console.error("[notify/email:recordatorio_comprobante] claim falló:", errorMessageOf(error));
+    return { email: { outcome: "failed", reason: "claim_error" } };
+  }
+
+  if (!claim.claimed || !claim.claimToken) {
+    return { email: { outcome: "not_claimed" } };
+  }
+
+  try {
+    const result = await withTimeout(
+      sendEmail({
+        customerName: params.customerName,
+        customerEmail: params.customerEmail,
+        className: params.className,
+        depositAmount: params.depositAmount,
+        transferHolder: params.transferHolder,
+        transferAlias: params.transferAlias,
+        transferCvu: params.transferCvu,
+        transferBank: params.transferBank,
+        uploadUrl: comprobanteUploadUrl(params.reservationId),
+      }),
+      EMAIL_TIMEOUT_MS,
+    );
+    if (!result.success) {
+      await finishFailedAttempt(supabase, claim, "resend_error", result.error ?? null);
+      return { email: { outcome: "failed", reason: "resend_error" } };
+    }
+
+    await completeNotification(supabase, {
+      id: claim.id,
+      claimToken: claim.claimToken,
+      status: "sent",
+    });
+    return { email: { outcome: "sent" } };
+  } catch (error) {
+    await finishFailedAttempt(supabase, claim, "exception", errorMessageOf(error));
+    return { email: { outcome: "failed", reason: "exception" } };
+  }
+}
+
+export interface NotifyReservationExpiredParams {
+  reservationId: string;
+  classId: string;
+  customerName: string;
+  customerEmail: string;
+  className: string;
+}
+
+/**
+ * Avisa al cliente que su reserva se canceló automáticamente por no haber
+ * llegado comprobante dentro del plazo. Reusa el evento 'cancelacion' (misma
+ * clave de dedup que una cancelación manual del admin): semánticamente sigue
+ * siendo una cancelación, solo cambia el disparador y el copy del email.
+ */
+export async function notifyReservationExpired(
+  supabase: SupabaseClient,
+  params: NotifyReservationExpiredParams,
+  deps: NotifyDeps = {},
+): Promise<NotifyResult> {
+  const sendEmail =
+    deps.sendEmailReservaCanceladaPorFaltaComprobante ??
+    defaultSendEmailReservaCanceladaPorFaltaComprobante;
+  let claim: ClaimNotificationResult;
+
+  try {
+    claim = await claimNotification(supabase, {
+      channel: "email",
+      deduplicationKey: buildCancelacionKey(params.reservationId),
+      eventType: "cancelacion",
+      recipient: params.customerEmail,
+      reservationId: params.reservationId,
+      classId: params.classId,
+      templateName: "reserva_cancelada_falta_comprobante",
+      payload: {
+        customerName: params.customerName,
+        className: params.className,
+      },
+      deliveryMode: "live",
+    });
+  } catch (error) {
+    console.error("[notify/email:cancelacion(expirada)] claim falló:", errorMessageOf(error));
+    return { email: { outcome: "failed", reason: "claim_error" } };
+  }
+
+  if (!claim.claimed || !claim.claimToken) {
+    return { email: { outcome: "not_claimed" } };
+  }
+
+  try {
+    const result = await withTimeout(
+      sendEmail(params.customerEmail, params.customerName, params.className),
       EMAIL_TIMEOUT_MS,
     );
     if (!result.success) {

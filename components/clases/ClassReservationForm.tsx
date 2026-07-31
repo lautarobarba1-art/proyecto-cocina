@@ -12,6 +12,7 @@ import {
 import type { ClassMock } from "@/lib/classes-mock";
 import { DEFAULT_CLASS_SESSIONS } from "@/lib/classes-mock";
 import { mailtoHref } from "@/lib/site/contact";
+import { ComprobanteUploadCard } from "@/components/reservas/ComprobanteUploadCard";
 
 export interface SessionOption {
   id: string;
@@ -56,10 +57,6 @@ export function ClassReservationForm({
   const [success, setSuccess] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
   const [reservationId, setReservationId] = React.useState<string | null>(null);
-  const [comprobante, setComprobante] = React.useState<File | null>(null);
-  const [comprobanteLoading, setComprobanteLoading] = React.useState(false);
-  const [comprobanteSuccess, setComprobanteSuccess] = React.useState(false);
-  const [comprobanteError, setComprobanteError] = React.useState<string | null>(null);
   const successRef = React.useRef<HTMLDivElement>(null);
 
   // idempotency key generada al montar el form
@@ -162,6 +159,8 @@ export function ClassReservationForm({
           setError("Esta sesión fue cancelada.");
         } else if (code === "duplicate") {
           setError("Ya tenés una reserva registrada para esta sesión.");
+        } else if (code === "invalid_spots") {
+          setError("La cantidad de cupos elegida no es válida para esta clase.");
         } else {
           setError("No pudimos procesar tu reserva. Intentá de nuevo.");
         }
@@ -176,41 +175,6 @@ export function ClassReservationForm({
       console.error(err);
       setError("Error de conexión. Probá de nuevo en un momento.");
       setLoading(false);
-    }
-  };
-
-  const onUploadComprobante = async () => {
-    if (!comprobante || !reservationId) return;
-    if (comprobante.size > 4 * 1024 * 1024) {
-      setComprobanteError("El archivo supera el límite de 4 MB.");
-      return;
-    }
-    setComprobanteLoading(true);
-    setComprobanteError(null);
-    try {
-      const fd = new FormData();
-      fd.append("comprobante", comprobante);
-      const res = await fetch(`/api/reservations/${reservationId}/comprobante`, {
-        method: "POST",
-        body: fd,
-      });
-      if (!res.ok) {
-        const json = await res.json().catch(() => null);
-        const code = json?.error;
-        if (code === "file_too_large") {
-          setComprobanteError("El archivo supera el límite de 4 MB.");
-        } else if (code === "invalid_file_type") {
-          setComprobanteError("Formato no soportado. Usá JPG, PNG, WEBP o PDF.");
-        } else {
-          setComprobanteError("No pudimos enviar el comprobante. Intentá de nuevo.");
-        }
-        return;
-      }
-      setComprobanteSuccess(true);
-    } catch {
-      setComprobanteError("Error de conexión. Probá de nuevo.");
-    } finally {
-      setComprobanteLoading(false);
     }
   };
 
@@ -253,12 +217,13 @@ export function ClassReservationForm({
           Reserva
         </p>
         <h3 className="mt-4 font-display text-2xl font-normal tracking-tightish text-carbon">
-          Listo, tu reserva fue registrada
+          Tu reserva queda pendiente hasta confirmar el pago
         </h3>
         <p className="mt-4 font-body text-[0.95rem] leading-relaxed text-carbon/75">
-          Te enviamos por email los datos para realizar la transferencia y
-          confirmar tu reserva. Si no recibís el correo en los próximos
-          minutos, escribinos.
+          Te enviamos por email los datos para realizar la transferencia. Tu
+          lugar todavía no está confirmado — subí el comprobante acá abajo (o
+          respondiendo al email) para que lo aprobemos. Si no recibís el
+          correo en los próximos minutos, escribinos.
         </p>
 
         {/* Comprobante upload */}
@@ -266,54 +231,12 @@ export function ClassReservationForm({
           <p className="font-sans text-[11px] font-bold uppercase tracking-meta text-carbon/55">
             Comprobante de pago
           </p>
-          {comprobanteSuccess ? (
-            <p className="mt-3 font-body text-[0.9rem] text-carbon/75">
-              Comprobante recibido, lo revisamos a la brevedad.
-            </p>
-          ) : (
-            <>
-              <p className="mt-2 font-body text-[0.9rem] leading-relaxed text-carbon/65">
-                Si ya realizaste la transferencia, podés adjuntar el comprobante
-                y se lo hacemos llegar directamente.
-              </p>
-              <div className="mt-4 grid gap-4">
-                <div>
-                  <label
-                    htmlFor="comprobante-file"
-                    className="block font-sans text-[11px] font-bold uppercase tracking-meta text-carbon/55"
-                  >
-                    Adjuntar archivo
-                    <span className="ml-1 normal-case font-normal tracking-normal text-carbon/35">
-                      (JPG, PNG, PDF · máx. 4 MB)
-                    </span>
-                  </label>
-                  <input
-                    id="comprobante-file"
-                    type="file"
-                    accept="image/jpeg,image/png,image/webp,application/pdf"
-                    className="mt-2 w-full cursor-pointer font-sans text-[0.85rem] text-carbon/70 file:mr-3 file:cursor-pointer file:border file:border-carbon/20 file:bg-transparent file:px-3 file:py-1.5 file:font-sans file:text-[0.8rem] file:text-carbon/60"
-                    onChange={(e) => {
-                      setComprobante(e.target.files?.[0] ?? null);
-                      setComprobanteError(null);
-                    }}
-                  />
-                </div>
-                {comprobanteError && (
-                  <FormError>{comprobanteError}</FormError>
-                )}
-                <Button
-                  type="button"
-                  variant="primary"
-                  size="default"
-                  disabled={!comprobante || comprobanteLoading}
-                  className="w-full"
-                  onClick={onUploadComprobante}
-                >
-                  {comprobanteLoading ? "Enviando…" : "Enviar comprobante"}
-                </Button>
-              </div>
-            </>
-          )}
+          <p className="mt-2 font-body text-[0.9rem] leading-relaxed text-carbon/65">
+            Si ya realizaste la transferencia, podés adjuntar el comprobante
+            ahora. Si preferís hacerlo más tarde, el link para subirlo también
+            está en el email que te enviamos.
+          </p>
+          {reservationId && <ComprobanteUploadCard reservationId={reservationId} />}
         </div>
 
         <Button
@@ -323,10 +246,6 @@ export function ClassReservationForm({
           onClick={() => {
             setSuccess(false);
             setReservationId(null);
-            setComprobante(null);
-            setComprobanteLoading(false);
-            setComprobanteSuccess(false);
-            setComprobanteError(null);
             setNombre("");
             setEmail("");
             setTelefono("");
@@ -466,7 +385,7 @@ export function ClassReservationForm({
               onFocus={onNotasFocus}
               onBlur={onNotasBlur}
               enterKeyHint="done"
-              className="min-h-[80px]"
+              className="min-h-20"
             />
           </Field>
           {error ? <FormError>{error}</FormError> : null}
