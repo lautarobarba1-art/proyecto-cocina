@@ -6,6 +6,8 @@ import {
   notifyPaymentConfirmed,
   notifyReservationConfirmed,
   notifyClassRescheduled,
+  notifyAdminNewReservation,
+  notifyAdminNewInquiry,
 } from "./notify.ts";
 
 function createMockSupabase() {
@@ -202,4 +204,166 @@ test("una segunda reprogramación distinta (nueva transición) sí genera un nue
   assert.equal(primera.email.outcome, "sent");
   assert.equal(segunda.email.outcome, "sent");
   assert.equal(sends, 2);
+});
+
+const adminReservationParams = {
+  reservationId: "res-1",
+  classId: "class-1",
+  customerName: "Ana",
+  customerEmail: "ana@example.com",
+  customerPhone: "+54 9 3492 000000",
+  className: "Cocina italiana",
+  classDateISO: "2026-08-01",
+  spots: 2,
+  reviewUrl: "https://menesteres.ar/admin/reservas?estado=pending",
+};
+
+test("aviso a la admin de reserva nueva: envía email y registra el intento", async (t) => {
+  const original = process.env.ADMIN_EMAIL;
+  process.env.ADMIN_EMAIL = "admin@example.com";
+  t.after(() => {
+    process.env.ADMIN_EMAIL = original;
+  });
+
+  const { client, claimCalls, completeCalls } = createMockSupabase();
+  const sent: unknown[] = [];
+
+  const result = await notifyAdminNewReservation(client, adminReservationParams, {
+    sendEmailAdminReservaNueva: async (data) => {
+      sent.push(data);
+      return { success: true };
+    },
+  });
+
+  assert.equal(result.email.outcome, "sent");
+  assert.equal(sent.length, 1);
+  assert.equal(claimCalls[0].p_event_type, "reserva_nueva_admin");
+  assert.equal(claimCalls[0].p_recipient, "admin@example.com");
+  assert.equal(completeCalls[0].p_status, "sent");
+});
+
+test("aviso a la admin de reserva nueva: sin ADMIN_EMAIL no reclama ni envía nada", async (t) => {
+  const original = process.env.ADMIN_EMAIL;
+  delete process.env.ADMIN_EMAIL;
+  t.after(() => {
+    process.env.ADMIN_EMAIL = original;
+  });
+
+  const { client, claimCalls } = createMockSupabase();
+  let sends = 0;
+
+  const result = await notifyAdminNewReservation(client, adminReservationParams, {
+    sendEmailAdminReservaNueva: async () => {
+      sends += 1;
+      return { success: true };
+    },
+  });
+
+  assert.equal(result.email.outcome, "not_claimed");
+  assert.equal(sends, 0);
+  assert.equal(claimCalls.length, 0);
+});
+
+test("aviso a la admin de reserva nueva: la misma reserva no genera un segundo email", async (t) => {
+  const original = process.env.ADMIN_EMAIL;
+  process.env.ADMIN_EMAIL = "admin@example.com";
+  t.after(() => {
+    process.env.ADMIN_EMAIL = original;
+  });
+
+  const { client } = createMockSupabase();
+  let sends = 0;
+  const deps = {
+    sendEmailAdminReservaNueva: async () => {
+      sends += 1;
+      return { success: true };
+    },
+  };
+
+  const first = await notifyAdminNewReservation(client, adminReservationParams, deps);
+  const second = await notifyAdminNewReservation(client, adminReservationParams, deps);
+
+  assert.equal(first.email.outcome, "sent");
+  assert.equal(second.email.outcome, "not_claimed");
+  assert.equal(sends, 1);
+});
+
+const adminInquiryParams = {
+  inquiryId: "inq-1",
+  customerName: "Bea",
+  customerEmail: "bea@example.com",
+  typeLabel: "Alquiler del espacio",
+  message: "Quisiera alquilar el salón para un cumpleaños.",
+  reviewUrl: "https://menesteres.ar/admin/inquiries",
+};
+
+test("aviso a la admin de consulta nueva: envía email y registra el intento", async (t) => {
+  const original = process.env.ADMIN_EMAIL;
+  process.env.ADMIN_EMAIL = "admin@example.com";
+  t.after(() => {
+    process.env.ADMIN_EMAIL = original;
+  });
+
+  const { client, claimCalls, completeCalls } = createMockSupabase();
+  const sent: unknown[] = [];
+
+  const result = await notifyAdminNewInquiry(client, adminInquiryParams, {
+    sendEmailAdminConsultaNueva: async (data) => {
+      sent.push(data);
+      return { success: true };
+    },
+  });
+
+  assert.equal(result.email.outcome, "sent");
+  assert.equal(sent.length, 1);
+  assert.equal(claimCalls[0].p_event_type, "consulta_nueva_admin");
+  assert.equal(claimCalls[0].p_reservation_id, null);
+  assert.equal(claimCalls[0].p_class_id, null);
+  assert.equal(completeCalls[0].p_status, "sent");
+});
+
+test("aviso a la admin de consulta nueva: sin ADMIN_EMAIL no reclama ni envía nada", async (t) => {
+  const original = process.env.ADMIN_EMAIL;
+  delete process.env.ADMIN_EMAIL;
+  t.after(() => {
+    process.env.ADMIN_EMAIL = original;
+  });
+
+  const { client, claimCalls } = createMockSupabase();
+  let sends = 0;
+
+  const result = await notifyAdminNewInquiry(client, adminInquiryParams, {
+    sendEmailAdminConsultaNueva: async () => {
+      sends += 1;
+      return { success: true };
+    },
+  });
+
+  assert.equal(result.email.outcome, "not_claimed");
+  assert.equal(sends, 0);
+  assert.equal(claimCalls.length, 0);
+});
+
+test("aviso a la admin de consulta nueva: la misma consulta no genera un segundo email", async (t) => {
+  const original = process.env.ADMIN_EMAIL;
+  process.env.ADMIN_EMAIL = "admin@example.com";
+  t.after(() => {
+    process.env.ADMIN_EMAIL = original;
+  });
+
+  const { client } = createMockSupabase();
+  let sends = 0;
+  const deps = {
+    sendEmailAdminConsultaNueva: async () => {
+      sends += 1;
+      return { success: true };
+    },
+  };
+
+  const first = await notifyAdminNewInquiry(client, adminInquiryParams, deps);
+  const second = await notifyAdminNewInquiry(client, adminInquiryParams, deps);
+
+  assert.equal(first.email.outcome, "sent");
+  assert.equal(second.email.outcome, "not_claimed");
+  assert.equal(sends, 1);
 });

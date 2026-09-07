@@ -127,14 +127,21 @@ export function ReservasTable({ reservas, showClaseColumn = true }: Props) {
                 </Td>
                 <Td>
                   {r.comprobanteUrl ? (
-                    <a
-                      href={`/api/admin/reservations/${r.id}/comprobante`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 rounded border border-green-600 bg-green-50 px-2 py-1 text-[0.72rem] font-medium text-green-800 transition hover:bg-green-100"
-                    >
-                      ✓ Ver comprobante
-                    </a>
+                    <div className="flex flex-col items-start gap-1">
+                      <a
+                        href={`/api/admin/reservations/${r.id}/comprobante`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1.5 rounded border border-green-600 bg-green-50 px-2 py-1 text-[0.72rem] font-medium text-green-800 transition hover:bg-green-100"
+                      >
+                        ✓ Ver comprobante
+                      </a>
+                      {r.status === "pending" && (
+                        <span className="inline-block rounded border border-terracota/40 bg-terracota/5 px-2 py-0.5 text-[0.68rem] font-medium uppercase tracking-wide text-terracota">
+                          Sin revisar
+                        </span>
+                      )}
+                    </div>
                   ) : r.status === "pending" ? (
                     <span className="text-[0.78rem] text-carbon/40">
                       Sin comprobante

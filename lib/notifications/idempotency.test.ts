@@ -7,6 +7,8 @@ import {
   buildCancelacionKey,
   buildRecordatorioKey,
   buildReprogramacionKey,
+  buildReservaNuevaAdminKey,
+  buildConsultaNuevaAdminKey,
   buildDeduplicationKey,
   eventTypeFromKey,
 } from "./idempotency.ts";
@@ -112,4 +114,24 @@ test("eventTypeFromKey reconoce el prefijo de cada tipo de evento", () => {
   assert.equal(eventTypeFromKey("recordatorio:res-1:2026-08-01:10:00:00"), "recordatorio");
   assert.equal(eventTypeFromKey("reprogramacion:res-1:abcdef1234567890"), "reprogramacion");
   assert.equal(eventTypeFromKey("algo_desconocido:res-1"), null);
+});
+
+test("buildReservaNuevaAdminKey es determinista por reserva y distinta de reserva_confirmada", () => {
+  const a = buildReservaNuevaAdminKey("res-1");
+  const b = buildReservaNuevaAdminKey("res-1");
+  assert.equal(a, b);
+  assert.equal(a, "reserva_nueva_admin:res-1");
+  assert.notEqual(a, buildReservaConfirmadaKey("res-1"));
+});
+
+test("buildConsultaNuevaAdminKey es determinista por inquiry", () => {
+  const a = buildConsultaNuevaAdminKey("inq-1");
+  const b = buildConsultaNuevaAdminKey("inq-1");
+  assert.equal(a, b);
+  assert.equal(a, "consulta_nueva_admin:inq-1");
+});
+
+test("eventTypeFromKey reconoce los eventos de aviso a la admin", () => {
+  assert.equal(eventTypeFromKey("reserva_nueva_admin:res-1"), "reserva_nueva_admin");
+  assert.equal(eventTypeFromKey("consulta_nueva_admin:inq-1"), "consulta_nueva_admin");
 });

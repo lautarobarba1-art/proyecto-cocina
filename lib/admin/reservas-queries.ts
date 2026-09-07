@@ -25,6 +25,8 @@ export interface ReservasFilter {
   status?: "pending" | "confirmed" | "cancelled" | "all";
   mes?: string; // YYYY-MM
   classId?: string;
+  /** Solo reservas pending con comprobante subido, esperando revisión. */
+  comprobantePendiente?: boolean;
 }
 
 export async function getReservasForAdmin(
@@ -68,6 +70,11 @@ export async function getReservasForAdmin(
   // Filtro por clase
   if (filter.classId) {
     query = query.eq("class_id", filter.classId);
+  }
+
+  // Comprobante subido y todavía sin revisar (pending con comprobante_url)
+  if (filter.comprobantePendiente) {
+    query = query.eq("status", "pending").not("comprobante_url", "is", null);
   }
 
   // Filtro por mes (filtra por fecha de la clase, no de la reserva)
@@ -182,4 +189,24 @@ export function reservasToCSV(reservas: ReservaAdmin[]): string {
   ]);
 
   return [headers.join(","), ...rows.map((r) => r.join(","))].join("\n");
+}
+
+/**
+ * Cuenta reservas `pending` con comprobante ya subido, esperando revisión
+ * de la admin. Es el dato más accionable del panel: hasta ahora había que
+ * escanear la tabla completa fila por fila para encontrarlas.
+ */
+export async function countComprobantesPendientes(): Promise<number> {
+  const supabase = getSupabaseAdmin();
+  const { count, error } = await supabase
+    .from("reservations")
+    .select("id", { count: "exact", head: true })
+    .eq("status", "pending")
+    .not("comprobante_url", "is", null);
+
+  if (error) {
+    console.error("[countComprobantesPendientes]", error);
+    return 0;
+  }
+  return count ?? 0;
 }

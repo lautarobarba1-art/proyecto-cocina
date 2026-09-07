@@ -3,6 +3,7 @@ import {
   getClasesForAdmin,
   type ClaseAdmin,
 } from "@/lib/admin/clases-queries";
+import { isClasePast, getStatusInfo } from "@/lib/admin/clases-status";
 import { ClasesActions } from "./ClasesActions";
 
 export const dynamic = "force-dynamic";
@@ -36,65 +37,6 @@ function formatPrice(price: number): string {
     maximumFractionDigits: 0,
   }).format(Math.round(price));
   return `$ ${formatted}`;
-}
-
-function isClasePast(isoDate: string): boolean {
-  const today = new Date().toISOString().slice(0, 10);
-  return isoDate < today;
-}
-
-interface StatusInfo {
-  label: string;
-  className: string;
-}
-
-function getStatusInfo(c: ClaseAdmin): StatusInfo {
-  if (c.categoryEvent === "eventos") {
-    if (c.isCancelled) {
-      return {
-        label: "Cancelado",
-        className: "bg-gray-100 text-gray-700 border-gray-300",
-      };
-    }
-    if (isClasePast(c.date)) {
-      return {
-        label: "Pasado",
-        className: "bg-blue-50 text-blue-800 border-blue-200",
-      };
-    }
-    return {
-      label: "Reservado",
-      className: "bg-terracota/10 text-terracota border-terracota/30",
-    };
-  }
-  if (c.isCancelled) {
-    return {
-      label: "Cancelada",
-      className: "bg-gray-100 text-gray-700 border-gray-300",
-    };
-  }
-  if (isClasePast(c.date)) {
-    return {
-      label: "Pasada",
-      className: "bg-blue-50 text-blue-800 border-blue-200",
-    };
-  }
-  if (c.spotsLeft <= 0) {
-    return {
-      label: "Llena",
-      className: "bg-red-50 text-red-800 border-red-200",
-    };
-  }
-  if (c.spotsLeft <= Math.max(1, Math.ceil(c.totalSpots * 0.3))) {
-    return {
-      label: "Pocos cupos",
-      className: "bg-yellow-100 text-yellow-900 border-yellow-300",
-    };
-  }
-  return {
-    label: "Disponible",
-    className: "bg-green-100 text-green-900 border-green-300",
-  };
 }
 
 function categoryLabel(cat: ClaseAdmin["categoryEvent"]): string {

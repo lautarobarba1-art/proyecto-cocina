@@ -13,7 +13,9 @@ export type NotificationEventType =
   | "cancelacion"
   | "reprogramacion"
   | "comprobante_subido"
-  | "recordatorio_comprobante";
+  | "recordatorio_comprobante"
+  | "reserva_nueva_admin"
+  | "consulta_nueva_admin";
 
 /**
  * 'skipped' cubre tanto "feature deshabilitada" como "dry run": un envío

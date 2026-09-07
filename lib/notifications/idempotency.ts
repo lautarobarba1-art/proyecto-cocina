@@ -52,6 +52,22 @@ export function buildRecordatorioComprobanteKey(reservationId: string): string {
 }
 
 /**
+ * Una reserva solo se crea una vez, así que la reservationId sola alcanza:
+ * no puede haber un segundo evento legítimo de "reserva nueva" para la misma
+ * reserva (a diferencia de reprogramación, que sí puede repetirse).
+ */
+export function buildReservaNuevaAdminKey(reservationId: string): string {
+  return `reserva_nueva_admin:${reservationId}`;
+}
+
+/**
+ * Igual criterio: una inquiry se crea una única vez.
+ */
+export function buildConsultaNuevaAdminKey(inquiryId: string): string {
+  return `consulta_nueva_admin:${inquiryId}`;
+}
+
+/**
  * classDateISO + classStartTime son la fecha/horario de la clase vigentes al
  * momento de armar la clave, no los de hoy. Si la clase se reprograma —
  * incluso a otro horario el mismo día — la clave cambia y el recordatorio
@@ -108,7 +124,9 @@ export type DeduplicationKeyBuilder =
     }
   | ({ eventType: "reprogramacion" } & ReprogramacionKeyParams)
   | { eventType: "comprobante_subido"; reservationId: string }
-  | { eventType: "recordatorio_comprobante"; reservationId: string };
+  | { eventType: "recordatorio_comprobante"; reservationId: string }
+  | { eventType: "reserva_nueva_admin"; reservationId: string }
+  | { eventType: "consulta_nueva_admin"; inquiryId: string };
 
 export function buildDeduplicationKey(params: DeduplicationKeyBuilder): string {
   switch (params.eventType) {
@@ -130,6 +148,10 @@ export function buildDeduplicationKey(params: DeduplicationKeyBuilder): string {
       return buildComprobanteSubidoKey(params.reservationId);
     case "recordatorio_comprobante":
       return buildRecordatorioComprobanteKey(params.reservationId);
+    case "reserva_nueva_admin":
+      return buildReservaNuevaAdminKey(params.reservationId);
+    case "consulta_nueva_admin":
+      return buildConsultaNuevaAdminKey(params.inquiryId);
     default: {
       const exhaustive: never = params;
       throw new Error(`Evento de notificación desconocido: ${JSON.stringify(exhaustive)}`);
@@ -147,6 +169,8 @@ export function eventTypeFromKey(key: string): NotificationEventType | null {
     "reprogramacion",
     "comprobante_subido",
     "recordatorio_comprobante",
+    "reserva_nueva_admin",
+    "consulta_nueva_admin",
   ];
   return (known as string[]).includes(prefix) ? (prefix as NotificationEventType) : null;
 }

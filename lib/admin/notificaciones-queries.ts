@@ -1,11 +1,12 @@
 import { getSupabaseAdmin } from "@/lib/supabase/server";
+import type { NotificationEventType } from "@/lib/notifications/types";
 
-export type NotificationEventType =
-  | "reserva_confirmada"
-  | "pago_confirmado"
-  | "recordatorio"
-  | "cancelacion"
-  | "reprogramacion";
+// Reexportado desde el tipo canónico (lib/notifications/types.ts) en vez de
+// mantener una copia propia: una copia local había quedado desactualizada
+// (le faltaban comprobante_subido/recordatorio_comprobante), lo que hacía
+// que esos eventos aparecieran sin etiqueta en /admin/notificaciones y no se
+// pudieran filtrar.
+export type { NotificationEventType };
 
 export type NotificationStatus =
   | "processing"

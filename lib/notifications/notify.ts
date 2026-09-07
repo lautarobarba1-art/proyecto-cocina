@@ -9,6 +9,8 @@ import {
   buildComprobanteSubidoKey,
   buildCancelacionKey,
   buildRecordatorioComprobanteKey,
+  buildReservaNuevaAdminKey,
+  buildConsultaNuevaAdminKey,
 } from "./idempotency.ts";
 import type { ClaimNotificationResult } from "./types.ts";
 import type {
@@ -18,6 +20,8 @@ import type {
   EmailRecordatorioComprobanteData,
   EmailReprogramacionData,
   EmailAdminComprobanteSubidoData,
+  EmailAdminReservaNuevaData,
+  EmailAdminConsultaNuevaData,
 } from "../resend/template.ts";
 import { siteContact } from "../site/contact.ts";
 
@@ -58,6 +62,14 @@ type SendEmailAdminComprobanteSubidoFn = (
   data: EmailAdminComprobanteSubidoData,
 ) => Promise<{ success: boolean; error?: string }>;
 
+type SendEmailAdminReservaNuevaFn = (
+  data: EmailAdminReservaNuevaData,
+) => Promise<{ success: boolean; error?: string }>;
+
+type SendEmailAdminConsultaNuevaFn = (
+  data: EmailAdminConsultaNuevaData,
+) => Promise<{ success: boolean; error?: string }>;
+
 type SendEmailRecordatorioComprobanteFn = (
   data: EmailRecordatorioComprobanteData,
 ) => Promise<{ success: boolean; error?: string }>;
@@ -76,6 +88,8 @@ export interface NotifyDeps {
   sendEmailAdminComprobanteSubido?: SendEmailAdminComprobanteSubidoFn;
   sendEmailRecordatorioComprobante?: SendEmailRecordatorioComprobanteFn;
   sendEmailReservaCanceladaPorFaltaComprobante?: SendEmailReservaCanceladaPorFaltaComprobanteFn;
+  sendEmailAdminReservaNueva?: SendEmailAdminReservaNuevaFn;
+  sendEmailAdminConsultaNueva?: SendEmailAdminConsultaNuevaFn;
 }
 
 function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
@@ -142,6 +156,20 @@ async function defaultSendEmailRecordatorioComprobante(
 ): Promise<{ success: boolean; error?: string }> {
   const { sendEmailRecordatorioComprobante } = await import("../resend/send.ts");
   return sendEmailRecordatorioComprobante(data);
+}
+
+async function defaultSendEmailAdminReservaNueva(
+  data: EmailAdminReservaNuevaData,
+): Promise<{ success: boolean; error?: string }> {
+  const { sendEmailAdminReservaNueva } = await import("../resend/send.ts");
+  return sendEmailAdminReservaNueva(data);
+}
+
+async function defaultSendEmailAdminConsultaNueva(
+  data: EmailAdminConsultaNuevaData,
+): Promise<{ success: boolean; error?: string }> {
+  const { sendEmailAdminConsultaNueva } = await import("../resend/send.ts");
+  return sendEmailAdminConsultaNueva(data);
 }
 
 async function defaultSendEmailReservaCanceladaPorFaltaComprobante(
@@ -397,6 +425,176 @@ export async function notifyComprobanteUploaded(
         customerEmail: params.customerEmail,
         className: params.className,
         cupos: params.spots,
+        reviewUrl: params.reviewUrl,
+      }),
+      EMAIL_TIMEOUT_MS,
+    );
+    if (!result.success) {
+      await finishFailedAttempt(supabase, claim, "resend_error", result.error ?? null);
+      return { email: { outcome: "failed", reason: "resend_error" } };
+    }
+
+    await completeNotification(supabase, {
+      id: claim.id,
+      claimToken: claim.claimToken,
+      status: "sent",
+    });
+    return { email: { outcome: "sent" } };
+  } catch (error) {
+    await finishFailedAttempt(supabase, claim, "exception", errorMessageOf(error));
+    return { email: { outcome: "failed", reason: "exception" } };
+  }
+}
+
+export interface NotifyAdminNewReservationParams {
+  reservationId: string;
+  classId: string;
+  customerName: string;
+  customerEmail: string;
+  customerPhone: string | null;
+  className: string;
+  classDateISO: string;
+  spots: number;
+  reviewUrl: string;
+}
+
+/**
+ * Avisa a la admin por email que se creó una reserva nueva (todavía
+ * pending, sin comprobante). Sin este aviso, la admin recién se enteraba
+ * de una reserva cuando alguien subía un comprobante — si nunca lo subía,
+ * la reserva podía quedar invisible para ella indefinidamente. Sin
+ * ADMIN_EMAIL configurado, no hace nada (no bloquea la reserva, que ya se
+ * creó antes de llamar a esta función).
+ */
+export async function notifyAdminNewReservation(
+  supabase: SupabaseClient,
+  params: NotifyAdminNewReservationParams,
+  deps: NotifyDeps = {},
+): Promise<NotifyResult> {
+  const adminEmail = process.env.ADMIN_EMAIL;
+  if (!adminEmail) {
+    console.warn("[notify/email:reserva_nueva_admin] Falta ADMIN_EMAIL — no se avisa");
+    return { email: { outcome: "not_claimed" } };
+  }
+
+  const sendEmail = deps.sendEmailAdminReservaNueva ?? defaultSendEmailAdminReservaNueva;
+  let claim: ClaimNotificationResult;
+
+  try {
+    claim = await claimNotification(supabase, {
+      channel: "email",
+      deduplicationKey: buildReservaNuevaAdminKey(params.reservationId),
+      eventType: "reserva_nueva_admin",
+      recipient: adminEmail,
+      reservationId: params.reservationId,
+      classId: params.classId,
+      templateName: "admin_reserva_nueva",
+      payload: {
+        customerName: params.customerName,
+        className: params.className,
+        spots: params.spots,
+      },
+      deliveryMode: "live",
+    });
+  } catch (error) {
+    console.error("[notify/email:reserva_nueva_admin] claim falló:", errorMessageOf(error));
+    return { email: { outcome: "failed", reason: "claim_error" } };
+  }
+
+  if (!claim.claimed || !claim.claimToken) {
+    return { email: { outcome: "not_claimed" } };
+  }
+
+  try {
+    const result = await withTimeout(
+      sendEmail({
+        customerName: params.customerName,
+        customerEmail: params.customerEmail,
+        customerPhone: params.customerPhone,
+        className: params.className,
+        classDate: formatEmailDateLong(params.classDateISO),
+        cupos: params.spots,
+        reviewUrl: params.reviewUrl,
+      }),
+      EMAIL_TIMEOUT_MS,
+    );
+    if (!result.success) {
+      await finishFailedAttempt(supabase, claim, "resend_error", result.error ?? null);
+      return { email: { outcome: "failed", reason: "resend_error" } };
+    }
+
+    await completeNotification(supabase, {
+      id: claim.id,
+      claimToken: claim.claimToken,
+      status: "sent",
+    });
+    return { email: { outcome: "sent" } };
+  } catch (error) {
+    await finishFailedAttempt(supabase, claim, "exception", errorMessageOf(error));
+    return { email: { outcome: "failed", reason: "exception" } };
+  }
+}
+
+export interface NotifyAdminNewInquiryParams {
+  inquiryId: string;
+  customerName: string;
+  customerEmail: string;
+  typeLabel: string;
+  message: string | null;
+  reviewUrl: string;
+}
+
+/**
+ * Avisa a la admin por email que llegó una consulta nueva (contacto, evento
+ * privado o alquiler del espacio). Hasta ahora `POST /api/inquiries` no
+ * disparaba ningún aviso — la única forma de enterarse era entrar al panel
+ * a revisar. Sin ADMIN_EMAIL configurado, no hace nada.
+ */
+export async function notifyAdminNewInquiry(
+  supabase: SupabaseClient,
+  params: NotifyAdminNewInquiryParams,
+  deps: NotifyDeps = {},
+): Promise<NotifyResult> {
+  const adminEmail = process.env.ADMIN_EMAIL;
+  if (!adminEmail) {
+    console.warn("[notify/email:consulta_nueva_admin] Falta ADMIN_EMAIL — no se avisa");
+    return { email: { outcome: "not_claimed" } };
+  }
+
+  const sendEmail = deps.sendEmailAdminConsultaNueva ?? defaultSendEmailAdminConsultaNueva;
+  let claim: ClaimNotificationResult;
+
+  try {
+    claim = await claimNotification(supabase, {
+      channel: "email",
+      deduplicationKey: buildConsultaNuevaAdminKey(params.inquiryId),
+      eventType: "consulta_nueva_admin",
+      recipient: adminEmail,
+      reservationId: null,
+      classId: null,
+      templateName: "admin_consulta_nueva",
+      payload: {
+        customerName: params.customerName,
+        typeLabel: params.typeLabel,
+      },
+      deliveryMode: "live",
+    });
+  } catch (error) {
+    console.error("[notify/email:consulta_nueva_admin] claim falló:", errorMessageOf(error));
+    return { email: { outcome: "failed", reason: "claim_error" } };
+  }
+
+  if (!claim.claimed || !claim.claimToken) {
+    return { email: { outcome: "not_claimed" } };
+  }
+
+  try {
+    const result = await withTimeout(
+      sendEmail({
+        customerName: params.customerName,
+        customerEmail: params.customerEmail,
+        typeLabel: params.typeLabel,
+        message: params.message,
         reviewUrl: params.reviewUrl,
       }),
       EMAIL_TIMEOUT_MS,

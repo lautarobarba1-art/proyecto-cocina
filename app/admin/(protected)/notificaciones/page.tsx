@@ -35,6 +35,14 @@ function eventTypeLabel(eventType: NotificationEventType): string {
       return "Cancelación";
     case "reprogramacion":
       return "Reprogramación";
+    case "comprobante_subido":
+      return "Comprobante subido";
+    case "recordatorio_comprobante":
+      return "Recordatorio de comprobante";
+    case "reserva_nueva_admin":
+      return "Reserva nueva (admin)";
+    case "consulta_nueva_admin":
+      return "Consulta nueva (admin)";
   }
 }
 
@@ -75,6 +83,10 @@ const EVENT_TYPES: { value: NotificationEventType | ""; label: string }[] = [
   { value: "recordatorio", label: "Recordatorio" },
   { value: "cancelacion", label: "Cancelación" },
   { value: "reprogramacion", label: "Reprogramación" },
+  { value: "comprobante_subido", label: "Comprobante subido" },
+  { value: "recordatorio_comprobante", label: "Recordatorio de comprobante" },
+  { value: "reserva_nueva_admin", label: "Reserva nueva (admin)" },
+  { value: "consulta_nueva_admin", label: "Consulta nueva (admin)" },
 ];
 
 const STATUSES: { value: NotificationStatus | ""; label: string }[] = [

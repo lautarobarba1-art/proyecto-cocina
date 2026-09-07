@@ -8,12 +8,16 @@ import {
   templateRecordatorioComprobante,
   templateReprogramacion,
   templateAdminComprobanteSubido,
+  templateAdminReservaNueva,
+  templateAdminConsultaNueva,
   type EmailReservaConfirmacionData,
   type EmailPagoConfirmadoData,
   type EmailRecordatorioData,
   type EmailRecordatorioComprobanteData,
   type EmailReprogramacionData,
   type EmailAdminComprobanteSubidoData,
+  type EmailAdminReservaNuevaData,
+  type EmailAdminConsultaNuevaData,
 } from "./template";
 
 /**
@@ -216,6 +220,77 @@ export async function sendEmailAdminComprobanteSubido(
     return { success: true };
   } catch (err) {
     console.error("[sendEmailAdminComprobanteSubido exception]", err);
+    return { success: false, error: String(err) };
+  }
+}
+
+/**
+ * Aviso a la admin cuando un cliente crea una reserva nueva. Hasta ahora la
+ * admin recién se enteraba de una reserva cuando alguien subía un
+ * comprobante — si nunca lo subía, la reserva podía quedar invisible para
+ * ella indefinidamente. Fail-open: sin ADMIN_EMAIL no se envía nada (no
+ * bloquea la creación de la reserva, que ya se guardó igual).
+ */
+export async function sendEmailAdminReservaNueva(
+  data: EmailAdminReservaNuevaData,
+): Promise<{ success: boolean; error?: string }> {
+  const adminEmail = process.env.ADMIN_EMAIL;
+  if (!adminEmail) {
+    console.warn("[sendEmailAdminReservaNueva] Falta ADMIN_EMAIL — no se envía aviso");
+    return { success: false, error: "admin_email_not_configured" };
+  }
+  try {
+    const html = templateAdminReservaNueva(data);
+    const result = await resend.emails.send({
+      from: FROM_EMAIL,
+      to: adminEmail,
+      subject: `🆕 Nueva reserva pendiente de pago: ${data.className}`,
+      html,
+    });
+
+    if (result.error) {
+      console.error("[sendEmailAdminReservaNueva]", result.error);
+      return { success: false, error: result.error.message };
+    }
+
+    return { success: true };
+  } catch (err) {
+    console.error("[sendEmailAdminReservaNueva exception]", err);
+    return { success: false, error: String(err) };
+  }
+}
+
+/**
+ * Aviso a la admin cuando llega una consulta nueva (contacto, evento
+ * privado o alquiler del espacio). Hasta ahora `POST /api/inquiries` no
+ * disparaba ningún email — la única forma de enterarse era entrar al panel
+ * a revisar. Fail-open: sin ADMIN_EMAIL no se envía nada.
+ */
+export async function sendEmailAdminConsultaNueva(
+  data: EmailAdminConsultaNuevaData,
+): Promise<{ success: boolean; error?: string }> {
+  const adminEmail = process.env.ADMIN_EMAIL;
+  if (!adminEmail) {
+    console.warn("[sendEmailAdminConsultaNueva] Falta ADMIN_EMAIL — no se envía aviso");
+    return { success: false, error: "admin_email_not_configured" };
+  }
+  try {
+    const html = templateAdminConsultaNueva(data);
+    const result = await resend.emails.send({
+      from: FROM_EMAIL,
+      to: adminEmail,
+      subject: `✉️ Nueva consulta: ${data.typeLabel}`,
+      html,
+    });
+
+    if (result.error) {
+      console.error("[sendEmailAdminConsultaNueva]", result.error);
+      return { success: false, error: result.error.message };
+    }
+
+    return { success: true };
+  } catch (err) {
+    console.error("[sendEmailAdminConsultaNueva exception]", err);
     return { success: false, error: String(err) };
   }
 }

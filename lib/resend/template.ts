@@ -415,6 +415,82 @@ export function templateReservaCancelada(
     `;
   }
 
+  export interface EmailAdminReservaNuevaData {
+    customerName: string;
+    customerEmail: string;
+    customerPhone: string | null;
+    className: string;
+    classDate: string;
+    cupos: number;
+    reviewUrl: string;
+  }
+
+  export function templateAdminReservaNueva(
+    data: EmailAdminReservaNuevaData,
+  ): string {
+    return `
+      <!DOCTYPE html>
+      <html>
+      <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
+      <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; margin: 0; padding: 20px; background-color: #f9fafb;">
+        <div style="max-width: 600px; margin: 0 auto; background: white; padding: 24px; border-radius: 8px; border: 1px solid #e5e7eb;">
+          <h1 style="color: #1f2937; margin-top: 0; font-size: 20px;">🆕 Nueva reserva pendiente de pago</h1>
+          <p style="color: #4b5563; line-height: 1.6;">
+            <strong>${esc(data.customerName)}</strong> (${esc(data.customerEmail)}${data.customerPhone ? ` · ${esc(data.customerPhone)}` : ""})
+            reservó <strong>${esc(String(data.cupos))} ${data.cupos === 1 ? "cupo" : "cupos"}</strong>
+            para <strong>${esc(data.className)}</strong> (${esc(data.classDate)}).
+          </p>
+          <p style="color: #6b7280; font-size: 13px; line-height: 1.6;">
+            Todavía no pagó. Vas a recibir otro aviso cuando suba el comprobante,
+            o podés revisar el estado ahora en el panel.
+          </p>
+          <p style="margin-top: 20px;">
+            <a href="${esc(data.reviewUrl)}" style="display: inline-block; background-color: #d97706; color: white; padding: 10px 20px; border-radius: 4px; text-decoration: none; font-weight: bold;">
+              Ver en el panel
+            </a>
+          </p>
+        </div>
+      </body>
+      </html>
+    `;
+  }
+
+  export interface EmailAdminConsultaNuevaData {
+    customerName: string;
+    customerEmail: string;
+    typeLabel: string;
+    message: string | null;
+    reviewUrl: string;
+  }
+
+  export function templateAdminConsultaNueva(
+    data: EmailAdminConsultaNuevaData,
+  ): string {
+    return `
+      <!DOCTYPE html>
+      <html>
+      <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
+      <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; margin: 0; padding: 20px; background-color: #f9fafb;">
+        <div style="max-width: 600px; margin: 0 auto; background: white; padding: 24px; border-radius: 8px; border: 1px solid #e5e7eb;">
+          <h1 style="color: #1f2937; margin-top: 0; font-size: 20px;">✉️ Nueva consulta: ${esc(data.typeLabel)}</h1>
+          <p style="color: #4b5563; line-height: 1.6;">
+            <strong>${esc(data.customerName)}</strong> (${esc(data.customerEmail)}) escribió por
+            <strong>${esc(data.typeLabel)}</strong>.
+          </p>
+          ${data.message
+            ? `<p style="margin: 16px 0; padding: 12px 16px; background-color: #f3f4f6; border-radius: 4px; color: #374151; font-size: 14px; white-space: pre-line;">${esc(data.message)}</p>`
+            : ""}
+          <p style="margin-top: 20px;">
+            <a href="${esc(data.reviewUrl)}" style="display: inline-block; background-color: #d97706; color: white; padding: 10px 20px; border-radius: 4px; text-decoration: none; font-weight: bold;">
+              Ver en el panel
+            </a>
+          </p>
+        </div>
+      </body>
+      </html>
+    `;
+  }
+
   export interface EmailReprogramacionData {
     customerName: string;
     customerEmail: string;

@@ -14,7 +14,7 @@ import {
   FieldTextarea,
   FormActions,
   Section,
-} from "./AdminFormFields";
+} from "../_shared/AdminFormFields";
 
 interface Props {
   /** Si se pasa, es modo edición. Si no, modo crear. */
@@ -359,26 +359,17 @@ export function ClaseFormCliente({ initial }: Props) {
             required
           />
         </div>
-        <div className="grid gap-4 sm:grid-cols-2">
-          <FieldText
-            label="Seña (ARS, opcional)"
-            hint="Monto que el cliente abona al reservar. Si no hay seña, dejalo vacío."
-            type="number"
-            value={form.depositAmount != null ? String(form.depositAmount) : ""}
-            onChange={(v) => {
-              const parsed = parseFloat(v);
-              updateField("depositAmount", v.trim() === "" || isNaN(parsed) ? null : parsed);
-            }}
-            error={fieldErrors.depositAmount}
-          />
-          <FieldText
-            label="Link de Mercado Pago (opcional)"
-            hint="URL del checkout de MP. Se manda al cliente después de reservar."
-            value={form.paymentLink ?? ""}
-            onChange={(v) => updateField("paymentLink", v.trim() === "" ? null : v)}
-            error={fieldErrors.paymentLink}
-          />
-        </div>
+        <FieldText
+          label="Seña (ARS, opcional)"
+          hint="Monto que el cliente abona al reservar. Si no hay seña, dejalo vacío."
+          type="number"
+          value={form.depositAmount != null ? String(form.depositAmount) : ""}
+          onChange={(v) => {
+            const parsed = parseFloat(v);
+            updateField("depositAmount", v.trim() === "" || isNaN(parsed) ? null : parsed);
+          }}
+          error={fieldErrors.depositAmount}
+        />
       </Section>
 
       <Section title="Visibilidad">

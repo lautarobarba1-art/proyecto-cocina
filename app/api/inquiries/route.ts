@@ -7,6 +7,8 @@ import {
 } from "@/lib/inquiries/validate";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
 import { checkInquiriesLimit, getIp } from "@/lib/ratelimit";
+import { notifyAdminNewInquiry } from "@/lib/notifications/notify";
+import { siteContact } from "@/lib/site/contact";
 
 export const runtime = "nodejs";
 
@@ -20,6 +22,12 @@ const ERROR_STATUS: Record<InquiryValidationError, number> = {
   invalid_mensaje: 400,
   invalid_fecha: 400,
 };
+
+function inquiryTypeLabel(type: "contact" | "espacio" | "eventos"): string {
+  if (type === "espacio") return "Alquiler del espacio";
+  if (type === "eventos") return "Evento privado";
+  return "Contacto";
+}
 
 /**
  * POST /api/inquiries
@@ -80,6 +88,19 @@ export async function POST(req: Request) {
   if (error) {
     console.error("[POST /api/inquiries]", error);
     return NextResponse.json({ error: "server_error" }, { status: 500 });
+  }
+
+  try {
+    await notifyAdminNewInquiry(supabase, {
+      inquiryId: data.id,
+      customerName: name,
+      customerEmail: email,
+      typeLabel: inquiryTypeLabel(type),
+      message: typeof payload.mensaje === "string" ? payload.mensaje : null,
+      reviewUrl: `${siteContact.siteUrl}/admin/inquiries`,
+    });
+  } catch (notifyErr) {
+    console.error("[POST /api/inquiries] notifyAdminNewInquiry error:", notifyErr);
   }
 
   return NextResponse.json({ ok: true, inquiryId: data.id }, { status: 201 });

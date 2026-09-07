@@ -1,7 +1,11 @@
 import { NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
 import { checkReservationsLimit, getIp } from "@/lib/ratelimit";
-import { notifyReservationConfirmed } from "@/lib/notifications/notify";
+import {
+  notifyReservationConfirmed,
+  notifyAdminNewReservation,
+} from "@/lib/notifications/notify";
+import { siteContact } from "@/lib/site/contact";
 
 export async function POST(req: Request) {
   const rl = await checkReservationsLimit(getIp(req));
@@ -160,6 +164,22 @@ export async function POST(req: Request) {
     });
   } catch (notifyErr) {
     console.error("[POST /api/reservations] notifyReservationConfirmed error:", notifyErr);
+  }
+
+  try {
+    await notifyAdminNewReservation(supabase, {
+      reservationId,
+      classId,
+      customerName,
+      customerEmail,
+      customerPhone: customerPhone ?? null,
+      className: cls?.title ?? "(clase)",
+      classDateISO: cls?.date ?? "",
+      spots,
+      reviewUrl: `${siteContact.siteUrl}/admin/reservas?estado=pending`,
+    });
+  } catch (notifyErr) {
+    console.error("[POST /api/reservations] notifyAdminNewReservation error:", notifyErr);
   }
 
   return NextResponse.json({ ok: true, id: reservationId }, { status: 201 });

@@ -9,15 +9,15 @@ Items acordados para después del lanzamiento de contenido y formularios.
 
 ## Reservas
 
-- Emails de confirmación al cliente (Resend o similar) tras `POST /api/reservations`.
-- Notificación al admin en reservas nuevas.
+- ~~Emails de confirmación al cliente tras `POST /api/reservations`.~~ Hecho.
+- ~~Notificación al admin en reservas nuevas.~~ Hecho (`notifyAdminNewReservation`, requiere `ADMIN_EMAIL`).
 - Lista de espera real: tabla + API; reemplazar mock en [`WaitlistBlock`](../components/calendario/WaitlistBlock.tsx) y rama agotado en [`ClassReservationForm`](../components/clases/ClassReservationForm.tsx).
 
 ## Admin
 
-- Filtros y búsqueda en [`app/admin/(protected)/reservas`](../app/admin/(protected)/reservas/page.tsx).
-- Export CSV de reservas (mencionado en copy del dashboard).
-- Vista de `inquiries` (contacto / espacio).
+- ~~Filtros y búsqueda en `app/admin/(protected)/reservas`.~~ Hecho (estado, mes, comprobante sin revisar).
+- ~~Export CSV de reservas.~~ Hecho.
+- ~~Vista de `inquiries` (contacto / espacio).~~ Hecho — incluye aviso por email al admin en consultas nuevas.
 
 ## Datos
 

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import {
   getReservasForAdmin,
+  countComprobantesPendientes,
   type ReservaAdmin,
   type ReservasFilter,
 } from "@/lib/admin/reservas-queries";
@@ -31,11 +32,12 @@ function getUltimos12Meses(): { value: string; label: string }[] {
 }
 
 interface PageProps {
-  searchParams: Promise<{ estado?: string; mes?: string }>;
+  searchParams: Promise<{ estado?: string; mes?: string; comprobante?: string }>;
 }
 
 export default async function ReservasAdminPage({ searchParams }: PageProps) {
-  const { estado, mes } = await searchParams;
+  const { estado, mes, comprobante } = await searchParams;
+  const comprobantePendiente = comprobante === "pendiente";
 
   const filter: ReservasFilter = {
     status:
@@ -45,9 +47,13 @@ export default async function ReservasAdminPage({ searchParams }: PageProps) {
         ? estado
         : "all",
     mes: mes ?? undefined,
+    comprobantePendiente,
   };
 
-  const reservas = await getReservasForAdmin(200, filter);
+  const [reservas, comprobantesPendientesCount] = await Promise.all([
+    getReservasForAdmin(200, filter),
+    countComprobantesPendientes(),
+  ]);
 
   const counts = {
     total: reservas.length,
@@ -80,6 +86,11 @@ export default async function ReservasAdminPage({ searchParams }: PageProps) {
           <SummaryPill label="Pendientes" value={counts.pending} />
           <SummaryPill label="Pagadas" value={counts.confirmed} />
           <SummaryPill label="Canceladas" value={counts.cancelled} />
+          <SummaryPill
+            label="Sin revisar"
+            value={comprobantesPendientesCount}
+            highlight={comprobantesPendientesCount > 0}
+          />
         </div>
       </header>
 
@@ -101,6 +112,41 @@ export default async function ReservasAdminPage({ searchParams }: PageProps) {
               const params = new URLSearchParams();
               if (opt.value) params.set("estado", opt.value);
               if (mes) params.set("mes", mes);
+              const href = `/admin/reservas?${params.toString()}`;
+
+              return (
+                <Link
+                  key={opt.value}
+                  href={href}
+                  className={[
+                    "px-3 py-1.5 font-sans text-[0.78rem] border transition",
+                    isActive
+                      ? "bg-carbon text-crema border-carbon"
+                      : "bg-white text-carbon/70 border-carbon/20 hover:border-carbon/40",
+                  ].join(" ")}
+                >
+                  {opt.label}
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Filtro por comprobante */}
+        <div>
+          <p className="font-mono text-[0.65rem] uppercase tracking-eyebrow text-carbon/55 mb-1.5">
+            Comprobante
+          </p>
+          <div className="flex flex-wrap gap-1">
+            {[
+              { value: "", label: "Todos" },
+              { value: "pendiente", label: "Sin revisar" },
+            ].map((opt) => {
+              const isActive = (comprobante ?? "") === opt.value;
+              const params = new URLSearchParams();
+              if (estado) params.set("estado", estado);
+              if (mes) params.set("mes", mes);
+              if (opt.value) params.set("comprobante", opt.value);
               const href = `/admin/reservas?${params.toString()}`;
 
               return (
@@ -156,13 +202,33 @@ export default async function ReservasAdminPage({ searchParams }: PageProps) {
 
 // ─── Sub-componentes ──────────────────────────────────────────────────────────
 
-function SummaryPill({ label, value }: { label: string; value: number }) {
+function SummaryPill({
+  label,
+  value,
+  highlight = false,
+}: {
+  label: string;
+  value: number;
+  highlight?: boolean;
+}) {
   return (
-    <div className="border border-carbon/10 bg-white px-4 py-2">
+    <div
+      className={[
+        "border px-4 py-2",
+        highlight ? "border-terracota/40 bg-terracota/5" : "border-carbon/10 bg-white",
+      ].join(" ")}
+    >
       <div className="font-mono text-[0.65rem] uppercase tracking-eyebrow text-carbon/55">
         {label}
       </div>
-      <div className="font-display text-lg text-carbon">{value}</div>
+      <div
+        className={[
+          "font-display text-lg",
+          highlight ? "text-terracota" : "text-carbon",
+        ].join(" ")}
+      >
+        {value}
+      </div>
     </div>
   );
 }
