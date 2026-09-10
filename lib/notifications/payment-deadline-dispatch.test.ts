@@ -104,7 +104,7 @@ function createMockSupabase(
 
 function fakeSenders() {
   let reminders = 0;
-  let expirations: Array<[string, string, string]> = [];
+  const expirations: Array<[string, string, string]> = [];
   return {
     deps: {
       sendEmailRecordatorioComprobante: async () => {
