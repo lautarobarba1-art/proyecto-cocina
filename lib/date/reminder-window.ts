@@ -70,3 +70,32 @@ export function isWithinReminderWindow(
   const hours = hoursUntilClassStart(classDateISO, classStartTime, now);
   return hours >= REMINDER_WINDOW_MIN_HOURS && hours < REMINDER_WINDOW_MAX_HOURS;
 }
+
+// ─── Hora de pared de Buenos Aires ──────────────────────────────────────────────
+// Los crons de la app disparan cada hora en UTC; para decidir "¿son las 8 de la
+// mañana en Argentina?" o "¿qué fecha es dentro de 4 días acá?" alcanza con
+// restar el offset fijo UTC-3 (sin DST desde 2009) y leer la hora/fecha UTC del
+// instante corrido.
+
+function shiftedToBuenosAires(now: Date): Date {
+  return new Date(now.getTime() - BUENOS_AIRES_UTC_OFFSET_HOURS * 60 * 60 * 1000);
+}
+
+/** Hora de pared (0-23) y fecha ISO (YYYY-MM-DD) en Buenos Aires para `now`. */
+export function buenosAiresWallClock(now: Date = new Date()): {
+  hour: number;
+  dateISO: string;
+} {
+  const shifted = shiftedToBuenosAires(now);
+  return { hour: shifted.getUTCHours(), dateISO: shifted.toISOString().slice(0, 10) };
+}
+
+/** Fecha ISO (YYYY-MM-DD) a `daysAhead` días de hoy, en hora de Buenos Aires. */
+export function buenosAiresDateInDays(
+  daysAhead: number,
+  now: Date = new Date(),
+): string {
+  const shifted = shiftedToBuenosAires(now);
+  shifted.setUTCDate(shifted.getUTCDate() + daysAhead);
+  return shifted.toISOString().slice(0, 10);
+}

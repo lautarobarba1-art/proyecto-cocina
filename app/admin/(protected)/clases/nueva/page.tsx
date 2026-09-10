@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { ClaseFormCliente } from "../ClaseFormCliente";
 import { EventoFormCliente } from "../EventoFormCliente";
+import { getClaseAdminById } from "@/lib/admin/clases-queries";
+import type { ClaseFormData } from "@/lib/admin/clases-validation";
 
 export const dynamic = "force-dynamic";
 
@@ -9,12 +11,40 @@ export const metadata = {
 };
 
 interface PageProps {
-  searchParams: Promise<{ tipo?: string }>;
+  searchParams: Promise<{ tipo?: string; desde?: string }>;
 }
 
 export default async function NuevaClasePage({ searchParams }: PageProps) {
-  const { tipo } = await searchParams;
+  const { tipo, desde } = await searchParams;
   const isEvento = tipo === "evento";
+
+  // "Duplicar clase": precargar el form desde una clase existente, con la
+  // fecha en blanco. Solo aplica a clases (no eventos).
+  let prefill: ClaseFormData | undefined;
+  if (!isEvento && desde) {
+    const src = await getClaseAdminById(desde);
+    if (src && src.categoryEvent !== "eventos") {
+      prefill = {
+        slug: src.slug,
+        date: "",
+        title: src.title,
+        startTime: src.startTime,
+        endTime: src.endTime,
+        categoryEvent: src.categoryEvent,
+        shortDesc: src.shortDesc,
+        isHighlighted: false,
+        categoryLabel: src.categoryLabel,
+        descriptionLong: src.descriptionLong,
+        durationLabel: src.durationLabel,
+        imageSrc: src.imageSrc,
+        imageAlt: src.imageAlt,
+        totalSpots: src.totalSpots,
+        price: src.price,
+        depositAmount: src.depositAmount,
+        paymentLink: src.paymentLink,
+      };
+    }
+  }
 
   return (
     <div>
@@ -23,13 +53,22 @@ export default async function NuevaClasePage({ searchParams }: PageProps) {
           Panel · {isEvento ? "Eventos" : "Clases"}
         </p>
         <h1 className="mt-3 font-display text-3xl font-normal tracking-tightish text-carbon">
-          {isEvento ? "Nuevo evento privado" : "Nueva clase"}
+          {isEvento
+            ? "Nuevo evento privado"
+            : prefill
+              ? "Duplicar clase"
+              : "Nueva clase"}
         </h1>
         <p className="mt-3 max-w-prose font-body text-[0.92rem] leading-relaxed text-carbon/65">
           {isEvento ? (
             <>
               Registrá un festejo o encuentro privado que ocupa el espacio. Solo necesitás título,
               fecha, horario, categoría y la descripción que verán en el calendario.
+            </>
+          ) : prefill ? (
+            <>
+              Todos los datos vienen de la clase original. Poné la fecha nueva y ajustá lo que
+              haga falta.
             </>
           ) : (
             <>
@@ -51,7 +90,11 @@ export default async function NuevaClasePage({ searchParams }: PageProps) {
       </div>
 
       <div className="mt-10 max-w-3xl">
-        {isEvento ? <EventoFormCliente /> : <ClaseFormCliente />}
+        {isEvento ? (
+          <EventoFormCliente />
+        ) : (
+          <ClaseFormCliente prefill={prefill} />
+        )}
       </div>
     </div>
   );

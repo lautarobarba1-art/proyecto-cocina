@@ -15,7 +15,9 @@ export type NotificationEventType =
   | "comprobante_subido"
   | "recordatorio_comprobante"
   | "reserva_nueva_admin"
-  | "consulta_nueva_admin";
+  | "consulta_nueva_admin"
+  | "resumen_admin"
+  | "baja_ocupacion";
 
 /**
  * 'skipped' cubre tanto "feature deshabilitada" como "dry run": un envío

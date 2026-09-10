@@ -491,6 +491,136 @@ export function templateReservaCancelada(
     `;
   }
 
+  export interface EmailAdminDigestClase {
+    title: string;
+    dateLabel: string;
+    spotsLeft: number;
+    totalSpots: number;
+    statusLabel: string;
+    isEvento: boolean;
+  }
+
+  export interface EmailAdminDigestData {
+    dateLabel: string;
+    comprobantesPendientes: number;
+    consultasNuevas: number;
+    proximasClases: EmailAdminDigestClase[];
+    fallasPermanentes: number;
+    panelUrl: string;
+  }
+
+  export function templateAdminDigest(data: EmailAdminDigestData): string {
+    const linea = (label: string, n: number) =>
+      n > 0
+        ? `<li style="margin: 4px 0; color: #1f2937;"><strong>${esc(String(n))}</strong> ${esc(label)}</li>`
+        : "";
+
+    const pendientes = [
+      linea(
+        data.comprobantesPendientes === 1
+          ? "comprobante sin revisar"
+          : "comprobantes sin revisar",
+        data.comprobantesPendientes,
+      ),
+      linea(
+        data.consultasNuevas === 1 ? "consulta sin leer" : "consultas sin leer",
+        data.consultasNuevas,
+      ),
+      linea(
+        data.fallasPermanentes === 1
+          ? "aviso por email que no se pudo enviar"
+          : "avisos por email que no se pudieron enviar",
+        data.fallasPermanentes,
+      ),
+    ]
+      .filter(Boolean)
+      .join("");
+
+    const clasesRows = data.proximasClases
+      .map(
+        (c) => `
+        <tr>
+          <td style="padding: 6px 12px 6px 0; color: #4b5563; white-space: nowrap;">${esc(c.dateLabel)}</td>
+          <td style="padding: 6px 12px 6px 0; color: #1f2937;">${esc(c.title)}</td>
+          <td style="padding: 6px 12px 6px 0; color: #4b5563; white-space: nowrap;">${c.isEvento ? "—" : `${esc(String(c.spotsLeft))}/${esc(String(c.totalSpots))}`}</td>
+          <td style="padding: 6px 0; color: #6b7280;">${esc(c.statusLabel)}</td>
+        </tr>`,
+      )
+      .join("");
+
+    return `
+      <!DOCTYPE html>
+      <html>
+      <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
+      <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; margin: 0; padding: 20px; background-color: #f9fafb;">
+        <div style="max-width: 600px; margin: 0 auto; background: white; padding: 24px; border-radius: 8px; border: 1px solid #e5e7eb;">
+          <h1 style="color: #1f2937; margin-top: 0; font-size: 20px;">☀️ Resumen del día — ${esc(data.dateLabel)}</h1>
+
+          ${
+            pendientes
+              ? `<p style="color: #4b5563; margin: 16px 0 4px 0;">Necesita tu atención:</p>
+                 <ul style="margin: 0 0 8px 0; padding-left: 20px; font-size: 14px; line-height: 1.6;">${pendientes}</ul>`
+              : `<p style="color: #4b5563; margin: 16px 0;">No hay nada pendiente de revisar. 👌</p>`
+          }
+
+          ${
+            clasesRows
+              ? `<p style="color: #4b5563; margin: 20px 0 4px 0;">Próximas clases:</p>
+                 <table style="font-size: 14px; border-collapse: collapse; width: 100%;">${clasesRows}</table>`
+              : ""
+          }
+
+          <p style="margin-top: 24px;">
+            <a href="${esc(data.panelUrl)}" style="display: inline-block; background-color: #d97706; color: white; padding: 10px 20px; border-radius: 4px; text-decoration: none; font-weight: bold;">
+              Abrir el panel
+            </a>
+          </p>
+        </div>
+      </body>
+      </html>
+    `;
+  }
+
+  export interface EmailAdminLowOccupancyData {
+    className: string;
+    classDateLabel: string;
+    spotsLeft: number;
+    totalSpots: number;
+    occupancyPct: number;
+    panelUrl: string;
+  }
+
+  export function templateAdminLowOccupancy(
+    data: EmailAdminLowOccupancyData,
+  ): string {
+    const reservados = data.totalSpots - data.spotsLeft;
+    return `
+      <!DOCTYPE html>
+      <html>
+      <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
+      <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; margin: 0; padding: 20px; background-color: #f9fafb;">
+        <div style="max-width: 600px; margin: 0 auto; background: white; padding: 24px; border-radius: 8px; border: 1px solid #e5e7eb;">
+          <h1 style="color: #1f2937; margin-top: 0; font-size: 20px;">📉 Clase con pocas reservas</h1>
+          <p style="color: #4b5563; line-height: 1.6;">
+            <strong>${esc(data.className)}</strong> es el <strong>${esc(data.classDateLabel)}</strong>
+            (en 4 días) y va <strong>${esc(String(reservados))} de ${esc(String(data.totalSpots))}</strong>
+            cupos ocupados (${esc(String(data.occupancyPct))}%).
+          </p>
+          <p style="color: #6b7280; font-size: 13px; line-height: 1.6;">
+            Todavía hay tiempo de promocionarla, o de decidir si la cancelás avisando a quienes
+            ya reservaron.
+          </p>
+          <p style="margin-top: 20px;">
+            <a href="${esc(data.panelUrl)}" style="display: inline-block; background-color: #d97706; color: white; padding: 10px 20px; border-radius: 4px; text-decoration: none; font-weight: bold;">
+              Ver la clase
+            </a>
+          </p>
+        </div>
+      </body>
+      </html>
+    `;
+  }
+
   export interface EmailReprogramacionData {
     customerName: string;
     customerEmail: string;

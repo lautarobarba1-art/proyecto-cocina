@@ -3,7 +3,7 @@ import type { ClaseAdmin } from "./clases-queries";
 /**
  * Extraído de app/admin/(protected)/clases/page.tsx para poder reusar el
  * mismo criterio de "ocupación" en el dashboard (resumen de próximas
- * clases) sin duplicar la lógica.
+ * clases) y en el cron de baja ocupación sin duplicar la lógica.
  */
 
 export function isClasePast(isoDate: string): boolean {
@@ -16,7 +16,13 @@ export interface StatusInfo {
   className: string;
 }
 
-export function getStatusInfo(c: ClaseAdmin): StatusInfo {
+/** Solo los campos que el badge de estado necesita. */
+export type ClaseStatusInput = Pick<
+  ClaseAdmin,
+  "categoryEvent" | "isCancelled" | "date" | "spotsLeft" | "totalSpots"
+>;
+
+export function getStatusInfo(c: ClaseStatusInput): StatusInfo {
   if (c.categoryEvent === "eventos") {
     if (c.isCancelled) {
       return {

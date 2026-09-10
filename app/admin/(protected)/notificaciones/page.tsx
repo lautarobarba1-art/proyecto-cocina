@@ -43,6 +43,10 @@ function eventTypeLabel(eventType: NotificationEventType): string {
       return "Reserva nueva (admin)";
     case "consulta_nueva_admin":
       return "Consulta nueva (admin)";
+    case "resumen_admin":
+      return "Resumen diario (admin)";
+    case "baja_ocupacion":
+      return "Baja ocupación (admin)";
   }
 }
 
@@ -87,6 +91,8 @@ const EVENT_TYPES: { value: NotificationEventType | ""; label: string }[] = [
   { value: "recordatorio_comprobante", label: "Recordatorio de comprobante" },
   { value: "reserva_nueva_admin", label: "Reserva nueva (admin)" },
   { value: "consulta_nueva_admin", label: "Consulta nueva (admin)" },
+  { value: "resumen_admin", label: "Resumen diario (admin)" },
+  { value: "baja_ocupacion", label: "Baja ocupación (admin)" },
 ];
 
 const STATUSES: { value: NotificationStatus | ""; label: string }[] = [

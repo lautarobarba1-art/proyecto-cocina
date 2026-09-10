@@ -10,6 +10,8 @@ import {
   templateAdminComprobanteSubido,
   templateAdminReservaNueva,
   templateAdminConsultaNueva,
+  templateAdminDigest,
+  templateAdminLowOccupancy,
   type EmailReservaConfirmacionData,
   type EmailPagoConfirmadoData,
   type EmailRecordatorioData,
@@ -18,6 +20,8 @@ import {
   type EmailAdminComprobanteSubidoData,
   type EmailAdminReservaNuevaData,
   type EmailAdminConsultaNuevaData,
+  type EmailAdminDigestData,
+  type EmailAdminLowOccupancyData,
 } from "./template";
 
 /**
@@ -291,6 +295,73 @@ export async function sendEmailAdminConsultaNueva(
     return { success: true };
   } catch (err) {
     console.error("[sendEmailAdminConsultaNueva exception]", err);
+    return { success: false, error: String(err) };
+  }
+}
+
+/**
+ * Resumen diario al admin (8:00 hora Argentina). Solo se manda si hay algo
+ * pendiente o clases próximas — la lógica de "¿hay algo que reportar?" vive
+ * en lib/notifications/admin-digest-dispatch.ts. Fail-open sin ADMIN_EMAIL.
+ */
+export async function sendEmailAdminDigest(
+  data: EmailAdminDigestData,
+): Promise<{ success: boolean; error?: string }> {
+  const adminEmail = process.env.ADMIN_EMAIL;
+  if (!adminEmail) {
+    console.warn("[sendEmailAdminDigest] Falta ADMIN_EMAIL — no se envía el resumen");
+    return { success: false, error: "admin_email_not_configured" };
+  }
+  try {
+    const html = templateAdminDigest(data);
+    const result = await resend.emails.send({
+      from: FROM_EMAIL,
+      to: adminEmail,
+      subject: `☀️ Resumen del día — ${data.dateLabel}`,
+      html,
+    });
+
+    if (result.error) {
+      console.error("[sendEmailAdminDigest]", result.error);
+      return { success: false, error: result.error.message };
+    }
+
+    return { success: true };
+  } catch (err) {
+    console.error("[sendEmailAdminDigest exception]", err);
+    return { success: false, error: String(err) };
+  }
+}
+
+/**
+ * Aviso al admin cuando una clase próxima (4 días) tiene pocas reservas.
+ * Fail-open sin ADMIN_EMAIL.
+ */
+export async function sendEmailAdminLowOccupancy(
+  data: EmailAdminLowOccupancyData,
+): Promise<{ success: boolean; error?: string }> {
+  const adminEmail = process.env.ADMIN_EMAIL;
+  if (!adminEmail) {
+    console.warn("[sendEmailAdminLowOccupancy] Falta ADMIN_EMAIL — no se envía el aviso");
+    return { success: false, error: "admin_email_not_configured" };
+  }
+  try {
+    const html = templateAdminLowOccupancy(data);
+    const result = await resend.emails.send({
+      from: FROM_EMAIL,
+      to: adminEmail,
+      subject: `📉 Pocas reservas: ${data.className} (${data.classDateLabel})`,
+      html,
+    });
+
+    if (result.error) {
+      console.error("[sendEmailAdminLowOccupancy]", result.error);
+      return { success: false, error: result.error.message };
+    }
+
+    return { success: true };
+  } catch (err) {
+    console.error("[sendEmailAdminLowOccupancy exception]", err);
     return { success: false, error: String(err) };
   }
 }

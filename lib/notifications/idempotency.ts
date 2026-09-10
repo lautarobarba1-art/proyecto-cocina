@@ -68,6 +68,23 @@ export function buildConsultaNuevaAdminKey(inquiryId: string): string {
 }
 
 /**
+ * Resumen diario al admin: una clave por día (fecha de Buenos Aires). El cron
+ * corre cada hora pero solo dispara a las 8:00 AR; la clave por fecha evita
+ * que dos corridas del mismo día generen dos emails.
+ */
+export function buildResumenAdminKey(dateISO: string): string {
+  return `resumen_admin:${dateISO}`;
+}
+
+/**
+ * Alerta de baja ocupación: un aviso por clase para siempre. Si la clase sigue
+ * vacía al día siguiente, no se re-avisa — la admin ya lo sabe.
+ */
+export function buildBajaOcupacionKey(classId: string): string {
+  return `baja_ocupacion:${classId}`;
+}
+
+/**
  * classDateISO + classStartTime son la fecha/horario de la clase vigentes al
  * momento de armar la clave, no los de hoy. Si la clase se reprograma —
  * incluso a otro horario el mismo día — la clave cambia y el recordatorio
@@ -126,7 +143,9 @@ export type DeduplicationKeyBuilder =
   | { eventType: "comprobante_subido"; reservationId: string }
   | { eventType: "recordatorio_comprobante"; reservationId: string }
   | { eventType: "reserva_nueva_admin"; reservationId: string }
-  | { eventType: "consulta_nueva_admin"; inquiryId: string };
+  | { eventType: "consulta_nueva_admin"; inquiryId: string }
+  | { eventType: "resumen_admin"; dateISO: string }
+  | { eventType: "baja_ocupacion"; classId: string };
 
 export function buildDeduplicationKey(params: DeduplicationKeyBuilder): string {
   switch (params.eventType) {
@@ -152,6 +171,10 @@ export function buildDeduplicationKey(params: DeduplicationKeyBuilder): string {
       return buildReservaNuevaAdminKey(params.reservationId);
     case "consulta_nueva_admin":
       return buildConsultaNuevaAdminKey(params.inquiryId);
+    case "resumen_admin":
+      return buildResumenAdminKey(params.dateISO);
+    case "baja_ocupacion":
+      return buildBajaOcupacionKey(params.classId);
     default: {
       const exhaustive: never = params;
       throw new Error(`Evento de notificación desconocido: ${JSON.stringify(exhaustive)}`);
@@ -171,6 +194,8 @@ export function eventTypeFromKey(key: string): NotificationEventType | null {
     "recordatorio_comprobante",
     "reserva_nueva_admin",
     "consulta_nueva_admin",
+    "resumen_admin",
+    "baja_ocupacion",
   ];
   return (known as string[]).includes(prefix) ? (prefix as NotificationEventType) : null;
 }

@@ -266,6 +266,7 @@ export default async function ClasesAdminPage({ searchParams }: PageProps) {
                           classDate={formatDateLong(c.date)}
                           isCancelled={c.isCancelled}
                           isPast={isClasePast(c.date)}
+                          isEvento={c.categoryEvent === "eventos"}
                           activeReservationsCount={c.activeReservationsCount}
                         />
                       </Td>

@@ -5,6 +5,8 @@ import {
   classStartToUtcInstant,
   hoursUntilClassStart,
   isWithinReminderWindow,
+  buenosAiresWallClock,
+  buenosAiresDateInDays,
   REMINDER_WINDOW_MIN_HOURS,
   REMINDER_WINDOW_MAX_HOURS,
 } from "./reminder-window.ts";
@@ -67,4 +69,30 @@ test("isWithinReminderWindow: fuera de la ventana (clase pasada o muy lejana)", 
 test("las constantes de ventana son las esperadas (~24h con margen de ±1h)", () => {
   assert.equal(REMINDER_WINDOW_MIN_HOURS, 23);
   assert.equal(REMINDER_WINDOW_MAX_HOURS, 25);
+});
+
+test("buenosAiresWallClock: 11:00 UTC son las 08:00 en Argentina", () => {
+  const { hour, dateISO } = buenosAiresWallClock(new Date("2026-09-10T11:00:00.000Z"));
+  assert.equal(hour, 8);
+  assert.equal(dateISO, "2026-09-10");
+});
+
+test("buenosAiresWallClock: cerca de medianoche UTC la fecha AR es el día anterior", () => {
+  const { hour, dateISO } = buenosAiresWallClock(new Date("2026-09-11T02:00:00.000Z"));
+  assert.equal(hour, 23);
+  assert.equal(dateISO, "2026-09-10");
+});
+
+test("buenosAiresDateInDays: +4 días desde la fecha AR", () => {
+  assert.equal(
+    buenosAiresDateInDays(4, new Date("2026-09-10T11:00:00.000Z")),
+    "2026-09-14",
+  );
+});
+
+test("buenosAiresDateInDays: cruza fin de mes", () => {
+  assert.equal(
+    buenosAiresDateInDays(4, new Date("2026-09-28T11:00:00.000Z")),
+    "2026-10-02",
+  );
 });

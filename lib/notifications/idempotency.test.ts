@@ -9,6 +9,8 @@ import {
   buildReprogramacionKey,
   buildReservaNuevaAdminKey,
   buildConsultaNuevaAdminKey,
+  buildResumenAdminKey,
+  buildBajaOcupacionKey,
   buildDeduplicationKey,
   eventTypeFromKey,
 } from "./idempotency.ts";
@@ -134,4 +136,21 @@ test("buildConsultaNuevaAdminKey es determinista por inquiry", () => {
 test("eventTypeFromKey reconoce los eventos de aviso a la admin", () => {
   assert.equal(eventTypeFromKey("reserva_nueva_admin:res-1"), "reserva_nueva_admin");
   assert.equal(eventTypeFromKey("consulta_nueva_admin:inq-1"), "consulta_nueva_admin");
+});
+
+test("buildResumenAdminKey es una clave por fecha", () => {
+  assert.equal(buildResumenAdminKey("2026-09-10"), "resumen_admin:2026-09-10");
+  assert.notEqual(
+    buildResumenAdminKey("2026-09-10"),
+    buildResumenAdminKey("2026-09-11"),
+  );
+});
+
+test("buildBajaOcupacionKey es una clave por clase", () => {
+  assert.equal(buildBajaOcupacionKey("class-1"), "baja_ocupacion:class-1");
+});
+
+test("eventTypeFromKey reconoce los eventos proactivos al admin", () => {
+  assert.equal(eventTypeFromKey("resumen_admin:2026-09-10"), "resumen_admin");
+  assert.equal(eventTypeFromKey("baja_ocupacion:class-1"), "baja_ocupacion");
 });

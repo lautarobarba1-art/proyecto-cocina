@@ -19,6 +19,11 @@ import {
 interface Props {
   /** Si se pasa, es modo edición. Si no, modo crear. */
   initial?: ClaseFormData & { id: string };
+  /**
+   * Modo crear con campos precargados (botón "Duplicar clase"). La fecha viene
+   * en blanco a propósito. Se ignora si también viene `initial`.
+   */
+  prefill?: ClaseFormData;
 }
 
 const EMPTY_FORM: ClaseFormData = {
@@ -41,9 +46,10 @@ const EMPTY_FORM: ClaseFormData = {
   paymentLink: null,
 };
 
-export function ClaseFormCliente({ initial }: Props) {
+export function ClaseFormCliente({ initial, prefill }: Props) {
   const router = useRouter();
   const isEdit = Boolean(initial);
+  const isDuplicate = !initial && Boolean(prefill);
 
   const initialFormData: ClaseFormData = initial
     ? {
@@ -65,10 +71,14 @@ export function ClaseFormCliente({ initial }: Props) {
         depositAmount: initial.depositAmount,
         paymentLink: initial.paymentLink,
       }
-    : EMPTY_FORM;
+    : (prefill ?? EMPTY_FORM);
 
   const [form, setForm] = React.useState<ClaseFormData>(initialFormData);
-  const [slugManuallyEdited, setSlugManuallyEdited] = React.useState(isEdit);
+  // En duplicar, el slug ya viene de la clase origen y no debe regenerarse
+  // desde el título.
+  const [slugManuallyEdited, setSlugManuallyEdited] = React.useState(
+    isEdit || isDuplicate,
+  );
   const [loading, setLoading] = React.useState(false);
   const [serverError, setServerError] = React.useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = React.useState<
@@ -222,7 +232,7 @@ export function ClaseFormCliente({ initial }: Props) {
             required
           />
         </FieldRow>
-        {!isEdit && (
+        {!isEdit && !isDuplicate && (
           <div>
             <button
               type="button"
@@ -236,6 +246,12 @@ export function ClaseFormCliente({ initial }: Props) {
               Si ya hubo una clase con este slug, autocompleta los campos comunes.
             </p>
           </div>
+        )}
+        {isDuplicate && (
+          <p className="text-[0.78rem] text-carbon/60">
+            Duplicando una clase existente. Elegí la fecha nueva y revisá el
+            resto de los datos antes de guardar.
+          </p>
         )}
       </Section>
 

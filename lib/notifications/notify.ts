@@ -11,6 +11,8 @@ import {
   buildRecordatorioComprobanteKey,
   buildReservaNuevaAdminKey,
   buildConsultaNuevaAdminKey,
+  buildResumenAdminKey,
+  buildBajaOcupacionKey,
 } from "./idempotency.ts";
 import type { ClaimNotificationResult } from "./types.ts";
 import type {
@@ -22,6 +24,9 @@ import type {
   EmailAdminComprobanteSubidoData,
   EmailAdminReservaNuevaData,
   EmailAdminConsultaNuevaData,
+  EmailAdminDigestData,
+  EmailAdminDigestClase,
+  EmailAdminLowOccupancyData,
 } from "../resend/template.ts";
 import { siteContact } from "../site/contact.ts";
 
@@ -70,6 +75,14 @@ type SendEmailAdminConsultaNuevaFn = (
   data: EmailAdminConsultaNuevaData,
 ) => Promise<{ success: boolean; error?: string }>;
 
+type SendEmailAdminDigestFn = (
+  data: EmailAdminDigestData,
+) => Promise<{ success: boolean; error?: string }>;
+
+type SendEmailAdminLowOccupancyFn = (
+  data: EmailAdminLowOccupancyData,
+) => Promise<{ success: boolean; error?: string }>;
+
 type SendEmailRecordatorioComprobanteFn = (
   data: EmailRecordatorioComprobanteData,
 ) => Promise<{ success: boolean; error?: string }>;
@@ -97,6 +110,8 @@ export interface NotifyDeps {
   sendEmailReservaCancelada?: SendEmailReservaCanceladaFn;
   sendEmailAdminReservaNueva?: SendEmailAdminReservaNuevaFn;
   sendEmailAdminConsultaNueva?: SendEmailAdminConsultaNuevaFn;
+  sendEmailAdminDigest?: SendEmailAdminDigestFn;
+  sendEmailAdminLowOccupancy?: SendEmailAdminLowOccupancyFn;
 }
 
 function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
@@ -177,6 +192,20 @@ async function defaultSendEmailAdminConsultaNueva(
 ): Promise<{ success: boolean; error?: string }> {
   const { sendEmailAdminConsultaNueva } = await import("../resend/send.ts");
   return sendEmailAdminConsultaNueva(data);
+}
+
+async function defaultSendEmailAdminDigest(
+  data: EmailAdminDigestData,
+): Promise<{ success: boolean; error?: string }> {
+  const { sendEmailAdminDigest } = await import("../resend/send.ts");
+  return sendEmailAdminDigest(data);
+}
+
+async function defaultSendEmailAdminLowOccupancy(
+  data: EmailAdminLowOccupancyData,
+): Promise<{ success: boolean; error?: string }> {
+  const { sendEmailAdminLowOccupancy } = await import("../resend/send.ts");
+  return sendEmailAdminLowOccupancy(data);
 }
 
 async function defaultSendEmailReservaCanceladaPorFaltaComprobante(
@@ -632,6 +661,174 @@ export async function notifyAdminNewInquiry(
         typeLabel: params.typeLabel,
         message: params.message,
         reviewUrl: params.reviewUrl,
+      }),
+      EMAIL_TIMEOUT_MS,
+    );
+    if (!result.success) {
+      await finishFailedAttempt(supabase, claim, "resend_error", result.error ?? null);
+      return { email: { outcome: "failed", reason: "resend_error" } };
+    }
+
+    await completeNotification(supabase, {
+      id: claim.id,
+      claimToken: claim.claimToken,
+      status: "sent",
+    });
+    return { email: { outcome: "sent" } };
+  } catch (error) {
+    await finishFailedAttempt(supabase, claim, "exception", errorMessageOf(error));
+    return { email: { outcome: "failed", reason: "exception" } };
+  }
+}
+
+export interface NotifyAdminDigestParams {
+  dateISO: string;
+  dateLabel: string;
+  comprobantesPendientes: number;
+  consultasNuevas: number;
+  proximasClases: EmailAdminDigestClase[];
+  fallasPermanentes: number;
+  panelUrl: string;
+}
+
+/**
+ * Resumen diario al admin. El disparo (¿son las 8:00 AR? ¿hay algo que
+ * reportar?) lo decide `lib/notifications/admin-digest-dispatch.ts` — esta
+ * función solo dedupe por fecha y manda. Sin ADMIN_EMAIL, no hace nada.
+ */
+export async function notifyAdminDigest(
+  supabase: SupabaseClient,
+  params: NotifyAdminDigestParams,
+  deps: NotifyDeps = {},
+): Promise<NotifyResult> {
+  const adminEmail = process.env.ADMIN_EMAIL;
+  if (!adminEmail) {
+    console.warn("[notify/email:resumen_admin] Falta ADMIN_EMAIL — no se avisa");
+    return { email: { outcome: "not_claimed" } };
+  }
+
+  const sendEmail = deps.sendEmailAdminDigest ?? defaultSendEmailAdminDigest;
+  let claim: ClaimNotificationResult;
+
+  try {
+    claim = await claimNotification(supabase, {
+      channel: "email",
+      deduplicationKey: buildResumenAdminKey(params.dateISO),
+      eventType: "resumen_admin",
+      recipient: adminEmail,
+      reservationId: null,
+      classId: null,
+      templateName: "admin_digest",
+      payload: {
+        comprobantesPendientes: params.comprobantesPendientes,
+        consultasNuevas: params.consultasNuevas,
+        proximasClases: params.proximasClases.length,
+        fallasPermanentes: params.fallasPermanentes,
+      },
+      deliveryMode: "live",
+    });
+  } catch (error) {
+    console.error("[notify/email:resumen_admin] claim falló:", errorMessageOf(error));
+    return { email: { outcome: "failed", reason: "claim_error" } };
+  }
+
+  if (!claim.claimed || !claim.claimToken) {
+    return { email: { outcome: "not_claimed" } };
+  }
+
+  try {
+    const result = await withTimeout(
+      sendEmail({
+        dateLabel: params.dateLabel,
+        comprobantesPendientes: params.comprobantesPendientes,
+        consultasNuevas: params.consultasNuevas,
+        proximasClases: params.proximasClases,
+        fallasPermanentes: params.fallasPermanentes,
+        panelUrl: params.panelUrl,
+      }),
+      EMAIL_TIMEOUT_MS,
+    );
+    if (!result.success) {
+      await finishFailedAttempt(supabase, claim, "resend_error", result.error ?? null);
+      return { email: { outcome: "failed", reason: "resend_error" } };
+    }
+
+    await completeNotification(supabase, {
+      id: claim.id,
+      claimToken: claim.claimToken,
+      status: "sent",
+    });
+    return { email: { outcome: "sent" } };
+  } catch (error) {
+    await finishFailedAttempt(supabase, claim, "exception", errorMessageOf(error));
+    return { email: { outcome: "failed", reason: "exception" } };
+  }
+}
+
+export interface NotifyLowOccupancyParams {
+  classId: string;
+  className: string;
+  classDateLabel: string;
+  spotsLeft: number;
+  totalSpots: number;
+  occupancyPct: number;
+  panelUrl: string;
+}
+
+/**
+ * Aviso al admin de una clase próxima (4 días) con pocas reservas. Un aviso
+ * por clase para siempre (dedup por classId). Sin ADMIN_EMAIL, no hace nada.
+ */
+export async function notifyLowOccupancy(
+  supabase: SupabaseClient,
+  params: NotifyLowOccupancyParams,
+  deps: NotifyDeps = {},
+): Promise<NotifyResult> {
+  const adminEmail = process.env.ADMIN_EMAIL;
+  if (!adminEmail) {
+    console.warn("[notify/email:baja_ocupacion] Falta ADMIN_EMAIL — no se avisa");
+    return { email: { outcome: "not_claimed" } };
+  }
+
+  const sendEmail =
+    deps.sendEmailAdminLowOccupancy ?? defaultSendEmailAdminLowOccupancy;
+  let claim: ClaimNotificationResult;
+
+  try {
+    claim = await claimNotification(supabase, {
+      channel: "email",
+      deduplicationKey: buildBajaOcupacionKey(params.classId),
+      eventType: "baja_ocupacion",
+      recipient: adminEmail,
+      reservationId: null,
+      classId: params.classId,
+      templateName: "admin_low_occupancy",
+      payload: {
+        className: params.className,
+        occupancyPct: params.occupancyPct,
+        spotsLeft: params.spotsLeft,
+        totalSpots: params.totalSpots,
+      },
+      deliveryMode: "live",
+    });
+  } catch (error) {
+    console.error("[notify/email:baja_ocupacion] claim falló:", errorMessageOf(error));
+    return { email: { outcome: "failed", reason: "claim_error" } };
+  }
+
+  if (!claim.claimed || !claim.claimToken) {
+    return { email: { outcome: "not_claimed" } };
+  }
+
+  try {
+    const result = await withTimeout(
+      sendEmail({
+        className: params.className,
+        classDateLabel: params.classDateLabel,
+        spotsLeft: params.spotsLeft,
+        totalSpots: params.totalSpots,
+        occupancyPct: params.occupancyPct,
+        panelUrl: params.panelUrl,
       }),
       EMAIL_TIMEOUT_MS,
     );

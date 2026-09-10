@@ -10,6 +10,7 @@ interface Props {
   classDate: string; // YYYY-MM-DD
   isCancelled: boolean;
   isPast: boolean;
+  isEvento: boolean;
   activeReservationsCount: number;
 }
 
@@ -19,6 +20,7 @@ export function ClasesActions({
   classDate,
   isCancelled,
   isPast,
+  isEvento,
   activeReservationsCount,
 }: Props) {
   const router = useRouter();
@@ -96,6 +98,14 @@ export function ClasesActions({
       >
         Ver reservas
       </Link>
+      {!isEvento && (
+        <Link
+          href={`/admin/clases/nueva?desde=${claseId}`}
+          className="rounded border border-carbon/15 bg-white px-3 py-1.5 text-center text-[0.75rem] font-medium uppercase tracking-wide text-carbon/70 transition hover:border-carbon/30 hover:text-carbon"
+        >
+          Duplicar
+        </Link>
+      )}
       {canCancel && (
         <button
           type="button"
