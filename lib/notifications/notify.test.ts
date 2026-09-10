@@ -6,6 +6,7 @@ import {
   notifyPaymentConfirmed,
   notifyReservationConfirmed,
   notifyClassRescheduled,
+  notifyReservationCancelled,
   notifyAdminNewReservation,
   notifyAdminNewInquiry,
 } from "./notify.ts";
@@ -164,6 +165,22 @@ test("la reprogramación envía email y registra el intento", async () => {
   assert.equal(sent.length, 1);
   assert.equal(claimCalls[0].p_event_type, "reprogramacion");
   assert.equal(completeCalls[0].p_status, "sent");
+});
+
+test("la reprogramación guarda fecha+horario viejo/nuevo en el payload (para el worker de reintentos)", async () => {
+  const { client, claimCalls } = createMockSupabase();
+
+  await notifyClassRescheduled(client, rescheduleParams, {
+    sendEmailReprogramacion: async () => ({ success: true }),
+  });
+
+  const payload = claimCalls[0].p_payload as Record<string, unknown>;
+  assert.equal(payload.oldDate, "2026-08-01");
+  assert.equal(payload.oldStartTime, "10:00:00");
+  assert.equal(payload.oldEndTime, "12:00:00");
+  assert.equal(payload.newDate, "2026-08-05");
+  assert.equal(payload.newStartTime, "10:00:00");
+  assert.equal(payload.newEndTime, "12:00:00");
 });
 
 test("la misma reprogramación reenviada no genera un segundo email", async () => {
@@ -366,4 +383,64 @@ test("aviso a la admin de consulta nueva: la misma consulta no genera un segundo
   assert.equal(first.email.outcome, "sent");
   assert.equal(second.email.outcome, "not_claimed");
   assert.equal(sends, 1);
+});
+
+const cancelParams = {
+  reservationId: "res-1",
+  classId: "class-1",
+  customerName: "Ana",
+  customerEmail: "ana@example.com",
+  className: "Cocina italiana",
+};
+
+test("la cancelación manual envía email y lo registra como evento 'cancelacion'", async () => {
+  const { client, claimCalls, completeCalls } = createMockSupabase();
+  const sent: Array<[string, string, string]> = [];
+
+  const result = await notifyReservationCancelled(client, cancelParams, {
+    sendEmailReservaCancelada: async (email, name, className) => {
+      sent.push([email, name, className]);
+      return { success: true };
+    },
+  });
+
+  assert.equal(result.email.outcome, "sent");
+  assert.deepEqual(sent[0], ["ana@example.com", "Ana", "Cocina italiana"]);
+  assert.equal(claimCalls[0].p_event_type, "cancelacion");
+  assert.equal(claimCalls[0].p_template_name, "reserva_cancelada");
+  assert.equal(completeCalls[0].p_status, "sent");
+});
+
+test("cancelar dos veces la misma reserva no genera un segundo email", async () => {
+  const { client } = createMockSupabase();
+  let sends = 0;
+  const deps = {
+    sendEmailReservaCancelada: async () => {
+      sends += 1;
+      return { success: true as const };
+    },
+  };
+
+  const first = await notifyReservationCancelled(client, cancelParams, deps);
+  const second = await notifyReservationCancelled(client, cancelParams, deps);
+
+  assert.equal(first.email.outcome, "sent");
+  assert.equal(second.email.outcome, "not_claimed");
+  assert.equal(sends, 1);
+});
+
+test("si Resend falla, la cancelación queda failed/retryable con next_retry_at (backoff)", async () => {
+  const { client, completeCalls } = createMockSupabase();
+
+  const result = await notifyReservationCancelled(client, cancelParams, {
+    sendEmailReservaCancelada: async () => ({ success: false, error: "resend caído" }),
+  });
+
+  assert.equal(result.email.outcome, "failed");
+  assert.equal(completeCalls[0].p_status, "failed");
+  assert.equal(completeCalls[0].p_retryable, true);
+  assert.ok(
+    typeof completeCalls[0].p_next_retry_at === "string",
+    "debe fijar next_retry_at para el backoff del worker de reintentos",
+  );
 });

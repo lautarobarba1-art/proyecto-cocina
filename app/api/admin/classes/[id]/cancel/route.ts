@@ -2,15 +2,18 @@ import { NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
 import { getCurrentUserEmail } from "@/lib/supabase/auth-server";
 import { isAdminEmail } from "@/lib/admin/config";
-import { sendEmailReservaCancelada } from "@/lib/resend/send";
+import { notifyReservationCancelled } from "@/lib/notifications/notify";
 
 export const runtime = "nodejs";
 
 /**
  * Forma en que la RPC `cancel_class_atomic` retorna los datos de los clientes
- * afectados (una fila por reserva cancelada).
+ * afectados (una fila por reserva cancelada). `reservation_id` se agregó en la
+ * migración 20260910000001 para poder rutear el aviso por el pipeline de
+ * notificaciones (necesita el id para la dedup key).
  */
 interface AffectedReservation {
+  reservation_id: string;
   customer_name: string;
   customer_email: string;
   class_title: string;
@@ -68,24 +71,34 @@ export async function POST(
   const affected = (data ?? []) as AffectedReservation[];
 
   // ── Notificación por email (best-effort, fuera de la TX) ─────────────────
-  // Promise.allSettled garantiza que todos los envíos se intentan aunque alguno falle.
+  // Por el pipeline de notificaciones: cada aviso queda en notification_log y
+  // el cron de reintentos recupera los que fallen. Promise.allSettled garantiza
+  // que todos se intentan aunque alguno falle.
   const emailResults = await Promise.allSettled(
     affected.map((r) =>
-      sendEmailReservaCancelada(r.customer_email, r.customer_name, r.class_title),
+      notifyReservationCancelled(supabase, {
+        reservationId: r.reservation_id,
+        classId: id,
+        customerName: r.customer_name,
+        customerEmail: r.customer_email,
+        className: r.class_title,
+      }),
     ),
   );
 
   const emailsSent = emailResults.filter(
-    (r) => r.status === "fulfilled" && r.value.success,
+    (r) => r.status === "fulfilled" && r.value.email.outcome === "sent",
   ).length;
-  const emailsFailed = affected.length - emailsSent;
+  // "not_claimed" = ya se había avisado antes (dedup) — no cuenta como fallo.
+  const emailsFailed = emailResults.filter(
+    (r) =>
+      r.status === "rejected" ||
+      (r.status === "fulfilled" && r.value.email.outcome === "failed"),
+  ).length;
 
   if (emailsFailed > 0) {
     console.error(
-      `[admin/classes cancel] ${emailsFailed} email(s) failed for class ${id}`,
-      emailResults
-        .filter((r) => r.status === "rejected" || (r.status === "fulfilled" && !r.value.success))
-        .map((r) => (r.status === "rejected" ? r.reason : (r as PromiseFulfilledResult<{ success: boolean; error?: string }>).value.error)),
+      `[admin/classes cancel] ${emailsFailed} aviso(s) fallaron para la clase ${id} (quedan en notification_log para reintento)`,
     );
   }
 

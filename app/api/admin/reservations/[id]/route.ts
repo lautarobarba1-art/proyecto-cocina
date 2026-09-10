@@ -3,6 +3,7 @@ import { getSupabaseAdmin } from "@/lib/supabase/server";
 import { getCurrentUserEmail } from "@/lib/supabase/auth-server";
 import { isAdminEmail } from "@/lib/admin/config";
 import { confirmReservationPayment } from "@/lib/admin/reservas-actions";
+import { notifyReservationCancelled } from "@/lib/notifications/notify";
 
 export const runtime = "nodejs";
 
@@ -117,23 +118,25 @@ export async function POST(
     );
   }
 
-  // Email al cliente: reserva cancelada
+  // Email al cliente: reserva cancelada. Por el pipeline de notificaciones
+  // (claim/complete) — queda registrado en notification_log y el cron de
+  // reintentos lo recupera si Resend falla ahora.
   try {
-    const { sendEmailReservaCancelada } = await import("@/lib/resend/send");
-
     const { data: cls } = await supabase
       .from("classes")
       .select("title")
       .eq("id", data.class_id)
       .maybeSingle();
 
-    await sendEmailReservaCancelada(
-      data.customer_email,
-      data.customer_name,
-      cls?.title ?? "(clase)",
-    );
+    await notifyReservationCancelled(supabase, {
+      reservationId: data.id,
+      classId: data.class_id,
+      customerName: data.customer_name,
+      customerEmail: data.customer_email,
+      className: cls?.title ?? "(clase)",
+    });
   } catch (emailErr) {
-    console.error("[admin/reservations cancel] Email error:", emailErr);
+    console.error("[admin/reservations cancel] notifyReservationCancelled error:", emailErr);
   }
 
   return NextResponse.json({ ok: true, status: data.status });

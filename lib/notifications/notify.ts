@@ -80,6 +80,12 @@ type SendEmailReservaCanceladaPorFaltaComprobanteFn = (
   className: string,
 ) => Promise<{ success: boolean; error?: string }>;
 
+type SendEmailReservaCanceladaFn = (
+  customerEmail: string,
+  customerName: string,
+  className: string,
+) => Promise<{ success: boolean; error?: string }>;
+
 export interface NotifyDeps {
   sendEmailReservaConfirmacion?: SendEmailReservaConfirmacionFn;
   sendEmailReservaConfirmada?: SendEmailReservaConfirmadaFn;
@@ -88,6 +94,7 @@ export interface NotifyDeps {
   sendEmailAdminComprobanteSubido?: SendEmailAdminComprobanteSubidoFn;
   sendEmailRecordatorioComprobante?: SendEmailRecordatorioComprobanteFn;
   sendEmailReservaCanceladaPorFaltaComprobante?: SendEmailReservaCanceladaPorFaltaComprobanteFn;
+  sendEmailReservaCancelada?: SendEmailReservaCanceladaFn;
   sendEmailAdminReservaNueva?: SendEmailAdminReservaNuevaFn;
   sendEmailAdminConsultaNueva?: SendEmailAdminConsultaNuevaFn;
 }
@@ -181,6 +188,34 @@ async function defaultSendEmailReservaCanceladaPorFaltaComprobante(
   return sendEmailReservaCanceladaPorFaltaComprobante(customerEmail, customerName, className);
 }
 
+async function defaultSendEmailReservaCancelada(
+  customerEmail: string,
+  customerName: string,
+  className: string,
+): Promise<{ success: boolean; error?: string }> {
+  const { sendEmailReservaCancelada } = await import("../resend/send.ts");
+  return sendEmailReservaCancelada(customerEmail, customerName, className);
+}
+
+/**
+ * Backoff entre reintentos, por número de intento ya consumido: el 1er fallo
+ * espera 15 min, el 2do 1 h, el 3ro 4 h, el 4to+ 12 h. El worker de reintentos
+ * (`lib/notifications/retry-dispatch.ts`) recién reclama una fila cuando
+ * `next_retry_at <= now()`, así que esto evita martillar un envío que falla
+ * de forma persistente en cada corrida horaria del cron.
+ */
+const RETRY_BACKOFF_MINUTES = [15, 60, 240, 720] as const;
+
+function nextRetryAtISO(attemptCount: number): string {
+  const idx = Math.min(
+    Math.max(attemptCount - 1, 0),
+    RETRY_BACKOFF_MINUTES.length - 1,
+  );
+  return new Date(
+    Date.now() + RETRY_BACKOFF_MINUTES[idx] * 60 * 1000,
+  ).toISOString();
+}
+
 async function finishFailedAttempt(
   supabase: SupabaseClient,
   claim: ClaimNotificationResult,
@@ -194,6 +229,7 @@ async function finishFailedAttempt(
       claimToken: claim.claimToken,
       status: "failed",
       retryable: true,
+      nextRetryAt: nextRetryAtISO(claim.attemptCount),
       errorCode,
       errorMessage,
     });
@@ -767,6 +803,82 @@ export async function notifyReservationExpired(
   }
 }
 
+export interface NotifyReservationCancelledParams {
+  reservationId: string;
+  classId: string;
+  customerName: string;
+  customerEmail: string;
+  className: string;
+}
+
+/**
+ * Avisa al cliente que su reserva fue cancelada manualmente por la admin
+ * (una reserva puntual, o en cascada al cancelar una clase entera). Antes
+ * esto llamaba a `sendEmailReservaCancelada` directo, fuera del pipeline: si
+ * Resend fallaba, el cliente nunca se enteraba y no quedaba rastro.
+ *
+ * Reusa el evento 'cancelacion' y `buildCancelacionKey` — igual que
+ * `notifyReservationExpired`. Una reserva se cancela una sola vez (por el
+ * admin O por vencimiento del cron, nunca las dos), así que compartir la
+ * clave es seguro. El `templateName` distinto ('reserva_cancelada' vs
+ * 'reserva_cancelada_falta_comprobante') es lo que deja al worker de
+ * reintentos saber cuál de las dos funciones volver a llamar.
+ */
+export async function notifyReservationCancelled(
+  supabase: SupabaseClient,
+  params: NotifyReservationCancelledParams,
+  deps: NotifyDeps = {},
+): Promise<NotifyResult> {
+  const sendEmail =
+    deps.sendEmailReservaCancelada ?? defaultSendEmailReservaCancelada;
+  let claim: ClaimNotificationResult;
+
+  try {
+    claim = await claimNotification(supabase, {
+      channel: "email",
+      deduplicationKey: buildCancelacionKey(params.reservationId),
+      eventType: "cancelacion",
+      recipient: params.customerEmail,
+      reservationId: params.reservationId,
+      classId: params.classId,
+      templateName: "reserva_cancelada",
+      payload: {
+        customerName: params.customerName,
+        className: params.className,
+      },
+      deliveryMode: "live",
+    });
+  } catch (error) {
+    console.error("[notify/email:cancelacion(manual)] claim falló:", errorMessageOf(error));
+    return { email: { outcome: "failed", reason: "claim_error" } };
+  }
+
+  if (!claim.claimed || !claim.claimToken) {
+    return { email: { outcome: "not_claimed" } };
+  }
+
+  try {
+    const result = await withTimeout(
+      sendEmail(params.customerEmail, params.customerName, params.className),
+      EMAIL_TIMEOUT_MS,
+    );
+    if (!result.success) {
+      await finishFailedAttempt(supabase, claim, "resend_error", result.error ?? null);
+      return { email: { outcome: "failed", reason: "resend_error" } };
+    }
+
+    await completeNotification(supabase, {
+      id: claim.id,
+      claimToken: claim.claimToken,
+      status: "sent",
+    });
+    return { email: { outcome: "sent" } };
+  } catch (error) {
+    await finishFailedAttempt(supabase, claim, "exception", errorMessageOf(error));
+    return { email: { outcome: "failed", reason: "exception" } };
+  }
+}
+
 export interface NotifyClassReminderParams {
   reservationId: string;
   classId: string;
@@ -888,8 +1000,15 @@ export async function notifyClassRescheduled(
       payload: {
         customerName: params.customerName,
         className: params.className,
+        // Fecha + horario viejo/nuevo completos: el worker de reintentos
+        // (retry-dispatch.ts) los necesita para reconstruir la transición
+        // exacta y recomputar la misma dedup key al re-llamar esta función.
         oldDate: params.oldDateISO,
+        oldStartTime: params.oldStartTime,
+        oldEndTime: params.oldEndTime,
         newDate: params.newDateISO,
+        newStartTime: params.newStartTime,
+        newEndTime: params.newEndTime,
       },
       deliveryMode: "live",
     });
