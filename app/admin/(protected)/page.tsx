@@ -3,6 +3,7 @@ import { countComprobantesPendientes } from "@/lib/admin/reservas-queries";
 import { countNewInquiries } from "@/lib/admin/inquiries-queries";
 import { getClasesForAdmin, type ClaseAdmin } from "@/lib/admin/clases-queries";
 import { getStatusInfo } from "@/lib/admin/clases-status";
+import { TableWrapper, Th, Td, TableEmptyState } from "./_shared/Table";
 
 export const dynamic = "force-dynamic";
 
@@ -75,68 +76,62 @@ export default async function AdminHomePage() {
         </div>
 
         {proximasClases.length === 0 ? (
-          <div className="mt-4 border border-dashed border-carbon/20 bg-white p-8 text-center">
-            <p className="font-body text-[0.9rem] text-carbon/60">
-              No hay clases próximas programadas.
-            </p>
-          </div>
+          <TableEmptyState size="compact">
+            No hay clases próximas programadas.
+          </TableEmptyState>
         ) : (
-          <div className="mt-4 overflow-hidden border border-carbon/10 bg-white">
-            <div className="overflow-x-auto">
-              <table className="w-full min-w-[560px] text-left font-sans text-[0.85rem]">
-                <thead className="border-b border-carbon/10 bg-crema-light/40">
-                  <tr className="text-carbon/60">
-                    <Th>Fecha</Th>
-                    <Th>Clase</Th>
-                    <Th>Cupos</Th>
-                    <Th>Estado</Th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {proximasClases.map((c) => {
-                    const status = getStatusInfo(c);
-                    return (
-                      <tr
-                        key={c.id}
-                        className="border-b border-carbon/5 last:border-b-0"
+          <TableWrapper minWidth="560px">
+            <thead className="border-b border-carbon/10 bg-crema-light/40">
+              <tr className="text-carbon/60">
+                <Th>Fecha</Th>
+                <Th>Clase</Th>
+                <Th>Cupos</Th>
+                <Th>Estado</Th>
+              </tr>
+            </thead>
+            <tbody>
+              {proximasClases.map((c) => {
+                const status = getStatusInfo(c);
+                return (
+                  <tr
+                    key={c.id}
+                    className="border-b border-carbon/5 last:border-b-0"
+                  >
+                    <Td className="whitespace-nowrap text-carbon/70">
+                      {formatDateLong(c.date)}
+                    </Td>
+                    <Td>
+                      <Link
+                        href={`/admin/clases/${c.id}`}
+                        className="font-medium text-carbon hover:text-terracota"
                       >
-                        <Td className="whitespace-nowrap text-carbon/70">
-                          {formatDateLong(c.date)}
-                        </Td>
-                        <Td>
-                          <Link
-                            href={`/admin/clases/${c.id}`}
-                            className="font-medium text-carbon hover:text-terracota"
-                          >
-                            {c.title}
-                          </Link>
-                        </Td>
-                        <Td className="text-carbon/80">
-                          {c.categoryEvent === "eventos" ? (
-                            "—"
-                          ) : (
-                            <span className="font-mono">
-                              {c.spotsLeft}/{c.totalSpots}
-                            </span>
-                          )}
-                        </Td>
-                        <Td>
-                          <span
-                            className={[
-                              "inline-block rounded border px-2 py-1 text-[0.72rem] font-medium uppercase tracking-wide",
-                              status.className,
-                            ].join(" ")}
-                          >
-                            {status.label}
-                          </span>
-                        </Td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-          </div>
+                        {c.title}
+                      </Link>
+                    </Td>
+                    <Td className="text-carbon/80">
+                      {c.categoryEvent === "eventos" ? (
+                        "—"
+                      ) : (
+                        <span className="font-mono">
+                          {c.spotsLeft}/{c.totalSpots}
+                        </span>
+                      )}
+                    </Td>
+                    <Td>
+                      <span
+                        className={[
+                          "inline-block rounded border px-2 py-1 text-[0.72rem] font-medium uppercase tracking-wide",
+                          status.className,
+                        ].join(" ")}
+                      >
+                        {status.label}
+                      </span>
+                    </Td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </TableWrapper>
         )}
       </div>
 
@@ -226,25 +221,5 @@ function MetricCard({
       </p>
       <p className="mt-2 font-body text-[0.8rem] text-carbon/55">{hint}</p>
     </Link>
-  );
-}
-
-function Th({ children }: { children: React.ReactNode }) {
-  return (
-    <th className="px-4 py-3 font-mono text-[0.7rem] font-medium uppercase tracking-eyebrow">
-      {children}
-    </th>
-  );
-}
-
-function Td({
-  children,
-  className,
-}: {
-  children: React.ReactNode;
-  className?: string;
-}) {
-  return (
-    <td className={["px-4 py-3", className ?? ""].join(" ")}>{children}</td>
   );
 }

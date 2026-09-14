@@ -5,6 +5,11 @@ import {
 } from "@/lib/admin/clases-queries";
 import { isClasePast, getStatusInfo } from "@/lib/admin/clases-status";
 import { ClasesActions } from "./ClasesActions";
+import { PageHeader } from "../_shared/PageHeader";
+import { SummaryPill } from "../_shared/SummaryPill";
+import { SegmentedFilter } from "../_shared/SegmentedFilter";
+import { StatusBadge, type StatusTone } from "../_shared/StatusBadge";
+import { TableWrapper, Th, Td, TableEmptyState } from "../_shared/Table";
 
 export const dynamic = "force-dynamic";
 
@@ -45,10 +50,10 @@ function categoryLabel(cat: ClaseAdmin["categoryEvent"]): string {
   return "Adultos";
 }
 
-function categoryBadgeClass(cat: ClaseAdmin["categoryEvent"]): string {
-  if (cat === "eventos") return "bg-terracota/10 text-terracota border-terracota/30";
-  if (cat === "ninos") return "bg-oliva/10 text-oliva border-oliva/30";
-  return "bg-carbon/5 text-carbon/70 border-carbon/20";
+function categoryTone(cat: ClaseAdmin["categoryEvent"]): StatusTone {
+  if (cat === "eventos") return "brand";
+  if (cat === "ninos") return "olive";
+  return "neutral";
 }
 
 export default async function ClasesAdminPage({ searchParams }: PageProps) {
@@ -80,41 +85,35 @@ export default async function ClasesAdminPage({ searchParams }: PageProps) {
 
   return (
     <div>
-      <header className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <p className="font-mono text-[0.7rem] font-medium uppercase tracking-eyebrow text-terracota">
-            Panel · Clases
-          </p>
-          <h1 className="mt-3 font-display text-3xl font-normal tracking-tightish text-carbon">
-            Calendario
-          </h1>
-          <p className="mt-2 font-body text-[0.85rem] text-carbon/55">
-            Clases abiertas y eventos privados confirmados en el sitio.
-          </p>
-        </div>
-        <div className="flex flex-wrap gap-3">
-          <SummaryPill label="Próximas" value={counts.proximas} />
-          <SummaryPill label="Pasadas" value={counts.pasadas} />
-          <SummaryPill label="Canceladas" value={counts.canceladas} />
-        </div>
-      </header>
+      <PageHeader
+        eyebrow="Panel · Clases"
+        title="Calendario"
+        description="Clases abiertas y eventos privados confirmados en el sitio."
+        actions={
+          <>
+            <SummaryPill label="Próximas" value={counts.proximas} />
+            <SummaryPill label="Pasadas" value={counts.pasadas} />
+            <SummaryPill label="Canceladas" value={counts.canceladas} />
+          </>
+        }
+      />
 
       <div className="mt-8 flex flex-col gap-4">
         <div className="flex flex-wrap items-center justify-between gap-4">
-          <nav className="flex flex-wrap gap-1 border border-carbon/10 bg-white">
-            <FilterLink
-              href={`/admin/clases?filtro=proximas${categoria !== "todas" ? `&categoria=${categoria}` : ""}`}
-              active={filtro === "proximas"}
-            >
-              Solo próximas
-            </FilterLink>
-            <FilterLink
-              href={`/admin/clases?filtro=todas${categoria !== "todas" ? `&categoria=${categoria}` : ""}`}
-              active={filtro === "todas"}
-            >
-              Todas
-            </FilterLink>
-          </nav>
+          <SegmentedFilter
+            options={[
+              {
+                href: `/admin/clases?filtro=proximas${categoria !== "todas" ? `&categoria=${categoria}` : ""}`,
+                label: "Solo próximas",
+                active: filtro === "proximas",
+              },
+              {
+                href: `/admin/clases?filtro=todas${categoria !== "todas" ? `&categoria=${categoria}` : ""}`,
+                label: "Todas",
+                active: filtro === "todas",
+              },
+            ]}
+          />
           <div className="flex flex-wrap gap-2">
             <Link
               href="/admin/clases/nueva"
@@ -130,68 +129,62 @@ export default async function ClasesAdminPage({ searchParams }: PageProps) {
             </Link>
           </div>
         </div>
-        <nav className="flex flex-wrap gap-1 border border-carbon/10 bg-white">
-          <FilterLink
-            href={`/admin/clases?filtro=${filtro}`}
-            active={categoria === "todas"}
-          >
-            Todas las categorías
-          </FilterLink>
-          <FilterLink
-            href={`/admin/clases?filtro=${filtro}&categoria=adultos`}
-            active={categoria === "adultos"}
-          >
-            Adultos
-          </FilterLink>
-          <FilterLink
-            href={`/admin/clases?filtro=${filtro}&categoria=ninos`}
-            active={categoria === "ninos"}
-          >
-            Niños
-          </FilterLink>
-          <FilterLink
-            href={`/admin/clases?filtro=${filtro}&categoria=eventos`}
-            active={categoria === "eventos"}
-          >
-            Eventos privados
-          </FilterLink>
-        </nav>
+        <SegmentedFilter
+          options={[
+            {
+              href: `/admin/clases?filtro=${filtro}`,
+              label: "Todas las categorías",
+              active: categoria === "todas",
+            },
+            {
+              href: `/admin/clases?filtro=${filtro}&categoria=adultos`,
+              label: "Adultos",
+              active: categoria === "adultos",
+            },
+            {
+              href: `/admin/clases?filtro=${filtro}&categoria=ninos`,
+              label: "Niños",
+              active: categoria === "ninos",
+            },
+            {
+              href: `/admin/clases?filtro=${filtro}&categoria=eventos`,
+              label: "Eventos privados",
+              active: categoria === "eventos",
+            },
+          ]}
+        />
       </div>
 
       {clases.length === 0 ? (
-        <div className="mt-10 border border-dashed border-carbon/20 bg-white p-12 text-center">
-          <p className="font-body text-[0.95rem] text-carbon/60">
-            {onlyUpcoming
-              ? categoria === "eventos"
-                ? "No hay eventos privados próximos."
-                : "No hay clases próximas programadas."
-              : categoria === "eventos"
-                ? "Todavía no hay eventos privados registrados."
-                : "Todavía no hay clases registradas."}
-          </p>
-        </div>
+        <TableEmptyState>
+          {onlyUpcoming
+            ? categoria === "eventos"
+              ? "No hay eventos privados próximos."
+              : "No hay clases próximas programadas."
+            : categoria === "eventos"
+              ? "Todavía no hay eventos privados registrados."
+              : "Todavía no hay clases registradas."}
+        </TableEmptyState>
       ) : (
-        <div className="mt-6 overflow-hidden border border-carbon/10 bg-white">
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[800px] text-left font-sans text-[0.85rem]">
-              <thead className="border-b border-carbon/10 bg-crema-light/40">
-                <tr className="text-carbon/60">
-                  <Th>Fecha</Th>
-                  <Th>Actividad</Th>
-                  <Th>Tipo</Th>
-                  <Th>Horario</Th>
-                  {showBookingColumns ? (
-                    <>
-                      <Th>Cupos</Th>
-                      <Th>Reservas</Th>
-                      <Th>Precio</Th>
-                    </>
-                  ) : null}
-                  <Th>Estado</Th>
-                  <Th>Acciones</Th>
-                </tr>
-              </thead>
-              <tbody>
+        <TableWrapper minWidth="800px" className="mt-6">
+          <thead className="border-b border-carbon/10 bg-crema-light/40">
+            <tr className="text-carbon/60">
+              <Th>Fecha</Th>
+              <Th>Actividad</Th>
+              <Th>Tipo</Th>
+              <Th>Horario</Th>
+              {showBookingColumns ? (
+                <>
+                  <Th>Cupos</Th>
+                  <Th>Reservas</Th>
+                  <Th>Precio</Th>
+                </>
+              ) : null}
+              <Th>Estado</Th>
+              <Th>Acciones</Th>
+            </tr>
+          </thead>
+          <tbody>
                 {clases.map((c) => {
                   const status = getStatusInfo(c);
                   return (
@@ -214,14 +207,9 @@ export default async function ClasesAdminPage({ searchParams }: PageProps) {
                         </div>
                       </Td>
                       <Td>
-                        <span
-                          className={[
-                            "inline-block rounded border px-2 py-0.5 text-[0.68rem] font-medium uppercase tracking-wide",
-                            categoryBadgeClass(c.categoryEvent),
-                          ].join(" ")}
-                        >
+                        <StatusBadge tone={categoryTone(c.categoryEvent)} size="sm">
                           {categoryLabel(c.categoryEvent)}
-                        </span>
+                        </StatusBadge>
                       </Td>
                       <Td className="whitespace-nowrap text-carbon/70">
                         {c.startTime} – {c.endTime}
@@ -274,9 +262,7 @@ export default async function ClasesAdminPage({ searchParams }: PageProps) {
                   );
                 })}
               </tbody>
-            </table>
-          </div>
-        </div>
+        </TableWrapper>
       )}
 
       <p className="mt-8 font-body text-[0.78rem] text-carbon/40">
@@ -291,64 +277,5 @@ export default async function ClasesAdminPage({ searchParams }: PageProps) {
         .
       </p>
     </div>
-  );
-}
-
-// ---------------------------------------------------------------------
-// Sub-componentes locales
-// ---------------------------------------------------------------------
-
-function SummaryPill({ label, value }: { label: string; value: number }) {
-  return (
-    <div className="border border-carbon/10 bg-white px-4 py-2">
-      <div className="font-mono text-[0.65rem] uppercase tracking-eyebrow text-carbon/55">
-        {label}
-      </div>
-      <div className="font-display text-lg text-carbon">{value}</div>
-    </div>
-  );
-}
-
-function FilterLink({
-  href,
-  active,
-  children,
-}: {
-  href: string;
-  active: boolean;
-  children: React.ReactNode;
-}) {
-  return (
-    <Link
-      href={href}
-      className={[
-        "px-4 py-2 font-sans text-[0.8rem] transition",
-        active
-          ? "bg-carbon text-crema"
-          : "text-carbon/70 hover:bg-crema-light/60",
-      ].join(" ")}
-    >
-      {children}
-    </Link>
-  );
-}
-
-function Th({ children }: { children: React.ReactNode }) {
-  return (
-    <th className="px-4 py-3 font-mono text-[0.7rem] font-medium uppercase tracking-eyebrow">
-      {children}
-    </th>
-  );
-}
-
-function Td({
-  children,
-  className,
-}: {
-  children: React.ReactNode;
-  className?: string;
-}) {
-  return (
-    <td className={["px-4 py-3", className ?? ""].join(" ")}>{children}</td>
   );
 }

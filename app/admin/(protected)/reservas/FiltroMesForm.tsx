@@ -33,6 +33,9 @@ export function FiltroMesForm({ mesActual, estadoActual }: Props) {
 
   return (
     <div className="mt-2">
+      <p className="mb-1.5 font-mono text-[0.65rem] uppercase tracking-eyebrow text-carbon/55">
+        Mes
+      </p>
       <select
         value={mesActual}
         onChange={handleChange}

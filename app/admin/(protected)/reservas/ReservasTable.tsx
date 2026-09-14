@@ -1,5 +1,7 @@
 import type { ReservaAdmin } from "@/lib/admin/reservas-queries";
 import { ReservaActions } from "./ReservaActions";
+import { TableWrapper, Th, Td, TableEmptyState } from "../_shared/Table";
+import { StatusBadge, type StatusTone } from "../_shared/StatusBadge";
 
 export function formatDateLong(isoDate: string): string {
   if (!isoDate) return "—";
@@ -30,12 +32,10 @@ export function statusLabel(status: ReservaAdmin["status"]): string {
   return "Cancelada";
 }
 
-function statusClass(status: ReservaAdmin["status"]): string {
-  if (status === "pending")
-    return "bg-yellow-100 text-yellow-900 border-yellow-300";
-  if (status === "confirmed")
-    return "bg-green-100 text-green-900 border-green-300";
-  return "bg-gray-100 text-gray-700 border-gray-300";
+function statusTone(status: ReservaAdmin["status"]): StatusTone {
+  if (status === "pending") return "warning";
+  if (status === "confirmed") return "success";
+  return "neutral";
 }
 
 interface Props {
@@ -47,31 +47,25 @@ interface Props {
 export function ReservasTable({ reservas, showClaseColumn = true }: Props) {
   if (reservas.length === 0) {
     return (
-      <div className="mt-10 border border-dashed border-carbon/20 bg-white p-12 text-center">
-        <p className="font-body text-[0.95rem] text-carbon/60">
-          No hay reservas para los filtros seleccionados.
-        </p>
-      </div>
+      <TableEmptyState>No hay reservas para los filtros seleccionados.</TableEmptyState>
     );
   }
 
   return (
-    <div className="mt-6 overflow-hidden border border-carbon/10 bg-white">
-      <div className="overflow-x-auto">
-        <table className="w-full min-w-[760px] text-left font-sans text-[0.85rem]">
-          <thead className="border-b border-carbon/10 bg-crema-light/40">
-            <tr className="text-carbon/60">
-              <Th>Reservada</Th>
-              <Th>Cliente</Th>
-              {showClaseColumn && <Th>Clase</Th>}
-              <Th>Fecha clase</Th>
-              <Th>Cupos</Th>
-              <Th>Estado</Th>
-              <Th>Comprobante</Th>
-              <Th>Acciones</Th>
-            </tr>
-          </thead>
-          <tbody>
+    <TableWrapper minWidth="760px" className="mt-6">
+      <thead className="border-b border-carbon/10 bg-crema-light/40">
+        <tr className="text-carbon/60">
+          <Th>Reservada</Th>
+          <Th>Cliente</Th>
+          {showClaseColumn && <Th>Clase</Th>}
+          <Th>Fecha clase</Th>
+          <Th>Cupos</Th>
+          <Th>Estado</Th>
+          <Th>Comprobante</Th>
+          <Th>Acciones</Th>
+        </tr>
+      </thead>
+      <tbody>
             {reservas.map((r) => (
               <tr
                 key={r.id}
@@ -102,7 +96,7 @@ export function ReservasTable({ reservas, showClaseColumn = true }: Props) {
                   <Td>
                     <div className="text-carbon">{r.classTitle}</div>
                     {r.classIsCancelled && (
-                      <div className="text-red-700 text-[0.75rem] mt-1">
+                      <div className="text-rojo text-[0.75rem] mt-1">
                         (clase cancelada)
                       </div>
                     )}
@@ -116,14 +110,9 @@ export function ReservasTable({ reservas, showClaseColumn = true }: Props) {
                 </Td>
                 <Td className="text-carbon/80">{r.spots}</Td>
                 <Td>
-                  <span
-                    className={[
-                      "inline-block rounded border px-2 py-1 text-[0.72rem] font-medium uppercase tracking-wide",
-                      statusClass(r.status),
-                    ].join(" ")}
-                  >
+                  <StatusBadge tone={statusTone(r.status)}>
                     {statusLabel(r.status)}
-                  </span>
+                  </StatusBadge>
                 </Td>
                 <Td>
                   {r.comprobanteUrl ? (
@@ -132,14 +121,14 @@ export function ReservasTable({ reservas, showClaseColumn = true }: Props) {
                         href={`/api/admin/reservations/${r.id}/comprobante`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1.5 rounded border border-green-600 bg-green-50 px-2 py-1 text-[0.72rem] font-medium text-green-800 transition hover:bg-green-100"
+                        className="inline-flex items-center gap-1.5 rounded border border-exito/40 bg-exito-soft px-2 py-1 text-[0.72rem] font-medium text-exito transition hover:bg-exito-soft/70"
                       >
                         ✓ Ver comprobante
                       </a>
                       {r.status === "pending" && (
-                        <span className="inline-block rounded border border-terracota/40 bg-terracota/5 px-2 py-0.5 text-[0.68rem] font-medium uppercase tracking-wide text-terracota">
+                        <StatusBadge tone="brand" size="sm">
                           Sin revisar
-                        </span>
+                        </StatusBadge>
                       )}
                     </div>
                   ) : r.status === "pending" ? (
@@ -158,28 +147,6 @@ export function ReservasTable({ reservas, showClaseColumn = true }: Props) {
               </tr>
             ))}
           </tbody>
-        </table>
-      </div>
-    </div>
-  );
-}
-
-function Th({ children }: { children: React.ReactNode }) {
-  return (
-    <th className="px-4 py-3 font-mono text-[0.7rem] font-medium uppercase tracking-eyebrow">
-      {children}
-    </th>
-  );
-}
-
-function Td({
-  children,
-  className,
-}: {
-  children: React.ReactNode;
-  className?: string;
-}) {
-  return (
-    <td className={["px-4 py-3", className ?? ""].join(" ")}>{children}</td>
+    </TableWrapper>
   );
 }

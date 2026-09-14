@@ -1,4 +1,3 @@
-import Link from "next/link";
 import {
   getReservasForAdmin,
   countComprobantesPendientes,
@@ -7,6 +6,9 @@ import {
 } from "@/lib/admin/reservas-queries";
 import { ReservasTable, statusLabel } from "./ReservasTable";
 import { FiltroMesForm } from "./FiltroMesForm";
+import { PageHeader } from "../_shared/PageHeader";
+import { SummaryPill } from "../_shared/SummaryPill";
+import { SegmentedFilter } from "../_shared/SegmentedFilter";
 
 
 export const dynamic = "force-dynamic";
@@ -72,105 +74,67 @@ export default async function ReservasAdminPage({ searchParams }: PageProps) {
 
   return (
     <div>
-      <header className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <p className="font-mono text-[0.7rem] font-medium uppercase tracking-eyebrow text-terracota">
-            Panel · Reservas
-          </p>
-          <h1 className="mt-3 font-display text-3xl font-normal tracking-tightish text-carbon">
-            Reservas recibidas
-          </h1>
-        </div>
-        <div className="flex flex-wrap gap-3">
-          <SummaryPill label="Total" value={counts.total} />
-          <SummaryPill label="Pendientes" value={counts.pending} />
-          <SummaryPill label="Pagadas" value={counts.confirmed} />
-          <SummaryPill label="Canceladas" value={counts.cancelled} />
-          <SummaryPill
-            label="Sin revisar"
-            value={comprobantesPendientesCount}
-            highlight={comprobantesPendientesCount > 0}
-          />
-        </div>
-      </header>
+      <PageHeader
+        eyebrow="Panel · Reservas"
+        title="Reservas recibidas"
+        actions={
+          <>
+            <SummaryPill label="Total" value={counts.total} />
+            <SummaryPill label="Pendientes" value={counts.pending} />
+            <SummaryPill label="Pagadas" value={counts.confirmed} />
+            <SummaryPill label="Canceladas" value={counts.cancelled} />
+            <SummaryPill
+              label="Sin revisar"
+              value={comprobantesPendientesCount}
+              tone={comprobantesPendientesCount > 0 ? "brand" : "neutral"}
+            />
+          </>
+        }
+      />
 
       {/* Filtros */}
       <div className="mt-8 flex flex-wrap items-end gap-4">
-        {/* Filtro por estado */}
-        <div>
-          <p className="font-mono text-[0.65rem] uppercase tracking-eyebrow text-carbon/55 mb-1.5">
-            Estado
-          </p>
-          <div className="flex flex-wrap gap-1">
-            {[
-              { value: "", label: "Todos" },
-              { value: "pending", label: "Pendientes" },
-              { value: "confirmed", label: "Pagadas" },
-              { value: "cancelled", label: "Canceladas" },
-            ].map((opt) => {
-              const isActive = (estado ?? "") === opt.value;
-              const params = new URLSearchParams();
-              if (opt.value) params.set("estado", opt.value);
-              if (mes) params.set("mes", mes);
-              const href = `/admin/reservas?${params.toString()}`;
+        <SegmentedFilter
+          label="Estado"
+          options={[
+            { value: "", label: "Todos" },
+            { value: "pending", label: "Pendientes" },
+            { value: "confirmed", label: "Pagadas" },
+            { value: "cancelled", label: "Canceladas" },
+          ].map((opt) => {
+            const params = new URLSearchParams();
+            if (opt.value) params.set("estado", opt.value);
+            if (mes) params.set("mes", mes);
+            return {
+              href: `/admin/reservas?${params.toString()}`,
+              label: opt.label,
+              active: (estado ?? "") === opt.value,
+            };
+          })}
+        />
 
-              return (
-                <Link
-                  key={opt.value}
-                  href={href}
-                  className={[
-                    "px-3 py-1.5 font-sans text-[0.78rem] border transition",
-                    isActive
-                      ? "bg-carbon text-crema border-carbon"
-                      : "bg-white text-carbon/70 border-carbon/20 hover:border-carbon/40",
-                  ].join(" ")}
-                >
-                  {opt.label}
-                </Link>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Filtro por comprobante */}
-        <div>
-          <p className="font-mono text-[0.65rem] uppercase tracking-eyebrow text-carbon/55 mb-1.5">
-            Comprobante
-          </p>
-          <div className="flex flex-wrap gap-1">
-            {[
-              { value: "", label: "Todos" },
-              { value: "pendiente", label: "Sin revisar" },
-            ].map((opt) => {
-              const isActive = (comprobante ?? "") === opt.value;
-              const params = new URLSearchParams();
-              if (estado) params.set("estado", estado);
-              if (mes) params.set("mes", mes);
-              if (opt.value) params.set("comprobante", opt.value);
-              const href = `/admin/reservas?${params.toString()}`;
-
-              return (
-                <Link
-                  key={opt.value}
-                  href={href}
-                  className={[
-                    "px-3 py-1.5 font-sans text-[0.78rem] border transition",
-                    isActive
-                      ? "bg-carbon text-crema border-carbon"
-                      : "bg-white text-carbon/70 border-carbon/20 hover:border-carbon/40",
-                  ].join(" ")}
-                >
-                  {opt.label}
-                </Link>
-              );
-            })}
-          </div>
-        </div>
+        <SegmentedFilter
+          label="Comprobante"
+          options={[
+            { value: "", label: "Todos" },
+            { value: "pendiente", label: "Sin revisar" },
+          ].map((opt) => {
+            const params = new URLSearchParams();
+            if (estado) params.set("estado", estado);
+            if (mes) params.set("mes", mes);
+            if (opt.value) params.set("comprobante", opt.value);
+            return {
+              href: `/admin/reservas?${params.toString()}`,
+              label: opt.label,
+              active: (comprobante ?? "") === opt.value,
+            };
+          })}
+        />
 
         {/* Botón export CSV */}
         <div className="ml-auto">
-          
-            <a href={exportUrl}
+          <a
+            href={exportUrl}
             download
             className="flex items-center gap-2 border border-carbon/20 bg-white px-4 py-2 font-sans text-[0.82rem] text-carbon/70 transition hover:border-carbon/40 hover:text-carbon"
           >
@@ -192,43 +156,10 @@ export default async function ReservasAdminPage({ searchParams }: PageProps) {
         {mes ? ` · ${meses.find((m) => m.value === mes)?.label ?? mes}` : ""}.
       </p>
       {reservas.length >= 200 && (
-        <p className="mt-1 font-body text-[0.75rem] text-amber-700">
+        <p className="mt-1 font-body text-[0.75rem] text-terracota-deep">
           ⚠ Se muestran solo las últimas 200 reservas. Usá los filtros de estado o mes para ver resultados más específicos.
         </p>
       )}
-    </div>
-  );
-}
-
-// ─── Sub-componentes ──────────────────────────────────────────────────────────
-
-function SummaryPill({
-  label,
-  value,
-  highlight = false,
-}: {
-  label: string;
-  value: number;
-  highlight?: boolean;
-}) {
-  return (
-    <div
-      className={[
-        "border px-4 py-2",
-        highlight ? "border-terracota/40 bg-terracota/5" : "border-carbon/10 bg-white",
-      ].join(" ")}
-    >
-      <div className="font-mono text-[0.65rem] uppercase tracking-eyebrow text-carbon/55">
-        {label}
-      </div>
-      <div
-        className={[
-          "font-display text-lg",
-          highlight ? "text-terracota" : "text-carbon",
-        ].join(" ")}
-      >
-        {value}
-      </div>
     </div>
   );
 }

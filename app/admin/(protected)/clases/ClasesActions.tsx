@@ -3,6 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useConfirm } from "../_shared/useConfirm";
 
 interface Props {
   claseId: string;
@@ -24,6 +25,7 @@ export function ClasesActions({
   activeReservationsCount,
 }: Props) {
   const router = useRouter();
+  const { confirm, dialog } = useConfirm();
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
   const [successMsg, setSuccessMsg] = React.useState<string | null>(null);
@@ -37,12 +39,15 @@ export function ClasesActions({
 
     const reservasMsg =
       activeReservationsCount > 0
-        ? `\n\n⚠ Hay ${activeReservationsCount} reserva${activeReservationsCount === 1 ? "" : "s"} activa${activeReservationsCount === 1 ? "" : "s"}. Se cancelarán automáticamente y se enviará un email de aviso a cada cliente.`
+        ? `⚠ Hay ${activeReservationsCount} reserva${activeReservationsCount === 1 ? "" : "s"} activa${activeReservationsCount === 1 ? "" : "s"}. Se cancelarán automáticamente y se enviará un email de aviso a cada cliente.`
         : "";
 
-    const confirmed = window.confirm(
-      `¿Cancelar la clase "${classTitle}" del ${classDate}?${reservasMsg}`,
-    );
+    const confirmed = await confirm({
+      title: `¿Cancelar la clase "${classTitle}" del ${classDate}?`,
+      description: reservasMsg || undefined,
+      confirmLabel: "Cancelar clase",
+      tone: "danger",
+    });
     if (!confirmed) return;
 
     setError(null);
@@ -111,15 +116,16 @@ export function ClasesActions({
           type="button"
           onClick={onCancel}
           disabled={loading}
-          className="rounded border border-carbon/30 bg-white px-3 py-1.5 text-[0.75rem] font-medium uppercase tracking-wide text-carbon/70 transition hover:bg-red-50 hover:text-red-700 hover:border-red-300 disabled:opacity-50"
+          className="rounded border border-carbon/30 bg-white px-3 py-1.5 text-[0.75rem] font-medium uppercase tracking-wide text-carbon/70 transition hover:border-rojo/30 hover:bg-rojo/5 hover:text-rojo disabled:opacity-50"
         >
           {loading ? "Cancelando…" : "Cancelar clase"}
         </button>
       )}
-      {error && <p className="text-[0.72rem] text-red-700">{error}</p>}
+      {error && <p className="text-[0.72rem] text-rojo">{error}</p>}
       {successMsg && (
-        <p className="text-[0.72rem] text-green-700">{successMsg}</p>
+        <p className="text-[0.72rem] text-exito">{successMsg}</p>
       )}
+      {dialog}
     </div>
   );
 }

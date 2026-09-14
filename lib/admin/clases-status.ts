@@ -27,13 +27,13 @@ export function getStatusInfo(c: ClaseStatusInput): StatusInfo {
     if (c.isCancelled) {
       return {
         label: "Cancelado",
-        className: "bg-gray-100 text-gray-700 border-gray-300",
+        className: "bg-carbon/5 text-mute border-carbon/15",
       };
     }
     if (isClasePast(c.date)) {
       return {
         label: "Pasado",
-        className: "bg-blue-50 text-blue-800 border-blue-200",
+        className: "bg-carbon/5 text-mute border-carbon/15",
       };
     }
     return {
@@ -44,29 +44,29 @@ export function getStatusInfo(c: ClaseStatusInput): StatusInfo {
   if (c.isCancelled) {
     return {
       label: "Cancelada",
-      className: "bg-gray-100 text-gray-700 border-gray-300",
+      className: "bg-carbon/5 text-mute border-carbon/15",
     };
   }
   if (isClasePast(c.date)) {
     return {
       label: "Pasada",
-      className: "bg-blue-50 text-blue-800 border-blue-200",
+      className: "bg-carbon/5 text-mute border-carbon/15",
     };
   }
   if (c.spotsLeft <= 0) {
     return {
       label: "Llena",
-      className: "bg-red-50 text-red-800 border-red-200",
+      className: "bg-rojo/5 text-rojo border-rojo/30",
     };
   }
   if (c.spotsLeft <= Math.max(1, Math.ceil(c.totalSpots * 0.3))) {
     return {
       label: "Pocos cupos",
-      className: "bg-yellow-100 text-yellow-900 border-yellow-300",
+      className: "bg-terracota-soft/20 text-terracota-deep border-terracota-soft/50",
     };
   }
   return {
     label: "Disponible",
-    className: "bg-green-100 text-green-900 border-green-300",
+    className: "bg-exito-soft text-exito border-exito/30",
   };
 }

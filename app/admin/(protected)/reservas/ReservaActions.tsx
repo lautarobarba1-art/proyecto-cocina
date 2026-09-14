@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
+import { useConfirm } from "../_shared/useConfirm";
 
 type Status = "pending" | "confirmed" | "cancelled";
 
@@ -13,6 +14,7 @@ interface Props {
 
 export function ReservaActions({ reservaId, status, customerName }: Props) {
   const router = useRouter();
+  const { confirm, dialog } = useConfirm();
   const [loading, setLoading] = React.useState<
     null | "confirm" | "cancel" | "delete"
   >(null);
@@ -58,29 +60,38 @@ export function ReservaActions({ reservaId, status, customerName }: Props) {
     }
   };
 
-  const onConfirm = () => {
+  const onConfirm = async () => {
     if (loading) return;
-    const ok = window.confirm(
-      `¿Confirmar el pago de ${customerName}?\n\nSe enviará un email de confirmación al cliente.`,
-    );
+    const ok = await confirm({
+      title: `¿Confirmar el pago de ${customerName}?`,
+      description: "Se enviará un email de confirmación al cliente.",
+      confirmLabel: "Confirmar pago",
+    });
     if (!ok) return;
     callAction("confirm");
   };
 
-  const onCancel = () => {
+  const onCancel = async () => {
     if (loading) return;
-    const ok = window.confirm(
-      `¿Cancelar la reserva de ${customerName}?\n\nEl cupo se libera automáticamente y se le enviará un email al cliente.`,
-    );
+    const ok = await confirm({
+      title: `¿Cancelar la reserva de ${customerName}?`,
+      description: "El cupo se libera automáticamente y se le enviará un email al cliente.",
+      confirmLabel: "Cancelar reserva",
+      tone: "danger",
+    });
     if (!ok) return;
     callAction("cancel");
   };
 
-  const onDelete = () => {
+  const onDelete = async () => {
     if (loading) return;
-    const ok = window.confirm(
-      `¿Eliminar definitivamente la reserva de ${customerName}?\n\nEsta acción no se puede deshacer y NO se envía ningún email al cliente. Usala solo para reservas mal hechas (duplicados, pruebas, errores), no para cancelaciones legítimas.`,
-    );
+    const ok = await confirm({
+      title: `¿Eliminar definitivamente la reserva de ${customerName}?`,
+      description:
+        "Esta acción no se puede deshacer y NO se envía ningún email al cliente. Usala solo para reservas mal hechas (duplicados, pruebas, errores), no para cancelaciones legítimas.",
+      confirmLabel: "Eliminar",
+      tone: "danger",
+    });
     if (!ok) return;
     callAction("delete");
   };
@@ -92,7 +103,7 @@ export function ReservaActions({ reservaId, status, customerName }: Props) {
           type="button"
           onClick={onConfirm}
           disabled={loading !== null}
-          className="rounded border border-green-700 bg-green-700 px-3 py-1.5 text-[0.75rem] font-medium uppercase tracking-wide text-white transition hover:bg-green-800 disabled:opacity-50"
+          className="rounded border border-exito bg-exito px-3 py-1.5 text-[0.75rem] font-medium uppercase tracking-wide text-white transition hover:bg-exito/90 disabled:opacity-50"
         >
           {loading === "confirm" ? "Marcando…" : "Marcar pagada"}
         </button>
@@ -102,7 +113,7 @@ export function ReservaActions({ reservaId, status, customerName }: Props) {
           type="button"
           onClick={onCancel}
           disabled={loading !== null}
-          className="rounded border border-carbon/30 bg-white px-3 py-1.5 text-[0.75rem] font-medium uppercase tracking-wide text-carbon/70 transition hover:bg-red-50 hover:text-red-700 hover:border-red-300 disabled:opacity-50"
+          className="rounded border border-carbon/30 bg-white px-3 py-1.5 text-[0.75rem] font-medium uppercase tracking-wide text-carbon/70 transition hover:border-rojo/30 hover:bg-rojo/5 hover:text-rojo disabled:opacity-50"
         >
           {loading === "cancel" ? "Cancelando…" : "Cancelar"}
         </button>
@@ -111,13 +122,12 @@ export function ReservaActions({ reservaId, status, customerName }: Props) {
         type="button"
         onClick={onDelete}
         disabled={loading !== null}
-        className="rounded border border-red-300 bg-white px-3 py-1.5 text-[0.75rem] font-medium uppercase tracking-wide text-red-700/70 transition hover:bg-red-700 hover:text-white disabled:opacity-50"
+        className="rounded border border-rojo/30 bg-white px-3 py-1.5 text-[0.75rem] font-medium uppercase tracking-wide text-rojo/70 transition hover:bg-rojo hover:text-white disabled:opacity-50"
       >
         {loading === "delete" ? "Eliminando…" : "Eliminar"}
       </button>
-      {error && (
-        <p className="text-[0.72rem] text-red-700">{error}</p>
-      )}
+      {error && <p className="text-[0.72rem] text-rojo">{error}</p>}
+      {dialog}
     </div>
   );
 }

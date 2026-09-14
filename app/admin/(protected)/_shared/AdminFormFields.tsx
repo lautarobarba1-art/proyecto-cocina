@@ -52,13 +52,13 @@ export function FieldText({
         onChange={(e) => onChange(e.target.value)}
         className={[
           "mt-1.5 w-full border bg-white px-3 py-2 font-sans text-[0.92rem] text-carbon outline-none transition focus:border-terracota",
-          error ? "border-red-400" : "border-carbon/20",
+          error ? "border-rojo/50" : "border-carbon/20",
         ].join(" ")}
       />
       {hint && !error && (
         <p className="mt-1 text-[0.72rem] text-carbon/55">{hint}</p>
       )}
-      {error && <p className="mt-1 text-[0.72rem] text-red-700">{error}</p>}
+      {error && <p className="mt-1 text-[0.72rem] text-rojo">{error}</p>}
     </div>
   );
 }
@@ -90,13 +90,13 @@ export function FieldTextarea({
         rows={4}
         className={[
           "mt-1.5 w-full border bg-white px-3 py-2 font-sans text-[0.92rem] text-carbon outline-none transition focus:border-terracota",
-          error ? "border-red-400" : "border-carbon/20",
+          error ? "border-rojo/50" : "border-carbon/20",
         ].join(" ")}
       />
       {hint && !error && (
         <p className="mt-1 text-[0.72rem] text-carbon/55">{hint}</p>
       )}
-      {error && <p className="mt-1 text-[0.72rem] text-red-700">{error}</p>}
+      {error && <p className="mt-1 text-[0.72rem] text-rojo">{error}</p>}
     </div>
   );
 }
@@ -129,7 +129,7 @@ export function FieldSelect({
         onChange={(e) => onChange(e.target.value)}
         className={[
           "mt-1.5 w-full border bg-white px-3 py-2 font-sans text-[0.92rem] text-carbon outline-none transition focus:border-terracota",
-          error ? "border-red-400" : "border-carbon/20",
+          error ? "border-rojo/50" : "border-carbon/20",
         ].join(" ")}
       >
         {options.map((o) => (
@@ -141,7 +141,7 @@ export function FieldSelect({
       {hint && !error && (
         <p className="mt-1 text-[0.72rem] text-carbon/55">{hint}</p>
       )}
-      {error && <p className="mt-1 text-[0.72rem] text-red-700">{error}</p>}
+      {error && <p className="mt-1 text-[0.72rem] text-rojo">{error}</p>}
     </div>
   );
 }
@@ -231,7 +231,7 @@ export function FieldImageUpload({
             <button
               type="button"
               onClick={() => onChange("")}
-              className="font-sans text-[0.75rem] text-red-600 hover:underline"
+              className="font-sans text-[0.75rem] text-rojo hover:underline"
             >
               Eliminar
             </button>
@@ -251,7 +251,7 @@ export function FieldImageUpload({
         <p className="mt-1 text-[0.72rem] text-carbon/55">{hint}</p>
       )}
       {displayError && (
-        <p className="mt-1 text-[0.72rem] text-red-700">{displayError}</p>
+        <p className="mt-1 text-[0.72rem] text-rojo">{displayError}</p>
       )}
     </div>
   );
@@ -338,7 +338,7 @@ export function FieldList({
               type="button"
               onClick={() => removeRow(index)}
               disabled={rows.length <= minRows}
-              className="px-2 py-1 font-sans text-red-600 hover:underline disabled:opacity-30"
+              className="px-2 py-1 font-sans text-rojo hover:underline disabled:opacity-30"
               aria-label="Eliminar"
             >
               ×
@@ -358,7 +358,7 @@ export function FieldList({
       {hint && !error && (
         <p className="mt-1 text-[0.72rem] text-carbon/55">{hint}</p>
       )}
-      {error && <p className="mt-1 text-[0.72rem] text-red-700">{error}</p>}
+      {error && <p className="mt-1 text-[0.72rem] text-rojo">{error}</p>}
     </div>
   );
 }

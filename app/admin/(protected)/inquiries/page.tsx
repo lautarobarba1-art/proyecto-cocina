@@ -1,6 +1,10 @@
-import Link from "next/link";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
 import { InquiryActions } from "./InquiryActions";
+import { PageHeader } from "../_shared/PageHeader";
+import { SummaryPill } from "../_shared/SummaryPill";
+import { SegmentedFilter } from "../_shared/SegmentedFilter";
+import { StatusBadge, type StatusTone } from "../_shared/StatusBadge";
+import { TableWrapper, Th, Td, TableEmptyState } from "../_shared/Table";
 
 export const dynamic = "force-dynamic";
 
@@ -69,10 +73,10 @@ function typeLabel(type: InquiryType): string {
   return "Contacto";
 }
 
-function typeClass(type: InquiryType): string {
-  if (type === "espacio") return "bg-oliva/10 text-oliva border-oliva/30";
-  if (type === "eventos") return "bg-terracota/10 text-terracota border-terracota/30";
-  return "bg-crema-deep/40 text-carbon/70 border-carbon/20";
+function typeTone(type: InquiryType): StatusTone {
+  if (type === "espacio") return "olive";
+  if (type === "eventos") return "brand";
+  return "neutral";
 }
 
 function statusLabel(status: InquiryStatus): string {
@@ -81,12 +85,10 @@ function statusLabel(status: InquiryStatus): string {
   return "Archivada";
 }
 
-function statusClass(status: InquiryStatus): string {
-  if (status === "new")
-    return "bg-terracota/10 text-terracota border-terracota/30";
-  if (status === "read")
-    return "bg-green-50 text-green-800 border-green-200";
-  return "bg-gray-100 text-gray-500 border-gray-200";
+function statusTone(status: InquiryStatus): StatusTone {
+  if (status === "new") return "brand";
+  if (status === "read") return "success";
+  return "neutral";
 }
 
 interface PageProps {
@@ -113,63 +115,51 @@ export default async function InquiriesAdminPage({ searchParams }: PageProps) {
 
   return (
     <div>
-      <header className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <p className="font-mono text-[0.7rem] font-medium uppercase tracking-eyebrow text-terracota">
-            Panel · Consultas
-          </p>
-          <h1 className="mt-3 font-display text-3xl font-normal tracking-tightish text-carbon">
-            Consultas recibidas
-          </h1>
-          <p className="mt-2 font-body text-[0.85rem] text-carbon/55">
-            Contacto general, eventos privados y alquiler del espacio.
-          </p>
-        </div>
-        <div className="flex flex-wrap gap-3">
-          <SummaryPill label="Total" value={counts.total} />
-          <SummaryPill label="Nuevas" value={counts.new} highlight />
-          <SummaryPill label="Eventos" value={counts.eventos} />
-          <SummaryPill label="Leídas" value={counts.read} />
-          <SummaryPill label="Archivadas" value={counts.archived} />
-        </div>
-      </header>
+      <PageHeader
+        eyebrow="Panel · Consultas"
+        title="Consultas recibidas"
+        description="Contacto general, eventos privados y alquiler del espacio."
+        actions={
+          <>
+            <SummaryPill label="Total" value={counts.total} />
+            <SummaryPill
+              label="Nuevas"
+              value={counts.new}
+              tone={counts.new > 0 ? "brand" : "neutral"}
+            />
+            <SummaryPill label="Eventos" value={counts.eventos} />
+            <SummaryPill label="Leídas" value={counts.read} />
+            <SummaryPill label="Archivadas" value={counts.archived} />
+          </>
+        }
+      />
 
-      <nav className="mt-8 flex flex-wrap gap-1 border border-carbon/10 bg-white">
-        <FilterLink href="/admin/inquiries?tipo=todas" active={tipoFiltro === "todas"}>
-          Todas
-        </FilterLink>
-        <FilterLink href="/admin/inquiries?tipo=eventos" active={tipoFiltro === "eventos"}>
-          Eventos
-        </FilterLink>
-        <FilterLink href="/admin/inquiries?tipo=espacio" active={tipoFiltro === "espacio"}>
-          Espacio
-        </FilterLink>
-        <FilterLink href="/admin/inquiries?tipo=contact" active={tipoFiltro === "contact"}>
-          Contacto
-        </FilterLink>
-      </nav>
+      <div className="mt-8">
+        <SegmentedFilter
+          options={[
+            { href: "/admin/inquiries?tipo=todas", label: "Todas", active: tipoFiltro === "todas" },
+            { href: "/admin/inquiries?tipo=eventos", label: "Eventos", active: tipoFiltro === "eventos" },
+            { href: "/admin/inquiries?tipo=espacio", label: "Espacio", active: tipoFiltro === "espacio" },
+            { href: "/admin/inquiries?tipo=contact", label: "Contacto", active: tipoFiltro === "contact" },
+          ]}
+        />
+      </div>
 
       {inquiries.length === 0 ? (
-        <div className="mt-10 border border-dashed border-carbon/20 bg-white p-12 text-center">
-          <p className="font-body text-[0.95rem] text-carbon/60">
-            Todavía no hay consultas registradas.
-          </p>
-        </div>
+        <TableEmptyState>Todavía no hay consultas registradas.</TableEmptyState>
       ) : (
-        <div className="mt-10 overflow-hidden border border-carbon/10 bg-white">
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[680px] text-left font-sans text-[0.85rem]">
-              <thead className="border-b border-carbon/10 bg-crema-light/40">
-                <tr className="text-carbon/60">
-                  <Th>Fecha</Th>
-                  <Th>Tipo</Th>
-                  <Th>Cliente</Th>
-                  <Th>Mensaje</Th>
-                  <Th>Estado</Th>
-                  <Th>Acciones</Th>
-                </tr>
-              </thead>
-              <tbody>
+        <TableWrapper minWidth="680px" className="mt-10">
+          <thead className="border-b border-carbon/10 bg-crema-light/40">
+            <tr className="text-carbon/60">
+              <Th>Fecha</Th>
+              <Th>Tipo</Th>
+              <Th>Cliente</Th>
+              <Th>Mensaje</Th>
+              <Th>Estado</Th>
+              <Th>Acciones</Th>
+            </tr>
+          </thead>
+          <tbody>
                 {inquiries.map((inq) => (
                   <tr
                     key={inq.id}
@@ -182,14 +172,9 @@ export default async function InquiriesAdminPage({ searchParams }: PageProps) {
                       {formatDateTime(inq.createdAt)}
                     </Td>
                     <Td>
-                      <span
-                        className={[
-                          "inline-block rounded border px-2 py-0.5 text-[0.7rem] font-medium uppercase tracking-wide",
-                          typeClass(inq.type),
-                        ].join(" ")}
-                      >
+                      <StatusBadge tone={typeTone(inq.type)} size="sm">
                         {typeLabel(inq.type)}
-                      </span>
+                      </StatusBadge>
                     </Td>
                     <Td>
                       <div className="font-medium text-carbon">
@@ -221,14 +206,9 @@ export default async function InquiriesAdminPage({ searchParams }: PageProps) {
                       </p>
                     </Td>
                     <Td>
-                      <span
-                        className={[
-                          "inline-block rounded border px-2 py-1 text-[0.72rem] font-medium uppercase tracking-wide",
-                          statusClass(inq.status),
-                        ].join(" ")}
-                      >
+                      <StatusBadge tone={statusTone(inq.status)}>
                         {statusLabel(inq.status)}
-                      </span>
+                      </StatusBadge>
                     </Td>
                     <Td>
                       <InquiryActions
@@ -239,86 +219,12 @@ export default async function InquiriesAdminPage({ searchParams }: PageProps) {
                   </tr>
                 ))}
               </tbody>
-            </table>
-          </div>
-        </div>
+        </TableWrapper>
       )}
 
       <p className="mt-8 font-body text-[0.78rem] text-carbon/40">
         Mostrando las últimas {inquiries.length} consultas.
       </p>
     </div>
-  );
-}
-
-// ─── Sub-componentes ─────────────────────────────────────────────────────────
-
-function FilterLink({
-  href,
-  active,
-  children,
-}: {
-  href: string;
-  active: boolean;
-  children: React.ReactNode;
-}) {
-  return (
-    <Link
-      href={href}
-      className={[
-        "px-4 py-2 font-sans text-[0.8rem] transition",
-        active
-          ? "bg-carbon text-crema"
-          : "text-carbon/70 hover:bg-crema-light/60",
-      ].join(" ")}
-    >
-      {children}
-    </Link>
-  );
-}
-
-function SummaryPill({
-  label,
-  value,
-  highlight,
-}: {
-  label: string;
-  value: number;
-  highlight?: boolean;
-}) {
-  return (
-    <div className="border border-carbon/10 bg-white px-4 py-2">
-      <div className="font-mono text-[0.65rem] uppercase tracking-eyebrow text-carbon/55">
-        {label}
-      </div>
-      <div
-        className={[
-          "font-display text-lg",
-          highlight && value > 0 ? "text-terracota" : "text-carbon",
-        ].join(" ")}
-      >
-        {value}
-      </div>
-    </div>
-  );
-}
-
-function Th({ children }: { children: React.ReactNode }) {
-  return (
-    <th className="px-4 py-3 font-mono text-[0.7rem] font-medium uppercase tracking-eyebrow">
-      {children}
-    </th>
-  );
-}
-
-function Td({
-  children,
-  className,
-}: {
-  children: React.ReactNode;
-  className?: string;
-}) {
-  return (
-    <td className={["px-4 py-3", className ?? ""].join(" ")}>{children}</td>
   );
 }

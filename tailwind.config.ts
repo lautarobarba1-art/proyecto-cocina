@@ -43,6 +43,10 @@ const config: Config = {
         rojo: "#A11506",
         mute: "#8A7B6A",
         line: "#E8D9C3",
+        exito: {
+          DEFAULT: "#4B6B2A",
+          soft: "#E9EFDD",
+        },
       },
       fontFamily: {
         display: ["var(--font-montserrat)", "system-ui", "sans-serif"],

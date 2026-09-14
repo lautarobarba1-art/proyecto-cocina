@@ -10,7 +10,8 @@ import {
   FieldTextarea,
   FormActions,
   Section,
-} from "./AdminFormFields";
+} from "../_shared/AdminFormFields";
+import { FormErrorBanner } from "../_shared/FormErrorBanner";
 
 interface Props {
   initial?: EventoFormData & { id: string };
@@ -112,11 +113,7 @@ export function EventoFormCliente({ initial }: Props) {
 
   return (
     <form onSubmit={onSubmit} className="space-y-8">
-      {serverError && (
-        <div className="border border-red-300 bg-red-50 px-4 py-3 text-[0.85rem] text-red-800">
-          {serverError}
-        </div>
-      )}
+      {serverError && <FormErrorBanner>{serverError}</FormErrorBanner>}
 
       <Section title="Identificación">
         <FieldRow>

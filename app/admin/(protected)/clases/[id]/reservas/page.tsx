@@ -3,6 +3,9 @@ import { notFound } from "next/navigation";
 import { getClaseAdminById } from "@/lib/admin/clases-queries";
 import { getReservasForAdmin } from "@/lib/admin/reservas-queries";
 import { ReservasTable, formatDateLong } from "../../../reservas/ReservasTable";
+import { PageHeader } from "../../../_shared/PageHeader";
+import { SummaryPill } from "../../../_shared/SummaryPill";
+import { SegmentedFilter } from "../../../_shared/SegmentedFilter";
 
 export const dynamic = "force-dynamic";
 
@@ -48,51 +51,45 @@ export default async function ReservasDeClasePage({
         </Link>
       </div>
 
-      <header className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <p className="font-mono text-[0.7rem] font-medium uppercase tracking-eyebrow text-terracota">
-            Panel · Clases · Reservas
-          </p>
-          <h1 className="mt-3 font-display text-3xl font-normal tracking-tightish text-carbon">
-            {clase.title}
-          </h1>
-          <p className="mt-2 font-body text-[0.85rem] text-carbon/60">
+      <PageHeader
+        eyebrow="Panel · Clases · Reservas"
+        title={clase.title}
+        description={
+          <>
             {formatDateLong(clase.date)} · {clase.startTime} – {clase.endTime}
             {clase.isCancelled && (
-              <span className="ml-2 text-red-700">(clase cancelada)</span>
+              <span className="ml-2 text-rojo">(clase cancelada)</span>
             )}
-          </p>
-        </div>
-        <div className="flex flex-wrap gap-3">
-          <SummaryPill label="Cupos totales" value={clase.totalSpots} />
-          <SummaryPill
-            label="Ocupados"
-            value={clase.totalSpots - clase.spotsLeft}
-          />
-          <SummaryPill label="Disponibles" value={clase.spotsLeft} />
-          <SummaryPill label="Reservas" value={reservasActivas.length} />
-          <SummaryPill label="Asistentes" value={totalAsistentes} />
-        </div>
-      </header>
+          </>
+        }
+        actions={
+          <>
+            <SummaryPill label="Cupos totales" value={clase.totalSpots} />
+            <SummaryPill
+              label="Ocupados"
+              value={clase.totalSpots - clase.spotsLeft}
+            />
+            <SummaryPill label="Disponibles" value={clase.spotsLeft} />
+            <SummaryPill label="Reservas" value={reservasActivas.length} />
+            <SummaryPill label="Asistentes" value={totalAsistentes} />
+          </>
+        }
+      />
 
       <div className="mt-8 flex flex-wrap items-end gap-4">
-        <Link
-          href={
-            mostrarCanceladas
-              ? `/admin/clases/${id}/reservas`
-              : `/admin/clases/${id}/reservas?incluirCanceladas=1`
-          }
-          className={[
-            "px-3 py-1.5 font-sans text-[0.78rem] border transition",
-            mostrarCanceladas
-              ? "bg-carbon text-crema border-carbon"
-              : "bg-white text-carbon/70 border-carbon/20 hover:border-carbon/40",
-          ].join(" ")}
-        >
-          {mostrarCanceladas
-            ? "✓ Incluyendo canceladas"
-            : "Incluir canceladas"}
-        </Link>
+        <SegmentedFilter
+          options={[
+            {
+              href: mostrarCanceladas
+                ? `/admin/clases/${id}/reservas`
+                : `/admin/clases/${id}/reservas?incluirCanceladas=1`,
+              label: mostrarCanceladas
+                ? "✓ Incluyendo canceladas"
+                : "Incluir canceladas",
+              active: mostrarCanceladas,
+            },
+          ]}
+        />
 
         <div className="ml-auto">
           <a
@@ -112,17 +109,6 @@ export default async function ReservasDeClasePage({
         {reservasAMostrar.length === 1 ? "" : "s"}
         {mostrarCanceladas ? "" : " (pendientes y pagadas)"}.
       </p>
-    </div>
-  );
-}
-
-function SummaryPill({ label, value }: { label: string; value: number }) {
-  return (
-    <div className="border border-carbon/10 bg-white px-4 py-2">
-      <div className="font-mono text-[0.65rem] uppercase tracking-eyebrow text-carbon/55">
-        {label}
-      </div>
-      <div className="font-display text-lg text-carbon">{value}</div>
     </div>
   );
 }
