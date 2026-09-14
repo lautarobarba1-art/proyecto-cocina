@@ -30,6 +30,24 @@ import type {
 } from "../resend/template.ts";
 import { siteContact } from "../site/contact.ts";
 
+/**
+ * Duplicado deliberado de `lib/resend/client.ts#getAdminEmails` (misma
+ * lógica, no reexportado): ese módulo hace `requireEnv("FROM_EMAIL")` /
+ * `requireEnv("RESEND_API_KEY")` en su nivel superior, así que importarlo acá
+ * de forma estática rompería `node --test` (y cualquier test de este archivo)
+ * apenas se cargara `notify.ts`, sin necesitar RESEND_API_KEY para nada. Las
+ * funciones `sendEmail*` reales ya se cargan con `await import(...)` más
+ * abajo por el mismo motivo — esto sigue ese mismo patrón para no romperlo.
+ */
+function getAdminEmails(): string[] {
+  const raw = process.env.ADMIN_EMAIL;
+  if (!raw) return [];
+  return raw
+    .split(",")
+    .map((email) => email.trim())
+    .filter(Boolean);
+}
+
 function comprobanteUploadUrl(reservationId: string): string {
   return `${siteContact.siteUrl}/reservas/${reservationId}/comprobante`;
 }
@@ -449,8 +467,8 @@ export async function notifyComprobanteUploaded(
   params: NotifyComprobanteUploadedParams,
   deps: NotifyDeps = {},
 ): Promise<NotifyResult> {
-  const adminEmail = process.env.ADMIN_EMAIL;
-  if (!adminEmail) {
+  const adminEmails = getAdminEmails();
+  if (adminEmails.length === 0) {
     console.warn("[notify/email:comprobante_subido] Falta ADMIN_EMAIL — no se avisa");
     return { email: { outcome: "not_claimed" } };
   }
@@ -463,7 +481,7 @@ export async function notifyComprobanteUploaded(
       channel: "email",
       deduplicationKey: buildComprobanteSubidoKey(params.reservationId),
       eventType: "comprobante_subido",
-      recipient: adminEmail,
+      recipient: adminEmails.join(", "),
       reservationId: params.reservationId,
       classId: params.classId,
       templateName: "admin_comprobante_subido",
@@ -536,8 +554,8 @@ export async function notifyAdminNewReservation(
   params: NotifyAdminNewReservationParams,
   deps: NotifyDeps = {},
 ): Promise<NotifyResult> {
-  const adminEmail = process.env.ADMIN_EMAIL;
-  if (!adminEmail) {
+  const adminEmails = getAdminEmails();
+  if (adminEmails.length === 0) {
     console.warn("[notify/email:reserva_nueva_admin] Falta ADMIN_EMAIL — no se avisa");
     return { email: { outcome: "not_claimed" } };
   }
@@ -550,7 +568,7 @@ export async function notifyAdminNewReservation(
       channel: "email",
       deduplicationKey: buildReservaNuevaAdminKey(params.reservationId),
       eventType: "reserva_nueva_admin",
-      recipient: adminEmail,
+      recipient: adminEmails.join(", "),
       reservationId: params.reservationId,
       classId: params.classId,
       templateName: "admin_reserva_nueva",
@@ -620,8 +638,8 @@ export async function notifyAdminNewInquiry(
   params: NotifyAdminNewInquiryParams,
   deps: NotifyDeps = {},
 ): Promise<NotifyResult> {
-  const adminEmail = process.env.ADMIN_EMAIL;
-  if (!adminEmail) {
+  const adminEmails = getAdminEmails();
+  if (adminEmails.length === 0) {
     console.warn("[notify/email:consulta_nueva_admin] Falta ADMIN_EMAIL — no se avisa");
     return { email: { outcome: "not_claimed" } };
   }
@@ -634,7 +652,7 @@ export async function notifyAdminNewInquiry(
       channel: "email",
       deduplicationKey: buildConsultaNuevaAdminKey(params.inquiryId),
       eventType: "consulta_nueva_admin",
-      recipient: adminEmail,
+      recipient: adminEmails.join(", "),
       reservationId: null,
       classId: null,
       templateName: "admin_consulta_nueva",
@@ -701,8 +719,8 @@ export async function notifyAdminDigest(
   params: NotifyAdminDigestParams,
   deps: NotifyDeps = {},
 ): Promise<NotifyResult> {
-  const adminEmail = process.env.ADMIN_EMAIL;
-  if (!adminEmail) {
+  const adminEmails = getAdminEmails();
+  if (adminEmails.length === 0) {
     console.warn("[notify/email:resumen_admin] Falta ADMIN_EMAIL — no se avisa");
     return { email: { outcome: "not_claimed" } };
   }
@@ -715,7 +733,7 @@ export async function notifyAdminDigest(
       channel: "email",
       deduplicationKey: buildResumenAdminKey(params.dateISO),
       eventType: "resumen_admin",
-      recipient: adminEmail,
+      recipient: adminEmails.join(", "),
       reservationId: null,
       classId: null,
       templateName: "admin_digest",
@@ -784,8 +802,8 @@ export async function notifyLowOccupancy(
   params: NotifyLowOccupancyParams,
   deps: NotifyDeps = {},
 ): Promise<NotifyResult> {
-  const adminEmail = process.env.ADMIN_EMAIL;
-  if (!adminEmail) {
+  const adminEmails = getAdminEmails();
+  if (adminEmails.length === 0) {
     console.warn("[notify/email:baja_ocupacion] Falta ADMIN_EMAIL — no se avisa");
     return { email: { outcome: "not_claimed" } };
   }
@@ -799,7 +817,7 @@ export async function notifyLowOccupancy(
       channel: "email",
       deduplicationKey: buildBajaOcupacionKey(params.classId),
       eventType: "baja_ocupacion",
-      recipient: adminEmail,
+      recipient: adminEmails.join(", "),
       reservationId: null,
       classId: params.classId,
       templateName: "admin_low_occupancy",

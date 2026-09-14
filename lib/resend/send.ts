@@ -1,4 +1,4 @@
-import { resend, FROM_EMAIL } from "./client";
+import { resend, FROM_EMAIL, getAdminEmails } from "./client";
 import {
   templateReservaConfirmacion,
   templateReservaConfirmada,
@@ -202,8 +202,8 @@ export async function sendEmailRecordatorio(
 export async function sendEmailAdminComprobanteSubido(
   data: EmailAdminComprobanteSubidoData,
 ): Promise<{ success: boolean; error?: string }> {
-  const adminEmail = process.env.ADMIN_EMAIL;
-  if (!adminEmail) {
+  const adminEmails = getAdminEmails();
+  if (adminEmails.length === 0) {
     console.warn("[sendEmailAdminComprobanteSubido] Falta ADMIN_EMAIL — no se envía aviso");
     return { success: false, error: "admin_email_not_configured" };
   }
@@ -211,7 +211,7 @@ export async function sendEmailAdminComprobanteSubido(
     const html = templateAdminComprobanteSubido(data);
     const result = await resend.emails.send({
       from: FROM_EMAIL,
-      to: adminEmail,
+      to: adminEmails,
       subject: `📎 Comprobante subido: ${data.className}`,
       html,
     });
@@ -238,8 +238,8 @@ export async function sendEmailAdminComprobanteSubido(
 export async function sendEmailAdminReservaNueva(
   data: EmailAdminReservaNuevaData,
 ): Promise<{ success: boolean; error?: string }> {
-  const adminEmail = process.env.ADMIN_EMAIL;
-  if (!adminEmail) {
+  const adminEmails = getAdminEmails();
+  if (adminEmails.length === 0) {
     console.warn("[sendEmailAdminReservaNueva] Falta ADMIN_EMAIL — no se envía aviso");
     return { success: false, error: "admin_email_not_configured" };
   }
@@ -247,7 +247,7 @@ export async function sendEmailAdminReservaNueva(
     const html = templateAdminReservaNueva(data);
     const result = await resend.emails.send({
       from: FROM_EMAIL,
-      to: adminEmail,
+      to: adminEmails,
       subject: `🆕 Nueva reserva pendiente de pago: ${data.className}`,
       html,
     });
@@ -273,8 +273,8 @@ export async function sendEmailAdminReservaNueva(
 export async function sendEmailAdminConsultaNueva(
   data: EmailAdminConsultaNuevaData,
 ): Promise<{ success: boolean; error?: string }> {
-  const adminEmail = process.env.ADMIN_EMAIL;
-  if (!adminEmail) {
+  const adminEmails = getAdminEmails();
+  if (adminEmails.length === 0) {
     console.warn("[sendEmailAdminConsultaNueva] Falta ADMIN_EMAIL — no se envía aviso");
     return { success: false, error: "admin_email_not_configured" };
   }
@@ -282,7 +282,7 @@ export async function sendEmailAdminConsultaNueva(
     const html = templateAdminConsultaNueva(data);
     const result = await resend.emails.send({
       from: FROM_EMAIL,
-      to: adminEmail,
+      to: adminEmails,
       subject: `✉️ Nueva consulta: ${data.typeLabel}`,
       html,
     });
@@ -307,8 +307,8 @@ export async function sendEmailAdminConsultaNueva(
 export async function sendEmailAdminDigest(
   data: EmailAdminDigestData,
 ): Promise<{ success: boolean; error?: string }> {
-  const adminEmail = process.env.ADMIN_EMAIL;
-  if (!adminEmail) {
+  const adminEmails = getAdminEmails();
+  if (adminEmails.length === 0) {
     console.warn("[sendEmailAdminDigest] Falta ADMIN_EMAIL — no se envía el resumen");
     return { success: false, error: "admin_email_not_configured" };
   }
@@ -316,7 +316,7 @@ export async function sendEmailAdminDigest(
     const html = templateAdminDigest(data);
     const result = await resend.emails.send({
       from: FROM_EMAIL,
-      to: adminEmail,
+      to: adminEmails,
       subject: `☀️ Resumen del día — ${data.dateLabel}`,
       html,
     });
@@ -340,8 +340,8 @@ export async function sendEmailAdminDigest(
 export async function sendEmailAdminLowOccupancy(
   data: EmailAdminLowOccupancyData,
 ): Promise<{ success: boolean; error?: string }> {
-  const adminEmail = process.env.ADMIN_EMAIL;
-  if (!adminEmail) {
+  const adminEmails = getAdminEmails();
+  if (adminEmails.length === 0) {
     console.warn("[sendEmailAdminLowOccupancy] Falta ADMIN_EMAIL — no se envía el aviso");
     return { success: false, error: "admin_email_not_configured" };
   }
@@ -349,7 +349,7 @@ export async function sendEmailAdminLowOccupancy(
     const html = templateAdminLowOccupancy(data);
     const result = await resend.emails.send({
       from: FROM_EMAIL,
-      to: adminEmail,
+      to: adminEmails,
       subject: `📉 Pocas reservas: ${data.className} (${data.classDateLabel})`,
       html,
     });

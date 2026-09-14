@@ -259,6 +259,61 @@ test("aviso a la admin de reserva nueva: envía email y registra el intento", as
   assert.equal(completeCalls[0].p_status, "sent");
 });
 
+test("ADMIN_EMAIL con dos direcciones: el recipient del log queda con ambas", async (t) => {
+  const original = process.env.ADMIN_EMAIL;
+  process.env.ADMIN_EMAIL = "duena@example.com,socia@example.com";
+  t.after(() => {
+    process.env.ADMIN_EMAIL = original;
+  });
+
+  const { client, claimCalls } = createMockSupabase();
+
+  const result = await notifyAdminNewReservation(client, adminReservationParams, {
+    sendEmailAdminReservaNueva: async () => ({ success: true }),
+  });
+
+  assert.equal(result.email.outcome, "sent");
+  assert.equal(claimCalls[0].p_recipient, "duena@example.com, socia@example.com");
+});
+
+test("ADMIN_EMAIL con espacios de más alrededor de la coma se limpia bien", async (t) => {
+  const original = process.env.ADMIN_EMAIL;
+  process.env.ADMIN_EMAIL = "  duena@example.com ,  socia@example.com  ";
+  t.after(() => {
+    process.env.ADMIN_EMAIL = original;
+  });
+
+  const { client, claimCalls } = createMockSupabase();
+
+  await notifyAdminNewReservation(client, adminReservationParams, {
+    sendEmailAdminReservaNueva: async () => ({ success: true }),
+  });
+
+  assert.equal(claimCalls[0].p_recipient, "duena@example.com, socia@example.com");
+});
+
+test("ADMIN_EMAIL vacío tras limpiar comas sueltas (',,') se trata como no configurado", async (t) => {
+  const original = process.env.ADMIN_EMAIL;
+  process.env.ADMIN_EMAIL = " , , ";
+  t.after(() => {
+    process.env.ADMIN_EMAIL = original;
+  });
+
+  const { client, claimCalls } = createMockSupabase();
+  let sends = 0;
+
+  const result = await notifyAdminNewReservation(client, adminReservationParams, {
+    sendEmailAdminReservaNueva: async () => {
+      sends += 1;
+      return { success: true };
+    },
+  });
+
+  assert.equal(result.email.outcome, "not_claimed");
+  assert.equal(sends, 0);
+  assert.equal(claimCalls.length, 0);
+});
+
 test("aviso a la admin de reserva nueva: sin ADMIN_EMAIL no reclama ni envía nada", async (t) => {
   const original = process.env.ADMIN_EMAIL;
   delete process.env.ADMIN_EMAIL;
