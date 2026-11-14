@@ -198,6 +198,8 @@ export function MobileCalendarView({
                       >
                         {inner}
                       </button>
+                    ) : event.status === "cancelled" ? (
+                      <div className={rowClassName}>{inner}</div>
                     ) : (
                       <Link href={calendarEventHref(event)} className={rowClassName}>
                         {inner}

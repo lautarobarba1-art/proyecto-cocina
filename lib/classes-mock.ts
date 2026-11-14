@@ -26,6 +26,12 @@ export interface ClassMock {
     alt: string;
   };
   status: ClassStatus;
+  /** Fecha (YYYY-MM-DD) de la sesión que representa este item. */
+  date?: string;
+  /** Label legible de la sesión, ej: "Martes 18 de noviembre · 10:00 — 13:30". */
+  sessionLabel?: string;
+  /** Solo en el catálogo: cuántas otras fechas futuras activas tiene el mismo slug. */
+  extraSessions?: number;
 }
 
 /**

@@ -209,7 +209,7 @@ export function CalendarioPageClient({
         a.startTime.localeCompare(b.startTime),
       );
 
-      if (sorted.length === 1) {
+      if (sorted.length === 1 && sorted[0]!.status !== "cancelled") {
         const e = sorted[0]!;
         if (isPrivateCalendarEvent(e)) {
           onSelectPrivateEvent(e);

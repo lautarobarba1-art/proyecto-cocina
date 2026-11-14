@@ -179,6 +179,12 @@ export function classRowToClassMock(row: ClassRow): ClassMock {
       alt: row.image_alt,
     },
     status,
+    date: row.date,
+    sessionLabel: formatSessionLabel(
+      row.date,
+      trimSeconds(row.start_time),
+      trimSeconds(row.end_time),
+    ),
   };
 }
 

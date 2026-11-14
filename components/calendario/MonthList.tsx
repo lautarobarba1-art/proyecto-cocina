@@ -91,6 +91,8 @@ export function MonthList({ events, onSelectPrivateEvent }: MonthListProps) {
               >
                 {rowInner}
               </button>
+            ) : event.status === "cancelled" ? (
+              <div className={rowClass}>{rowInner}</div>
             ) : (
               <Link href={calendarEventHref(event)} className={rowClass}>
                 {rowInner}

@@ -4,15 +4,7 @@ import Link from "next/link";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import type { ClassMock } from "@/lib/classes-mock";
-
-function isValidImageUrl(src: string): boolean {
-  try {
-    const url = new URL(src);
-    return (url.protocol === "https:" || url.protocol === "http:") && url.hostname.includes(".");
-  } catch {
-    return false;
-  }
-}
+import { isValidImageUrl } from "@/lib/image-utils";
 
 export interface ClaseCardProps {
   item: ClassMock;
@@ -37,6 +29,10 @@ export interface ClaseCardProps {
 export function ClaseCard({ item, isFeatured, className }: ClaseCardProps) {
   const soldOut = item.status === "agotado";
   const lastSpots = item.status === "últimos cupos";
+  const href = item.date
+    ? `/clases/${item.slug}?fecha=${item.date}`
+    : `/clases/${item.slug}`;
+  const extra = item.extraSessions ?? 0;
 
   return (
     <article
@@ -62,7 +58,7 @@ export function ClaseCard({ item, isFeatured, className }: ClaseCardProps) {
       */}
       {!soldOut && (
         <Link
-          href={`/clases/${item.slug}`}
+          href={href}
           className="absolute inset-0 z-0"
           tabIndex={-1}
           aria-hidden="true"
@@ -126,6 +122,18 @@ export function ClaseCard({ item, isFeatured, className }: ClaseCardProps) {
           {item.duration}
         </p>
 
+        {/* Fecha de la sesión que representa la card (+ otras fechas activas) */}
+        {item.sessionLabel && (
+          <p className="font-sans text-[13px] font-semibold text-terracota">
+            {item.sessionLabel}
+            {extra > 0 && (
+              <span className="font-medium text-mute">
+                {" "}· +{extra} {extra === 1 ? "fecha más" : "fechas más"}
+              </span>
+            )}
+          </p>
+        )}
+
         {/* Título: 1.5rem / 700 / lh 1.15 / tracking -0.015em / uppercase / carbon */}
         <h3
           className={[
@@ -171,7 +179,7 @@ export function ClaseCard({ item, isFeatured, className }: ClaseCardProps) {
             </span>
           ) : (
             <Button
-              href={`/clases/${item.slug}`}
+              href={href}
               variant="ghost"
               size="sm"
               withArrow={true}

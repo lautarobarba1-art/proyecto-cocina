@@ -17,16 +17,8 @@ import {
   getClassSessionRow,
   getSessionsForClass,
 } from "@/lib/clases/queries";
+import { isValidImageUrl } from "@/lib/image-utils";
 export const dynamic = "force-dynamic";
-
-function isValidImageUrl(src: string): boolean {
-  try {
-    const url = new URL(src);
-    return (url.protocol === "https:" || url.protocol === "http:") && url.hostname.includes(".");
-  } catch {
-    return false;
-  }
-}
 
 export interface ClaseDetallePageProps {
   params: Promise<{ slug: string }>;
@@ -97,7 +89,7 @@ export default async function ClaseDetallePage({
       <div className="relative left-1/2 w-screen max-w-none -translate-x-1/2 border-b border-line">
         <div
           className={[
-            "relative flex h-[min(32vh,280px)] min-h-[160px] items-end overflow-hidden px-8 pb-10 lg:px-16 lg:pb-14",
+            "relative flex h-[min(32vh,280px)] min-h-40 items-end overflow-hidden px-8 pb-10 lg:px-16 lg:pb-14",
             soldOut ? "bg-crema-deep/60" : "bg-crema-deep",
           ].join(" ")}
         >

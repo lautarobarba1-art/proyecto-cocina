@@ -18,6 +18,9 @@ export async function getClassBySlugAndDate(
   const row = await fetchClassRowBySlugAndDate(slug, date);
   if (!row) return null;
   if (isPastClassDate(row.date)) return null;
+  // Una sesión cancelada no debe mostrarse como reservable: la página cae
+  // al fallback (próxima sesión activa del slug) o a 404 si no hay otra.
+  if (row.is_cancelled) return null;
   return classRowToClassMock(row);
 }
 
@@ -159,6 +162,7 @@ export async function getAllClassesForCatalog(): Promise<ClassMock[]> {
   const { data, error } = await supabase
     .from("classes_with_availability")
     .select("*")
+    .eq("is_cancelled", false)
     .gte("date", today)
     .neq("category_event", "eventos")
     .order("date", { ascending: true });
@@ -169,13 +173,17 @@ export async function getAllClassesForCatalog(): Promise<ClassMock[]> {
   }
   if (!data) return [];
 
-  // Deduplicar por slug, priorizando la primera fecha futura
-  const seen = new Set<string>();
-  const unique: ClassMock[] = [];
+  // Deduplicar por slug, priorizando la primera fecha futura. La card
+  // muestra esa fecha (y cuántas más hay) para que no parezca que una
+  // sesión cancelada sigue publicada cuando en realidad es otra fecha.
+  const bySlug = new Map<string, ClassMock>();
   for (const row of data as ClassRow[]) {
-    if (seen.has(row.slug)) continue;
-    seen.add(row.slug);
-    unique.push(classRowToClassMock(row));
+    const existing = bySlug.get(row.slug);
+    if (existing) {
+      existing.extraSessions = (existing.extraSessions ?? 0) + 1;
+      continue;
+    }
+    bySlug.set(row.slug, { ...classRowToClassMock(row), extraSessions: 0 });
   }
-  return unique;
+  return Array.from(bySlug.values());
 }
